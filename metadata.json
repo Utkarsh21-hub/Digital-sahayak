@@ -1,0 +1,6 @@
+{
+  "name": "Digital Sahayak (डिजिटल सहायक)",
+  "description": "Unified citizen grievance and system navigator for Indian government portals with step-by-step guidance, KB photo resizer, and visual error decoder.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

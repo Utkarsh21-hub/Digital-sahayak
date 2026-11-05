@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Suppress Vite HMR WebSocket connection errors in Cloud Run iframe preview
+      window.addEventListener('error', function(event) {
+        var msg = (event && (event.message || '')) + '';
+        var file = (event && (event.filename || '')) + '';
+        if (file.indexOf('@vite/client') !== -1 || msg.indexOf('WebSocket') !== -1 || msg.indexOf('createWebSocketModuleRunnerTransport') !== -1) {
+          event.preventDefault();
+          if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          return true;
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function(event) {
+        var reason = (event && event.reason) || '';
+        var reasonStr = (reason && (reason.stack || reason.message || reason)) + '';
+        if (reasonStr.indexOf('@vite/client') !== -1 || reasonStr.indexOf('WebSocket') !== -1 || reasonStr.indexOf('createWebSocketModuleRunnerTransport') !== -1) {
+          event.preventDefault();
+          if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
+    <title>Digital Sahayak (डिजिटल सहायक) — Unified Citizen Grievances &amp; System Navigator</title>
+    <meta name="description" content="Unified citizen grievance and system navigator for Indian government portals with step-by-step guidance, KB photo resizer, and visual error decoder." />
+    <meta property="og:title" content="Digital Sahayak (डिजिटल सहायक)" />
+    <meta property="og:description" content="Unified citizen grievance and system navigator for Indian government portals with step-by-step guidance, KB photo resizer, and visual error decoder." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#f7f9fb] text-[#191c1e] antialiased min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
