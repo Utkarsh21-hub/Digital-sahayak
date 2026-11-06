@@ -9,6 +9,7 @@ interface HeaderProps {
   onOpenCpgrams: () => void;
   currentView?: 'chat' | 'dashboard';
   onViewChange?: (view: 'chat' | 'dashboard') => void;
+  onOpenPitchDeck?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCpgrams,
   currentView = 'chat',
   onViewChange,
+  onOpenPitchDeck,
 }) => {
   return (
     <header className="bg-surface-container-lowest text-secondary text-headline-md font-headline-md docked full-width top-0 sticky z-40 border-b border-outline-variant shadow-sm">
