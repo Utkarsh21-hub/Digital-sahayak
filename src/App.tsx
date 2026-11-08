@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   PROCEDURES_DATA,
   Procedure,
@@ -19,6 +19,7 @@ import { HelpModal } from './components/HelpModal';
 import { Footer } from './components/Footer';
 import { GeminiChatView } from './components/GeminiChatView';
 import { ScamShieldModal } from './components/ScamShieldModal';
+import { DraftGeneratorModal, DraftTemplateType } from './components/DraftGeneratorModal';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('chat');
@@ -27,6 +28,30 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>('hinglish');
+
+  // Light / Dark mode state initialized from localStorage or system preference
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('digital-sahayak-theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('digital-sahayak-theme', theme);
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   // Checklists and Step indices keyed by procedure id
   const [checklistMap, setChecklistMap] = useState<Record<string, Record<string, boolean>>>({
@@ -47,7 +72,16 @@ export default function App() {
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [isDirectoryModalOpen, setIsDirectoryModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+  const [draftModalTemplate, setDraftModalTemplate] = useState<DraftTemplateType>('gazette-name-change');
   const [resizerPreset, setResizerPreset] = useState<string>('');
+
+  const handleOpenDraftModal = (templateId?: string) => {
+    if (templateId) {
+      setDraftModalTemplate(templateId as DraftTemplateType);
+    }
+    setIsDraftModalOpen(true);
+  };
 
   // Counts for tabs
   const categoryCounts = useMemo(() => {
@@ -134,10 +168,12 @@ export default function App() {
 
   return (
     <div className="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-secondary selection:text-on-secondary">
-      {/* Top Application Bar with View Mode Switcher */}
+      {/* Top Application Bar with View Mode Switcher & Dark Mode Toggle */}
       <Header
         language={language}
         onLanguageChange={setLanguage}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         onOpenDirectory={() => setIsDirectoryModalOpen(true)}
         onOpenHelp={() => setIsHelpModalOpen(true)}
         onOpenResizer={() => {
@@ -157,6 +193,7 @@ export default function App() {
         currentView={viewMode}
         onViewChange={setViewMode}
         onOpenScamShield={() => setIsScamShieldOpen(true)}
+        onOpenDraftGenerator={() => handleOpenDraftModal()}
       />
 
       {/* Main Content Area: Gemini Chat vs Procedural Dashboard */}
@@ -227,6 +264,7 @@ export default function App() {
                 setSelectedProcedureId(procedureId);
               }}
               onOpenScamShield={() => setIsScamShieldOpen(true)}
+              onOpenDraftGenerator={() => handleOpenDraftModal()}
             />
           </div>
         </main>
@@ -305,6 +343,7 @@ export default function App() {
                     currentStepIndex={currentStepIndex}
                     onStepChange={handleStepChange}
                     onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
+                    onOpenDraftGenerator={(tpl) => handleOpenDraftModal(tpl)}
                     language={language}
                   />
                 </div>
@@ -367,6 +406,18 @@ export default function App() {
         isOpen={isScamShieldOpen}
         onClose={() => setIsScamShieldOpen(false)}
         language={language}
+      />
+
+      {/* Official Legal Draft & Affidavit Generator Modal (Draft Sahayak) */}
+      <DraftGeneratorModal
+        isOpen={isDraftModalOpen}
+        onClose={() => setIsDraftModalOpen(false)}
+        initialTemplate={draftModalTemplate}
+        stepContext={{
+          taskTitle: currentProcedure.title,
+          stepTitle: currentProcedure.steps[currentStepIndex]?.title || '',
+          procedureId: currentProcedure.id,
+        }}
       />
 
       {/* Statutory Footer and Mobile Bottom Tray */}

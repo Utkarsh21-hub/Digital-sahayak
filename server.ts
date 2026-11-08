@@ -25,12 +25,12 @@ const ai = new GoogleGenAI({
   },
 });
 
-const SYSTEM_INSTRUCTIONS_DIGITAL_SAHAYAK = `All nine government procedures —spanning Easy, Medium, and Hard difficulty levels—are formatted below into the standardised knowledge base template.
+const SYSTEM_INSTRUCTIONS_DIGITAL_SAHAYAK = `All fifteen verified government procedures — spanning Central public services, Delhi (NCT) citizen services, and Uttar Pradesh citizen services across Easy, Medium, and Hard difficulty levels — are formatted below into the standardised knowledge base template.
 
 You are "Digital Sahayak", a friendly AI assistant helping rural and semi-urban citizens in India complete government portal tasks on their own smartphones without going to a cyber cafe.
 
 CORE RULES:
-1. STRICT GROUNDING: Answer ONLY using the VERIFIED GUIDES provided below. If a user asks for a task not in the guides, politely tell them which tasks you currently support (the 9 tasks listed below). Never invent portal steps, fees, or URLs.
+1. STRICT GROUNDING: Answer ONLY using the VERIFIED GUIDES provided below. If a user asks for a task not in the guides, politely tell them which tasks you currently support (the 15 Central, Delhi, and UP services listed below). Never invent portal steps, fees, or URLs.
 2. LANGUAGE FIRST: If the user hasn't chosen a language yet or this is the start of a conversation, start by asking the user which language they prefer: Simple Hindi, Hinglish, or Simple English.
 3. CAPTURE (CHECKLIST FIRST): Before giving Step 1, show the OFFICIAL LINK, OFFICIAL FEE, and REQUIRED DOCUMENTS & SPECS (including exact KB/MB file sizes). Ask: "Do you have these ready?"
 4. APPLY (ONE STEP AT A TIME): Never show all steps at once. Give ONLY ONE step at a time. Explain any tough portal words in brackets using everyday language. End every message by asking: "Did you complete this step, or are you facing any error?"
@@ -227,6 +227,144 @@ Step 6: Upload photo, signature, Surrender Certificate, and foreign passport cop
 REVISION SUMMARY:
 * Portal Link: https://indiancitizenshiponline.nic.in & https://ociservices.gov.in
 * Tracking Method: Track Renunciation MHA file on indiancitizenshiponline.nic.in and OCI status on ociservices.gov.in. Foreigners Division MHA Helpline: 011-23077518.
+
+=== TASK: 10. Delhi Land Records (RoR / Khasra / Khatauni) (Level: Easy) ===
+OFFICIAL LINK: https://dlrc.delhi.gov.in (Indraprastha Bhu-Lekh / DLRC) & https://edistrict.delhigovt.nic.in
+OFFICIAL FEE: ₹0 (Free online informational view/download; certified copies subject to Tehsil / e-District application fee).
+REQUIRED DOCUMENTS & SPECS:
+* No documents required for free online informational view.
+* Required search identifiers: District, Sub-division, Village, and either Khasra number, Khata number, or Owner Name.
+* Note: DLR Act Khasra/Khatauni and PLR Act Jamabandi are separate portal workflows and not interchangeable. Portal does not cover every urban/DDA property.
+
+STEPS:
+Step 1: Open https://dlrc.delhi.gov.in on your phone or desktop browser. | TOUGH TERMS: DLRC = Delhi Land Record Computerization (Indraprastha Bhu-Lekh).
+Step 2: Choose either "Khasra Khatauni Details under DLR Act" or "Jamabandi Details under PLR Act" according to the applicable land record act. | TOUGH TERMS: DLR vs PLR Act = Delhi Land Revenue Act tatha Punjab Land Revenue Act ke alag-alag register.
+Step 3: Select your Tehsil / District or click the "View Records" link provided on screen. | TOUGH TERMS: Tehsil = Up-jila revenue prashasan.
+Step 4: Select the administrative area, Village, and Record/Khata type requested. | TOUGH TERMS: Khata type = Bhu-dharak ka account type.
+Step 5: Enter the Khasra No. / Khata No. / Owner Name search, solve captcha, and click "View Details". | TOUGH TERMS: Khasra Number = Zameen ka survey plot number; Khata = Zameendar ki holding.
+Step 6: Print or save the on-screen record as PDF (Note: Saved browser extract is informational only). | TOUGH TERMS: Informational extract = Jaankari ke liye nakal (bank ya court ke liye certified copy zaroori hoti hai).
+Step 7: For a certified / digitally signed copy, apply under "Issuance of ROR" on https://edistrict.delhigovt.nic.in or approach the concerned revenue Tehsil. | TOUGH TERMS: ROR = Record of Rights (Pramanit Bhu-Abhilekh).
+
+REVISION SUMMARY:
+* Portal Link: https://dlrc.delhi.gov.in & https://edistrict.delhigovt.nic.in
+* Tracking Method: Online extract view is instant. For certified ROR copy, track Application Number on e-District Delhi (edistrict.delhigovt.nic.in).
+
+=== TASK: 11. Delhi Domicile Certificate (Level: Medium) ===
+OFFICIAL LINK: https://edistrict.delhigovt.nic.in (e-District Delhi – Citizen's Corner)
+OFFICIAL FEE: ₹0 (No Government Application Fee, per Delhi Revenue Department. Zero agent fee).
+REQUIRED DOCUMENTS & SPECS:
+* Proof of continuous stay in Delhi for the last 3 years (Ration card, Voter ID, electricity/water bills, rent agreement, or school certificates; educational certificates alone for 3 years are not sufficient).
+* Identity proof (Aadhaar is not compulsory; PAN, passport, driving licence, or voter card accepted).
+* Prescribed Self-Declaration / proforma.
+* Date-of-birth proof (Birth certificate, school certificate, or passport).
+* Passport-size photograph (clean plain background).
+
+STEPS:
+Step 1: Open https://edistrict.delhigovt.nic.in -> Citizen's Corner -> Register / Login using Aadhaar or Voter ID (use counter route if online registration cannot be completed). | TOUGH TERMS: Citizen Corner = Nagrik seva portal par apna login banana.
+Step 2: Log in -> Apply for Services -> Department of Revenue -> "Issuance of Domicile Certificate". | TOUGH TERMS: Domicile Certificate = Delhi me pichle 3 saal se sthayi niwas ka official certificate.
+Step 3: Complete personal details, residence duration (minimum 3 continuous years), purpose of certificate, and address. | TOUGH TERMS: Residence Duration = Lagatar Delhi me rehne ki avadhi.
+Step 4: Upload scanned identity proof, continuous 3-year residence proof, self-declaration, and passport-size photo. | TOUGH TERMS: Self-Declaration = Swa-ghoshana patra ki saari jaankari satya hai.
+Step 5: Review details, submit without any fee, and save your Application / Reference Number. | TOUGH TERMS: Reference Number = Aavedan ki tracking sankhya.
+Step 6: Application routes to SDM / Tehsildar for verification (field inquiry may be ordered). | TOUGH TERMS: SDM = Sub-Divisional Magistrate (Up-Jiladhikari).
+Step 7: After approval (Published response time: 14 to 21 days), download the digitally signed certificate with QR Code from the e-District portal. | TOUGH TERMS: QR Code Certificate = Computerized digital signature jo har sarkari aur private kaam me 100% valid hai.
+
+REVISION SUMMARY:
+* Portal Link: https://edistrict.delhigovt.nic.in
+* Tracking Method: Use "Track Your Application" on e-District Delhi using Application Number and Department of Revenue.
+
+=== TASK: 12. Delhi Caste Certificate (SC / ST / OBC) (Level: Medium) ===
+OFFICIAL LINK: https://edistrict.delhigovt.nic.in -> Department of Revenue
+OFFICIAL FEE: ₹0 application fee (Verify live portal entry; do not pay any broker).
+REQUIRED DOCUMENTS & SPECS:
+* Aadhaar / Identity proof + Address proof.
+* Father's / paternal relative's caste certificate plus proof of relationship (birth cert, ration card).
+* Residence proof: SC/ST family residence in Delhi before 1951, or OBC family residence in Delhi before 1993.
+* OBC Specific: Prescribed non-creamy layer declaration and income details (Delhi state OBC and Central OBC lists must not be conflated).
+* Self-declaration form and passport-size photograph.
+
+STEPS:
+Step 1: Register / Log in on https://edistrict.delhigovt.nic.in using your citizen account. | TOUGH TERMS: e-District Delhi = Delhi sarkar ka single-window certificate portal.
+Step 2: Go to Apply Online -> Department of Revenue -> Select "Issuance of SC/ST Certificate" or "Issuance of OBC Certificate". | TOUGH TERMS: Caste Certificate = Jati praman patra.
+Step 3: Fill personal details, family tree lineage, and select the correct origin-state / Delhi residence route. | TOUGH TERMS: Lineage Proof = Pita ya dada ki jati ka pramanik dastavej.
+Step 4: Upload father's/paternal relative's certificate, relationship proof, continuous residence history, self-declaration, and passport photo. | TOUGH TERMS: Paternal Relative = Pita ke parivar ka sadasya (chacha, dada, bhai).
+Step 5: Submit application online and save the generated Application Number and acknowledgement receipt. | TOUGH TERMS: Acknowledgement = Aavedan jama hone ki pakki raseed.
+Step 6: Competent revenue authority conducts verification (field visit or origin-state verification report if applicable). | TOUGH TERMS: Origin-state verification = Doosre rajya ke revenue authority se report maangna.
+Step 7: Download the approved digitally signed Caste Certificate with QR Code from the portal dashboard (Published SLA: up to 60 days). | TOUGH TERMS: Digital Verification = QR code scan karke praman patra verify karna.
+
+REVISION SUMMARY:
+* Portal Link: https://edistrict.delhigovt.nic.in
+* Tracking Method: Use "Track Your Application" on e-District Delhi with Application Number.
+
+=== TASK: 13. Uttar Pradesh Land Records (UP Bhulekh / Khatauni) (Level: Easy) ===
+OFFICIAL LINK: https://upbhulekh.gov.in (Board of Revenue, Uttar Pradesh)
+OFFICIAL FEE: ₹0 (100% Free online informational viewing and PDF download).
+REQUIRED DOCUMENTS & SPECS:
+* No documents required for free online viewing.
+* Required search identifiers: District (Janpad), Tehsil, Village (Gram), and one search identifier:
+  - Khasra / Gata Number, OR
+  - Khata Number, OR
+  - Khatedar (Owner / Farmer) Name, OR
+  - Namantaran (Mutation) Date.
+* Note: Web view is an informational extract (RoR); for bank loans or court evidence, certified copy must be obtained from Tehsil revenue counter.
+
+STEPS:
+Step 1: Open https://upbhulekh.gov.in on your smartphone browser. | TOUGH TERMS: UP Bhulekh = Uttar Pradesh sarkar ka digital bhu-abhilekh (land records) portal.
+Step 2: Select "View Khatauni / Record of Rights (Khatauni ki nakal dekhen)" or "Real-Time Khatauni". | TOUGH TERMS: Real-Time Khatauni = Har naye aadesh aur namantaran ke saath turant update hone wala record.
+Step 3: Enter the on-screen captcha code and select District (Janpad) -> Tehsil -> Village (Gram). | TOUGH TERMS: Janpad = Jila (District); Gram = Gaon.
+Step 4: Choose your search method: Khasra/Gata Sankhya, Khata Sankhya, or Khatedar ka Naam, and enter details. | TOUGH TERMS: Gata Sankhya = Khet ka survey plot number; Khatedar = Bhumi swami (zameendar).
+Step 5: Select the matching owner record and click "Uddharan Dekhein (उद्धरण देखें)". | TOUGH TERMS: Uddharan = Khatauni ka vistrit vivaran (Extract).
+Step 6: View the full land record containing owner names, land shares, total area in hectares, and order remarks. | TOUGH TERMS: Fard = Zameen par darj bandhak ya court aadesh.
+Step 7: Print or save as PDF using browser "Save as PDF" for informational use. For certified copy, apply at Tehsil. | TOUGH TERMS: Plain Extract = Jaankari hetu nakal (certified copy Tehsil se milti hai).
+
+REVISION SUMMARY:
+* Portal Link: https://upbhulekh.gov.in
+* Tracking Method: Plain view is instant; cross-check Gata Unique Code and mutation information.
+
+=== TASK: 14. Uttar Pradesh Domicile Certificate (Niwas Praman Patra) (Level: Medium) ===
+OFFICIAL LINK: https://edistrict.up.gov.in (redirects to https://esathi.up.gov.in for Citizen Login)
+OFFICIAL FEE: Nominal statutory ₹15 fee on official eSathi portal (never pay cyber cafes ₹200–₹500).
+REQUIRED DOCUMENTS & SPECS:
+* Scanned passport-size photograph of applicant.
+* Prescribed Self-Declaration Form (Swa-Pramanit Ghoshana Patra - download from eSathi).
+* Proof of residence: Ration card, Electricity bill, Voter ID, or gas connection bill.
+* Identity proof / Aadhaar authentication.
+* Family ID (familyid.up.gov.in) if available / requested.
+
+STEPS:
+Step 1: Open https://edistrict.up.gov.in, click "Citizen Login (e-Sathi)" or directly go to https://esathi.up.gov.in and click "Naveen Upbhogta Panjikaran" to create an account. | TOUGH TERMS: e-Sathi = UP nagrikon ke liye praman patra aavedan portal.
+Step 2: Log in with your User ID and OTP/Password, then go to Certificate Services -> Revenue Department -> "Niwas Praman Patra (Domicile)". | TOUGH TERMS: Niwas Praman Patra = Uttar Pradesh ka sthayi niwasi hone ka official certificate.
+Step 3: Select Area Type: "Gramin (Rural)" or "Nagariya (Urban)", then choose your District, Tehsil, and Village/Ward. | TOUGH TERMS: Gramin = Gaon kshetra; Nagariya = Shahar kshetra.
+Step 4: Fill applicant's name in Hindi and English, father/husband's name, mother's name, date of birth, and complete permanent address. | TOUGH TERMS: Bilingual form = Hindi aur English dono bhashaon me naam bharna.
+Step 5: Upload passport photo, signed Swa-pramanit ghoshana patra, and residence proof. | TOUGH TERMS: Swa-pramanit Ghoshana Patra = Self-declaration form jisme applicant dastakhat karke nivaas confirm karta hai.
+Step 6: Review details, click "Submit", and pay the ₹15 official fee online via Net Banking, Debit Card, or UPI on eSathi. Save the Application / SRN Number. | TOUGH TERMS: SRN = Service Request Number jisse status track hota hai.
+Step 7: The application is verified by the Lekhpal and Tehsildar; upon approval (approx. 15-20 days), download the digitally signed certificate from your eSathi account dashboard. | TOUGH TERMS: Lekhpal = Kshetriya patwari jo physical report lagata hai.
+
+REVISION SUMMARY:
+* Portal Link: https://esathi.up.gov.in & https://edistrict.up.gov.in
+* Tracking Method: Click "Aavedan ki Sthiti (Application Status)" on e-District / e-Sathi using your Application Reference Number.
+
+=== TASK: 15. Uttar Pradesh Caste Certificate (Jati Praman Patra - SC / ST / OBC) (Level: Medium) ===
+OFFICIAL LINK: https://esathi.up.gov.in (via edistrict.up.gov.in)
+OFFICIAL FEE: Statutory ₹15 fee on eSathi (never pay cyber cafe touts ₹300–₹1,000).
+REQUIRED DOCUMENTS & SPECS:
+* Applicant passport-size photograph.
+* Self-Declaration Form (Swa-pramanit ghoshana patra).
+* Proof of Caste: Paternal relative's caste certificate (father/brother), family Parivar Register nakal, or ancestral land record mentioning caste. (Note: Pradhan letter alone is not guaranteed).
+* Proof of identity and address (Aadhaar, Ration card, Voter ID).
+* For OBC Non-Creamy Layer: Income declaration showing annual family income is below statutory threshold.
+
+STEPS:
+Step 1: Log in to your citizen account on https://esathi.up.gov.in. | TOUGH TERMS: eSathi Citizen Login = UP Rajasva Vibhag ki online seva.
+Step 2: Under Certificate Services, click on "Jati Praman Patra (Caste Certificate)" (Select Hindi or English certificate version as needed). | TOUGH TERMS: Jati Praman Patra = SC, ST, ya OBC ka official praman patra.
+Step 3: Select Rural (Gramin) or Urban (Nagariya), and choose your District, Tehsil, and Village/Ward. | TOUGH TERMS: Gram Panchayat = Gaon ki prashasnik ikai.
+Step 4: Enter applicant full name in Hindi and English, parentage, exact sub-caste name as per notified state list. | TOUGH TERMS: Sub-caste = Up-jati ka sahi sarkari naam.
+Step 5: Upload passport photo, self-declaration form, family caste proof (father's certificate / parivar register copy), and address proof. | TOUGH TERMS: Parivar Register = Gram panchayat ka kutumb register jo vanshawali pramanit karta hai.
+Step 6: Click "Submit", pay the ₹15 official charge online via UPI/debit card, and save the generated Application Reference Number. | TOUGH TERMS: Official fee = Sarkar dwara nirdharit matra ₹15 ka shulk.
+Step 7: Revenue Lekhpal conducts enquiry and forwards to Tehsildar; once approved, download the digitally signed certificate directly from eSathi. | TOUGH TERMS: DigiLocker Integration = Banne ke baad certificate DigiLocker app me bhi fetch ho sakta hai.
+
+REVISION SUMMARY:
+* Portal Link: https://esathi.up.gov.in & https://edistrict.up.gov.in
+* Tracking Method: Track status using Application Number on e-District UP or within your eSathi user profile.
 `;
 
 // Fallback intelligent responder strictly grounded in the 9 verified government tasks
@@ -351,9 +489,87 @@ REQUIRED DOCUMENTS & SPECS:
 Do you have these ready?`;
   }
 
+  if (q.includes('delhi land') || q.includes('dlrc') || q.includes('delhi ror') || (q.includes('delhi') && (q.includes('khasra') || q.includes('khatauni') || q.includes('ror')))) {
+    return `TASK: 10. Delhi Land Records (RoR / Khasra / Khatauni) (Level: Medium)
+OFFICIAL LINK: https://dlrc.delhi.gov.in (Certified copy via edistrict.delhigovt.nic.in)
+OFFICIAL FEE: ₹0 for viewing/downloading uncertified copy; nominal e-District statutory fee for certified copies
+REQUIRED DOCUMENTS & SPECS:
+* District, Sub-Division (Tehsil), and Village Name in Delhi
+* Land Jurisdiction Type: DLR Act (Delhi Land Reforms 1954) OR PLR Act (Punjab Land Revenue 1887)
+* Khata Number, Khasra Number, or Owner Name in Hindi / English
+
+Do you have your village and Khata/Khasra number ready? Reply 'Haan ready hai' to proceed!`;
+  }
+
+  if (q.includes('delhi domicile') || q.includes('delhi niwas') || (q.includes('delhi') && (q.includes('domicile') || q.includes('residence cert')))) {
+    return `TASK: 11. Delhi Domicile Certificate (Level: Medium)
+OFFICIAL LINK: https://edistrict.delhigovt.nic.in
+OFFICIAL FEE: ₹0 (NIL official fee; avoid cyber cafe overcharges of ₹300–₹800)
+REQUIRED DOCUMENTS & SPECS:
+* Proof of Continuous 3-Year Residence in Delhi (Electricity/water bills, rent agreements, school certificates)
+* Proof of Identity (Aadhaar, Voter ID, Passport, PAN)
+* Self-Declaration Form (Generated and signed)
+* Passport-size photograph (JPG, up to 100 KB)
+
+Do you have continuous 3-year Delhi residence proofs ready?`;
+  }
+
+  if (q.includes('delhi caste') || q.includes('delhi jati') || (q.includes('delhi') && (q.includes('obc') || q.includes('sc cert') || q.includes('st cert')))) {
+    return `TASK: 12. Delhi Caste Certificate (SC / ST / OBC) (Level: Medium)
+OFFICIAL LINK: https://edistrict.delhigovt.nic.in
+OFFICIAL FEE: ₹0 (NIL official fee on Delhi e-District)
+REQUIRED DOCUMENTS & SPECS:
+* Proof of Father's/Paternal relative's caste certificate issued by GNCTD or competent authority
+* Lineage Proof: Documents establishing continuous residence of father/family in Delhi prior to cut-off year (1951 for SC/ST; 1993 for OBC)
+* For OBC Non-Creamy Layer: Family annual income certificate/proof below statutory threshold
+* Applicant photograph & signed self-declaration
+
+Do you have your father's caste certificate or Delhi pre-1951/1993 ancestral proof ready?`;
+  }
+
+  if (q.includes('up bhulekh') || q.includes('bhulekh') || q.includes('up khatauni') || (q.includes('up') && (q.includes('land') || q.includes('khasra') || q.includes('khatauni')))) {
+    return `TASK: 13. Uttar Pradesh Land Records (UP Bhulekh / Khatauni) (Level: Easy)
+OFFICIAL LINK: https://upbhulekh.gov.in
+OFFICIAL FEE: ₹0 (100% Free online public RoR / Khatauni view & verification)
+REQUIRED DOCUMENTS & SPECS:
+* Name of District (Janpad), Tehsil, and Village (Gram)
+* One of the following: Gata Number / Khasra Number, Khata Number, Khatedar Name (Hindi/Devanagari), or Mutation Date (Namantaran Dinank)
+
+Do you have your Janpad, Tehsil, and Khasra or Khata number ready?`;
+  }
+
+  if (q.includes('up domicile') || q.includes('up niwas') || q.includes('esathi domicile') || (q.includes('up') && (q.includes('domicile') || q.includes('niwas')))) {
+    return `TASK: 14. Uttar Pradesh Domicile Certificate (Niwas Praman Patra) (Level: Medium)
+OFFICIAL LINK: https://esathi.up.gov.in (via edistrict.up.gov.in)
+OFFICIAL FEE: Statutory ₹15 fee on official eSathi portal (never pay touts ₹200–₹500)
+REQUIRED DOCUMENTS & SPECS:
+* Applicant passport-size photograph (JPG, up to 50 KB)
+* Self-Declaration Form (Swa-pramanit ghoshana patra, up to 100 KB)
+* Proof of Residence (Ration card, Electricity bill, Voter ID, Aadhaar)
+* Educational Certificate or Gram Pradhan / Ward Parshad certificate
+
+Do you have your photo, Aadhaar, and self-declaration form ready?`;
+  }
+
+  if (q.includes('up caste') || q.includes('up jati') || q.includes('esathi caste') || (q.includes('up') && (q.includes('jati') || q.includes('caste')))) {
+    return `TASK: 15. Uttar Pradesh Caste Certificate (Jati Praman Patra - SC / ST / OBC) (Level: Medium)
+OFFICIAL LINK: https://esathi.up.gov.in (via edistrict.up.gov.in)
+OFFICIAL FEE: Statutory ₹15 fee on eSathi (never pay cyber cafe touts ₹300–₹1,000)
+REQUIRED DOCUMENTS & SPECS:
+* Applicant passport-size photograph
+* Self-Declaration Form (Swa-pramanit ghoshana patra)
+* Proof of Caste (Paternal relative's caste certificate, Parivar Register nakal, or land record)
+* Proof of identity and address (Aadhaar, Ration card, Voter ID)
+* For OBC: Income declaration below statutory threshold
+
+Do you have your father's caste proof or Parivar Register copy ready?`;
+  }
+
   return `Namaste! Main hoon Digital Sahayak. 🇮🇳
 
-Hum strictly Bharat sarkar ke in 9 verified portals par step-by-step guidance provide karte hain:
+Hum strictly Bharat sarkar ke in 15 verified portals par step-by-step guidance provide karte hain:
+
+🏛️ **Central Public Services:**
 1. NEET UG Application Form (Easy) - neet.nta.nic.in
 2. Online Driving Licence Renewal (Easy) - sarathi.parivahan.gov.in
 3. Aadhaar Mobile Number Update (Easy) - myaadhaar.uidai.gov.in
@@ -361,8 +577,18 @@ Hum strictly Bharat sarkar ke in 9 verified portals par step-by-step guidance pr
 5. Fresh Aadhaar Enrolment (Free) - uidai.gov.in
 6. Fresh Passport / Tatkaal Application (Medium) - passportindia.gov.in
 7. CPGRAMS Central Grievance Redressal (Hard) - pgportal.gov.in
-8. Vigilance & Delayed Service / Anti-Corruption (Hard) - cvc.gov.in
-9. Renunciation of Indian Citizenship / OCI Card (Hard) - indiancitizenshiponline.nic.in
+8. Vigilance & Anti-Corruption Redressal (Hard) - cvc.gov.in / lokpal.gov.in
+9. Renunciation of Indian Citizenship / OCI (Hard) - indiancitizenshiponline.nic.in
+
+🏛️ **Delhi (NCT) Citizen Services:**
+10. Delhi Land Records (RoR / Khasra / Khatauni) - dlrc.delhi.gov.in
+11. Delhi Domicile Certificate - edistrict.delhigovt.nic.in
+12. Delhi Caste Certificate (SC/ST/OBC) - edistrict.delhigovt.nic.in
+
+🏛️ **Uttar Pradesh Citizen Services:**
+13. UP Land Records (UP Bhulekh / Khatauni) - upbhulekh.gov.in
+14. UP Domicile Certificate (Niwas Praman Patra) - esathi.up.gov.in
+15. UP Caste Certificate (Jati Praman Patra) - esathi.up.gov.in
 
 Aap inme se kaunsa task complete karna chahte hain?`;
 }
@@ -447,7 +673,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const fullInstruction = `${SYSTEM_INSTRUCTIONS_DIGITAL_SAHAYAK}
 Current user language preference: ${langInstruction}
 Current active service context: ${context ? JSON.stringify(context) : 'General Citizen Inquiry'}
-CRITICAL: Maintain strict grounding in the 9 verified guides. Use temperature 0.2 grounding. Follow: 1. Strict Grounding, 2. Language First, 3. Capture (Checklist First), 4. Apply (One Step at a Time), 5. Screenshot Sahayak, 6. Revise (WhatsApp Card upon final step completion).`;
+CRITICAL: Maintain strict grounding in the 15 verified central and state guides (Central Public Services, Delhi NCT Services, and Uttar Pradesh Services). Use temperature 0.2 grounding. Follow: 1. Strict Grounding, 2. Language First, 3. Capture (Checklist First), 4. Apply (One Step at a Time), 5. Screenshot Sahayak, 6. Revise (WhatsApp Card upon final step completion).`;
 
     let contentsPayload: any;
     const conversationHistoryText =
@@ -798,6 +1024,294 @@ Extract the domain, identify red flags, check if it is an impersonation scam, pr
   } catch (error: any) {
     console.error('Error in /api/verify-scam:', error);
     res.status(500).json({ error: 'Failed to verify scam link' });
+  }
+});
+
+
+// Endpoint to generate legal drafts, affidavits, and grievance letters (Official Draft Sahayak / प्रारूप सहायक)
+app.post('/api/generate-draft', async (req: Request, res: Response) => {
+  try {
+    const { templateType = 'gazette-name-change', prompt = '', language = 'en' } = req.body;
+
+    const langName = language === 'hi' ? 'Hindi (हिंदी)' : 'English (Formal Statutory Court/Portal English)';
+
+    const systemPrompt = `You are the "Official Legal Draft & Affidavit Architect (प्रारूप सहायक)" of Digital Sahayak.
+Your mission is to generate legally binding, court-ready, and portal-compliant official drafts for Indian citizens who cannot afford typist commissions or struggle with bureaucratic legal jargon.
+
+Templates you support:
+1. "gazette-name-change": Affidavit for Change of Name (Mandatory proforma prescribed by the Controller of Publication, Department of Publication, Civil Lines, Delhi for BharatKosh Gazette publication).
+2. "cpgrams-grievance": Formal Statutory Grievance Petition to the Public Grievance Officer / CVC under DARPG Citizen's Charter timelines.
+3. "neet-undertaking": Candidate Self-Declaration & Name Discrepancy Undertaking for National Testing Agency (NTA / NEET / JEE).
+4. "dob-correction": Affidavit for Correction of Date of Birth / Record Discrepancy before an Executive Magistrate or Notary Public.
+
+Guidelines:
+- Output MUST be strictly valid JSON matching this schema:
+{
+  "title": string,
+  "templateType": string,
+  "language": string,
+  "stampPaperRequirement": string,
+  "notaryRequired": boolean,
+  "draftText": string,
+  "keyClauses": string[],
+  "guidanceNotes": string[]
+}
+- In "draftText", produce the complete, official, formatted legal document ready to print. Use formal legal styling with ALL-CAPS headers, clear numbered clauses (1, 2, 3...), deponent signature blocks, and notary oath verification.
+- Replace any details supplied in the user's prompt (e.g. name, father's name, address, old name, new name, application ref number, department). For details not provided, leave neat uppercase placeholders like [APPLICANT FULL NAME], [PERMANENT ADDRESS], [NEWSPAPER NAME].
+- Draft text language: ${langName}.`;
+
+    const userPromptText = `Generate an official, statutory Indian legal draft for template type "${templateType}".
+User provided details: "${prompt || 'General standard details with clear placeholders'}"
+Language: ${langName}
+Return the JSON object.`;
+
+    try {
+      const result = await callGeminiModel({
+        contents: userPromptText,
+        systemInstruction: systemPrompt,
+        responseMimeType: 'application/json',
+        temperature: 0.1,
+      });
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(result.text);
+      } catch {
+        const jsonMatch = result.text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+      }
+
+      if (parsed && parsed.draftText) {
+        return res.json({ draft: parsed, modelUsed: result.modelUsed });
+      }
+    } catch (aiErr) {
+      console.warn('Gemini draft generation error, using deterministic legal template:', aiErr);
+    }
+
+    // Deterministic fallback templates
+    let fallbackDraft: any;
+
+    if (templateType === 'cpgrams-grievance') {
+      fallbackDraft = {
+        title: 'FORMAL PUBLIC GRIEVANCE PETITION (UNDER DARPG CITIZEN CHARTER)',
+        templateType: 'cpgrams-grievance',
+        language,
+        stampPaperRequirement: 'Plain Paper / Direct CPGRAMS Portal Text Area (₹0 Statutory Cost)',
+        notaryRequired: false,
+        draftText: `TO,
+THE PUBLIC GRIEVANCE OFFICER / NODAL APPELLATE AUTHORITY,
+[CONCERNED MINISTRY / DEPARTMENT NAME],
+GOVERNMENT OF INDIA.
+
+SUBJECT: FORMAL GRIEVANCE REGARDING WILLFUL DELAY & NON-COMPLIANCE WITH CITIZEN CHARTER TIMELINES FOR APPLICATION REF: [APPLICATION / FILE REF NUMBER]
+
+RESPECTED SIR / MADAM,
+
+I, [APPLICANT FULL NAME], RESIDING AT [PERMANENT ADDRESS], CONTACT NO: [MOBILE NUMBER], EMAIL: [EMAIL ADDRESS], SOLEMNLY LODGE THIS COMPLAINT AGAINST INACTION AND BUREAUCRATIC DELAY AS DETAILED BELOW:
+
+1. FACTUAL BACKGROUND:
+On [DATE OF ORIGINAL APPLICATION], I applied for [NAME OF SERVICE / CERTIFICATE / BENEFIT] through [PORTAL / OFFICE NAME] vide Reference Number [APPLICATION REF NUMBER].
+
+2. VIOLATION OF CITIZEN CHARTER SLA:
+As per the statutory Citizen Charter published by your Department, the mandated maximum turnaround time (SLA) for disposal of this service is [NUMBER OF DAYS, e.g., 30 DAYS]. Even after the expiry of [TOTAL DAYS ELAPSED, e.g., 60 DAYS], my file has been arbitrarily held up without any written objection or deficiency memo.
+
+3. DETAILS OF HARASSMENT / EXTORTION:
+When I followed up physically with the dealing assistant / counter officer at [OFFICE LOCATION], I was subjected to undue harassment and indirectly asked to approach touts/agents outside the office premises to "clear" the pending file.
+
+4. RELIEF SOUGHT:
+In light of the above facts, I humbly pray that:
+a) My pending application be approved and processed without any further delay;
+b) The concerned nodal officer issue an Action Taken Report (ATR) explaining the cause of prolonged pendency;
+c) Necessary departmental accountability be fixed against the delinquent dealing staff under Rule 3 of the Central Civil Services (Conduct) Rules.
+
+I hereby declare that the matter is not sub-judice before any Court of Law.
+
+ENCLOSURES:
+1. Copy of Online Application Acknowledgement Receipt.
+2. Self-Attested Identity Proof (Aadhaar / Voter ID).
+
+DATE: [CURRENT DATE]
+PLACE: [CITY / DISTRICT, STATE]
+
+RESPECTFULLY SUBMITTED,
+
+__________________________
+[APPLICANT FULL NAME]
+CONTACT: [MOBILE NUMBER]`,
+        keyClauses: [
+          'Statutory Citizen Charter SLA violation declaration',
+          'Exact Application Reference and Timeline chronology',
+          'Formal prayer for Action Taken Report (ATR)',
+          'Non-sub-judice legal declaration',
+        ],
+        guidanceNotes: [
+          'Paste this text directly into CPGRAMS text area on pgportal.gov.in (limit: 4,000 characters).',
+          'Attach your original application receipt PDF (under 4 MB).',
+          'Nodal officers are legally required to reply within 21 to 30 days.',
+        ],
+      };
+    } else if (templateType === 'neet-undertaking') {
+      fallbackDraft = {
+        title: 'CANDIDATE SELF-DECLARATION & NAME DISCREPANCY UNDERTAKING',
+        templateType: 'neet-undertaking',
+        language,
+        stampPaperRequirement: 'Plain White A4 Paper (Self-Declaration, No Stamp Paper Required)',
+        notaryRequired: false,
+        draftText: `UNDERTAKING / SELF-DECLARATION FOR CANDIDATE NAME & RECORD DISCREPANCY
+(FOR SUBMISSION TO NATIONAL TESTING AGENCY - NEET UG / NTA PORTAL)
+
+TO,
+THE SENIOR DIRECTOR,
+NATIONAL TESTING AGENCY (NTA),
+FIRST FLOOR, NSIC-MDBP BUILDING, OKHLA INDUSTRIAL ESTATE, NEW DELHI - 110020.
+
+SUBJECT: SELF-DECLARATION UNDERTAKING REGARDING DISCREPANCY IN NAME SPELLING BETWEEN AADHAAR CARD AND CLASS 10TH CERTIFICATE
+
+I, [CANDIDATE FULL NAME], APPLICATION NUMBER: [NTA APPLICATION NUMBER], SON / DAUGHTER OF [FATHER'S NAME] AND [MOTHER'S NAME], RESIDING AT [COMPLETE POSTAL ADDRESS], DO HEREBY SOLEMNLY DECLARE AND UNDERTAKE AS FOLLOWS:
+
+1. That I am a registered candidate appearing for the National Eligibility cum Entrance Test (NEET UG) / NTA Examination 2025.
+
+2. That my name is recorded as "[SPELLING IN CLASS 10TH CERTIFICATE]" in my Class 10th Board Certificate / Marksheet issued by [BOARD NAME, e.g., CBSE / STATE BOARD].
+
+3. That due to typographical error / absence of surname, my name is recorded as "[SPELLING IN AADHAAR CARD]" in my Aadhaar Card Number [XXXXXXXXXXXX].
+
+4. That I solemnly affirm that "[NAME AS PER 10TH]" and "[NAME AS PER AADHAAR]" refer to ONE AND THE SAME PERSON, which is myself, the undersigned candidate.
+
+5. That for all academic, examination, biometric verification, and counselling records, my name as recorded in my Class 10th Certificate shall be treated as final and authentic.
+
+6. That if any information provided herein is found to be false or incorrect at any stage of examination or admission, my candidature shall be liable to immediate cancellation without prejudice to any legal action.
+
+DATE: [CURRENT DATE]
+PLACE: [CANDIDATE CITY / TOWN]
+
+_________________________________            _________________________________
+SIGNATURE OF CANDIDATE                      SIGNATURE OF PARENT / GUARDIAN
+NAME: [CANDIDATE FULL NAME]                  NAME: [FATHER / MOTHER NAME]
+MOBILE: [MOBILE NUMBER]                      MOBILE: [PARENT MOBILE NUMBER]`,
+        keyClauses: [
+          'Explicit declaration that both spellings refer to the same biological individual',
+          'Class 10th certificate established as the primary benchmark',
+          'Co-signature of Parent / Guardian for legal validity',
+        ],
+        guidanceNotes: [
+          'Print on clean white A4 paper.',
+          'Both Candidate and Parent/Guardian must sign in black ink.',
+          'Upload as single PDF during form filling or carry along with Admit Card to examination center.',
+        ],
+      };
+    } else if (templateType === 'dob-correction') {
+      fallbackDraft = {
+        title: 'AFFIDAVIT FOR CORRECTION OF DATE OF BIRTH / RECORD DISCREPANCY',
+        templateType: 'dob-correction',
+        language,
+        stampPaperRequirement: '₹10 or ₹50 Non-Judicial Stamp Paper (attested by Notary Public)',
+        notaryRequired: true,
+        draftText: `BEFORE THE NOTARY PUBLIC / EXECUTIVE MAGISTRATE AT [DISTRICT / CITY NAME]
+
+AFFIDAVIT
+
+I, [APPLICANT FULL NAME], SON / DAUGHTER / WIFE OF [FATHER / SPOUSE NAME], AGED ABOUT [AGE] YEARS, PERMANENT RESIDENT OF [FULL RESIDENTIAL ADDRESS], DO HEREBY SOLEMNLY AFFIRM AND DECLARE ON OATH AS UNDER:
+
+1. That I am a citizen of India and permanent resident of the address stated above.
+
+2. That my actual, genuine, and legally registered Date of Birth is [ACTUAL DOB: DD/MM/YYYY] as per my Official Municipal Birth Certificate issued by the Registrar of Births and Deaths vide Registration No: [BIRTH CERTIFICATE REGISTRATION NUMBER] dated [DATE OF ISSUE].
+
+3. That inadvertently and due to clerical oversight, my Date of Birth has been erroneously recorded as [WRONG DOB: DD/MM/YYYY] in my [NAME OF INCORRECT DOCUMENT, e.g., AADHAAR / SCHOOL RECORD / PAN CARD].
+
+4. That I have never taken any undue academic, employment, or financial advantage of the erroneously recorded date of birth.
+
+5. That I make this solemn affidavit to be produced before the competent authority at [CONCERNED DEPARTMENT / UIDAI / REGIONAL OFFICE] for rectifying and updating my Date of Birth to [ACTUAL DOB: DD/MM/YYYY] in all official records.
+
+VERIFICATION:
+I, the above-named deponent, do hereby verify on oath that the contents of paragraphs 1 to 5 of this affidavit are true and correct to the best of my personal knowledge and belief. Nothing material has been concealed and no part of it is false. So help me God.
+
+VERIFIED AT [CITY / DISTRICT] ON THIS [DAY] DAY OF [MONTH], 2025.
+
+
+__________________________
+DEPONENT SIGNATURE
+NAME: [APPLICANT FULL NAME]
+
+ATTESTED & CERTIFIED BY:
+
+__________________________
+NOTARY PUBLIC / MAGISTRATE
+(SEAL & REGISTRATION NO.)`,
+        keyClauses: [
+          'Municipal Birth Certificate cited as primary statutory proof',
+          'Declaration of no undue advantage taken',
+          'Notary verification under oath',
+        ],
+        guidanceNotes: [
+          'Execute on Non-Judicial Stamp Paper of denomination specified by your state (₹10, ₹20, or ₹50).',
+          'Sign only in the physical presence of an approved Notary Public.',
+        ],
+      };
+    } else {
+      // Default: gazette-name-change
+      fallbackDraft = {
+        title: 'AFFIDAVIT FOR CHANGE OF NAME (CENTRAL GAZETTE SPECIMEN)',
+        templateType: 'gazette-name-change',
+        language,
+        stampPaperRequirement: '₹10 or ₹50 Non-Judicial Stamp Paper (attested by Notary Public)',
+        notaryRequired: true,
+        draftText: `BEFORE THE NOTARY PUBLIC / OATH COMMISSIONER AT [DISTRICT / CITY NAME]
+
+AFFIDAVIT FOR CHANGE OF NAME
+(PRESCRIBED PROFORMA FOR CENTRAL GAZETTE NOTIFICATION - BHARATKOSH)
+
+I, [FORMER / OLD NAME], SON / DAUGHTER / WIFE OF [FATHER / SPOUSE FULL NAME], AGED ABOUT [AGE] YEARS, RESIDING AT [COMPLETE PERMANENT POSTAL ADDRESS WITH PIN CODE], BY FAITH [RELIGION], DO HEREBY SOLEMNLY AFFIRM AND DECLARE ON OATH AS UNDER:
+
+1. That my former, officially recorded name in all identity cards, educational certificates, and public records has been [FORMER / OLD NAME IN FULL].
+
+2. That for all personal, social, and legal reasons, I have wholly and absolutely renounced, relinquished, and abandoned the use of my former name [FORMER / OLD NAME], and in place thereof have assumed and adopted the new name [NEW / PROPOSED NAME IN FULL].
+
+3. That henceforth, in all records, documents, deeds, bank accounts, government correspondence, judicial proceedings, and transactions, I shall be designated, addressed, and known exclusively by the name [NEW / PROPOSED NAME IN FULL].
+
+4. That I have published a public classified notice regarding this legal change of name in the daily newspaper "[NAME OF NEWSPAPER]" on [DATE OF NEWSPAPER PUBLICATION].
+
+5. That I am submitting this affidavit along with the prescribed proforma, digital CD, and statutory fee receipt to the Controller of Publication, Department of Publication, Civil Lines, Delhi - 110054 for publication in Part IV of the Gazette of India (Extraordinary).
+
+VERIFICATION:
+I, the above-named deponent, do hereby verify on oath that the contents of paragraphs 1 to 5 above are true and correct to the best of my personal knowledge and belief. No part of it is false and nothing material has been concealed therefrom.
+
+VERIFIED AT [CITY / DISTRICT] ON THIS [DAY] DAY OF [MONTH], 2025.
+
+
+____________________________________
+DEPONENT (SIGN IN NEW NAME)
+FORMERLY KNOWN AS: [OLD NAME]
+NEW LEGAL NAME: [NEW NAME]
+CONTACT: [MOBILE NUMBER]
+
+ATTESTATION:
+SOLEMNLY AFFIRMED AND SIGNED BEFORE ME ON THIS DAY BY THE DEPONENT WHO HAS BEEN SATISFACTORILY IDENTIFIED.
+
+____________________________________
+NOTARY PUBLIC / ADVOCATE
+GOVERNMENT OF INDIA / STATE
+REGISTRATION NO: [NOTARY REG. NO]
+COMMISSION EXPIRES: [EXPIRY DATE]
+(OFFICIAL STAMP & NOTARIAL EMBOSS)`,
+        keyClauses: [
+          'Absolute abandonment of former name',
+          'Adoption of new name for all legal, bank, and civic purposes',
+          'Newspaper advertisement declaration',
+          'Verification clause strictly matching Controller of Publications proforma',
+        ],
+        guidanceNotes: [
+          'Purchase a ₹10, ₹20, or ₹50 Non-Judicial Stamp Paper from your local court stamp vendor.',
+          'Print this affidavit on the stamp paper (or continue on green legal paper if text overflows).',
+          'Get it signed and stamped by an authorized Notary Public with notarial ticket.',
+          'Save original newspaper clipping (full page) to send with the Gazette dossier to Civil Lines, Delhi.',
+        ],
+      };
+    }
+
+    res.json({ draft: fallbackDraft, modelUsed: 'digital-sahayak-draft-engine' });
+  } catch (error: any) {
+    console.error('Error in /api/generate-draft:', error);
+    res.status(500).json({ error: 'Failed to generate official draft' });
   }
 });
 

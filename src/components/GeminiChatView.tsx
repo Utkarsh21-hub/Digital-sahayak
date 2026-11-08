@@ -32,6 +32,7 @@ interface GeminiChatViewProps {
   onSelectProcedure?: (procedureId: string) => void;
   preselectedTask?: string;
   onOpenScamShield?: () => void;
+  onOpenDraftGenerator?: () => void;
 }
 
 const SUPPORTED_TASKS = [
@@ -107,6 +108,54 @@ const SUPPORTED_TASKS = [
     fee: '₹8,000 + OCI fee',
     prompt: 'Indian citizenship renunciation aur fresh OCI card application ka process batayein.',
   },
+  {
+    id: 'delhi-land-records',
+    title: 'Delhi Land Records (RoR/Khatauni)',
+    portal: 'dlrc.delhi.gov.in',
+    level: 'Medium',
+    fee: '₹0 (Free view)',
+    prompt: 'Delhi me DLR Act ya PLR Act ke tahat Khasra/Khatauni RoR kaise check aur download karein?',
+  },
+  {
+    id: 'delhi-domicile',
+    title: 'Delhi Domicile Certificate',
+    portal: 'edistrict.delhigovt.nic.in',
+    level: 'Medium',
+    fee: '₹0 (NIL official fee)',
+    prompt: 'Delhi e-District par Domicile (Niwas) praman patra ke liye 3-year proof kaise submit karein?',
+  },
+  {
+    id: 'delhi-caste',
+    title: 'Delhi Caste Certificate (SC/ST/OBC)',
+    portal: 'edistrict.delhigovt.nic.in',
+    level: 'Medium',
+    fee: '₹0 (NIL official fee)',
+    prompt: 'Delhi me OBC / SC certificate ke liye father caste proof aur cut-off document kaise lagayein?',
+  },
+  {
+    id: 'up-bhulekh',
+    title: 'UP Bhulekh (Khatauni Land Record)',
+    portal: 'upbhulekh.gov.in',
+    level: 'Easy',
+    fee: '₹0 (100% Free)',
+    prompt: 'UP Bhulekh par Real-Time Khatauni nakal Gata/Khata number se kaise dekhein?',
+  },
+  {
+    id: 'up-domicile',
+    title: 'UP Domicile (Niwas Praman Patra)',
+    portal: 'esathi.up.gov.in',
+    level: 'Medium',
+    fee: '₹15 (Official fee)',
+    prompt: 'Uttar Pradesh eSathi portal par Niwas Praman Patra (Domicile) apply karne ka process batayein.',
+  },
+  {
+    id: 'up-caste',
+    title: 'UP Caste (Jati Praman Patra)',
+    portal: 'esathi.up.gov.in',
+    level: 'Medium',
+    fee: '₹15 (Official fee)',
+    prompt: 'UP eSathi par Jati Praman Patra (OBC/SC/ST) ke liye swa-pramanit ghoshana patra aur process batayein.',
+  },
 ];
 
 export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
@@ -116,6 +165,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   onSelectProcedure,
   preselectedTask,
   onOpenScamShield,
+  onOpenDraftGenerator,
 }) => {
   const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>(initialLanguage);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -144,7 +194,7 @@ Aap kis bhasha me baat karna chahte hain? (Select your preferred language):
 • **Simple Hindi (सरल हिंदी)**
 • **Simple English**
 
-Neeche diye gaye 9 verified tasks me se koi bhi select karein, ya apna sawal poochhein!`,
+Neeche diye gaye 15 verified central aur state tasks (Delhi, UP) me se koi bhi select karein, ya apna sawal poochhein!`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           modelUsed: 'gemini-2.5-flash-lite',
         },
@@ -472,6 +522,13 @@ Please retry your query or click one of the quick options below. Remember: Never
               className="px-3 py-1.5 rounded-full text-xs font-semibold bg-surface-container hover:bg-surface-container-high text-on-surface-variant border border-outline-variant transition"
             >
               <span>📐 KB Resizer Tool</span>
+            </button>
+            <button
+              onClick={() => onOpenDraftGenerator?.()}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">description</span>
+              <span>📝 Draft Sahayak (Legal Affidavits)</span>
             </button>
             <button
               onClick={() => onOpenScamShield?.()}

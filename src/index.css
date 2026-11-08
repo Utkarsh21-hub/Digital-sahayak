@@ -1,51 +1,98 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --sys-surface-variant: #e0e3e5;
+  --sys-surface-container-lowest: #ffffff;
+  --sys-surface-container-low: #f2f4f6;
+  --sys-surface-container: #eceef0;
+  --sys-surface-container-high: #e6e8ea;
+  --sys-surface-container-highest: #e0e3e5;
+  --sys-background: #f7f9fb;
+  --sys-surface: #f7f9fb;
+  --sys-on-surface: #191c1e;
+  --sys-on-surface-variant: #45464d;
+  --sys-outline: #76777d;
+  --sys-outline-variant: #c6c6cd;
+  --sys-secondary: #0051d5;
+  --sys-secondary-container: #316bf3;
+  --sys-primary-container: #131b2e;
+  --sys-on-secondary: #ffffff;
+  --sys-error: #ba1a1a;
+  --sys-error-container: #ffdad6;
+  --sys-on-tertiary-container: #069669;
+}
+
+.dark {
+  color-scheme: dark;
+  --sys-surface-variant: #1e2538;
+  --sys-surface-container-lowest: #0d121f;
+  --sys-surface-container-low: #131929;
+  --sys-surface-container: #182035;
+  --sys-surface-container-high: #212c47;
+  --sys-surface-container-highest: #2b395c;
+  --sys-background: #090d16;
+  --sys-surface: #0d121f;
+  --sys-on-surface: #f3f4f6;
+  --sys-on-surface-variant: #9ca3af;
+  --sys-outline: #6b7280;
+  --sys-outline-variant: #2d3748;
+  --sys-secondary: #3b82f6;
+  --sys-secondary-container: #1d4ed8;
+  --sys-primary-container: #1a2238;
+  --sys-on-secondary: #ffffff;
+  --sys-error: #ef4444;
+  --sys-error-container: #450a0a;
+  --sys-on-tertiary-container: #34d399;
+}
+
 @theme {
-  --color-surface-variant: #e0e3e5;
+  --color-surface-variant: var(--sys-surface-variant);
   --color-on-primary-fixed: #131b2e;
   --color-on-secondary-container: #fefcff;
   --color-inverse-surface: #2d3133;
   --color-on-secondary-fixed-variant: #003ea8;
   --color-tertiary-fixed-dim: #68dba9;
   --color-on-error-container: #93000a;
-  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-lowest: var(--sys-surface-container-lowest);
   --color-surface-tint: #565e74;
   --color-surface-bright: #f7f9fb;
   --color-on-error: #ffffff;
   --color-surface-dim: #d8dadc;
-  --color-error-container: #ffdad6;
-  --color-surface-container-highest: #e0e3e5;
-  --color-background: #f7f9fb;
-  --color-on-tertiary-container: #069669;
+  --color-error-container: var(--sys-error-container);
+  --color-surface-container-highest: var(--sys-surface-container-highest);
+  --color-background: var(--sys-background);
+  --color-on-tertiary-container: var(--sys-on-tertiary-container);
   --color-inverse-on-surface: #eff1f3;
   --color-on-primary-fixed-variant: #3f465c;
   --color-on-primary: #ffffff;
   --color-on-secondary-fixed: #00174b;
   --color-primary-fixed-dim: #bec6e0;
-  --color-on-surface-variant: #45464d;
-  --color-outline: #76777d;
+  --color-on-surface-variant: var(--sys-on-surface-variant);
+  --color-outline: var(--sys-outline);
   --color-on-tertiary-fixed-variant: #005137;
   --color-tertiary-fixed: #85f8c4;
-  --color-on-background: #191c1e;
-  --color-on-surface: #191c1e;
+  --color-on-background: var(--sys-on-surface);
+  --color-on-surface: var(--sys-on-surface);
   --color-tertiary-container: #002114;
   --color-inverse-primary: #bec6e0;
   --color-secondary-fixed: #dbe1ff;
-  --color-secondary: #0051d5;
-  --color-secondary-container: #316bf3;
+  --color-secondary: var(--sys-secondary);
+  --color-secondary-container: var(--sys-secondary-container);
   --color-secondary-fixed-dim: #b4c5ff;
   --color-tertiary: #000000;
   --color-on-tertiary: #ffffff;
   --color-on-primary-container: #7c839b;
   --color-on-tertiary-fixed: #002114;
-  --color-surface-container-high: #e6e8ea;
-  --color-outline-variant: #c6c6cd;
-  --color-surface-container-low: #f2f4f6;
-  --color-on-secondary: #ffffff;
-  --color-primary-container: #131b2e;
-  --color-surface: #f7f9fb;
-  --color-error: #ba1a1a;
-  --color-surface-container: #eceef0;
+  --color-surface-container-high: var(--sys-surface-container-high);
+  --color-outline-variant: var(--sys-outline-variant);
+  --color-surface-container-low: var(--sys-surface-container-low);
+  --color-on-secondary: var(--sys-on-secondary);
+  --color-primary-container: var(--sys-primary-container);
+  --color-surface: var(--sys-surface);
+  --color-error: var(--sys-error);
+  --color-surface-container: var(--sys-surface-container);
   --color-primary: #000000;
   --color-primary-fixed: #dae2fd;
 
@@ -88,6 +135,16 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Typography utility classes matching exact spec */

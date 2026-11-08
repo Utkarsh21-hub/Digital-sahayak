@@ -152,16 +152,21 @@
 - **Feature 4: Client-Side HTML5 Canvas KB Resizer:**
   - 100% on-device image compressor shrinking 4–8 MB smartphone photos to strict 10–200 KB JPGs or 10–100 KB signatures in 200 ms.
   - Infinite scalability: zero cloud compute costs and total privacy (citizen IDs never leave the phone).
+- **Feature 5: "Draft Sahayak (प्रारूप सहायक)" — AI Statutory Draft & Affidavit Architect:**
+  - Solves the problem of illiterate and anxious citizens extorted for ₹300–₹1,500 by court typists and cyber cafes for legal affidavits.
+  - Generates court-ready, portal-compliant drafts (Central Gazette Name Change affidavits, CPGRAMS grievance letters, NEET exam undertakings, DOB corrections).
+  - 1-click step synchronization inside the guided workflow, instant A4 printing, and stamp paper requirement guides.
 
 #### 3. Visual & Layout Instructions for Designer
-- **Layout:** High-impact 4-card feature showcase deck with clear iconography and dynamic alerts:
+- **Layout:** High-impact 5-card feature showcase deck with clear iconography and dynamic alerts:
   - *Card 1 (Scam Shield / Kavach):* Flashing red/emerald alert card with loud speaker wave icon, domain comparison (`pm-mudra-loan-apply.in` ❌ vs `mudra.org.in` ✅), and Cyber Crime 1930 button.
-  - *Card 2 (Gemini Chat UI):* Mockup of the conversational chat thread showing bilingual dialogue, animated sparkle avatar, tough-term badge (*"💡 Asaan Matlab: Deponent = Form bharne wala vyakti"*), and the green *"📲 WhatsApp Revision Card"* container.
-  - *Card 3 (Screenshot Sahayak UI):* Mockup of an uploaded portal error screenshot with the 3 decoded cards: *Screen Par Kya Likha Hai*, *Galti Kyun Hui*, and *Abhi Kya Karein*.
-  - *Card 4 (On-Device KB Resizer):* Visual slider showing *"Before: 4.2 MB"* → *"After: 85 KB (Ready for Portal)"* with a green shield icon: *"100% On-Device / Zero Cloud Upload"*.
+  - *Card 2 (Draft Sahayak UI):* Legal document preview with Non-Judicial Stamp Paper header (*"Affidavit for Name Change"*), verification clause, and 1-click Print A4 button.
+  - *Card 3 (Gemini Chat UI):* Mockup of the conversational chat thread showing bilingual dialogue, animated sparkle avatar, tough-term badge (*"💡 Asaan Matlab: Deponent = Form bharne wala vyakti"*), and the green *"📲 WhatsApp Revision Card"* container.
+  - *Card 4 (Screenshot Sahayak UI):* Mockup of an uploaded portal error screenshot with the 3 decoded cards: *Screen Par Kya Likha Hai*, *Galti Kyun Hui*, and *Abhi Kya Karein*.
+  - *Card 5 (On-Device KB Resizer):* Visual slider showing *"Before: 4.2 MB"* → *"After: 85 KB (Ready for Portal)"* with a green shield icon: *"100% On-Device / Zero Cloud Upload"*.
 
 #### 4. Presenter Stage Pitch Script (30 Seconds)
-> *"Judges, let me reveal our most powerful 'WOW' innovation: **Scam Shield (स्कैम कवच)**. In 2023, Indians lost over ₹7,488 crore to WhatsApp phishing scams like fake Mudra loans and electricity KYC threats. With Scam Shield, a citizen simply pastes that WhatsApp message into Digital Sahayak. Our AI instantly exposes the fake domain, flashes red, and speaks a loud voice warning in Hindi telling them not to click. Backed by our **Grounded Gemini Chat** co-pilot, **Screenshot Sahayak** error decoder, and client-side **KB Resizer**, Digital Sahayak is not just a form assistant—it is a live financial bodyguard for 900 million citizens."*
+> *"Judges, let me reveal our most powerful WOW innovations. Beyond our **Scam Shield** which stops WhatsApp cyber fraud and our **Grounded Gemini Chat**, we built **Draft Sahayak (प्रारूप सहायक)**. If a citizen needs to file a Name Change affidavit or a CPGRAMS bribe complaint, court typists charge them ₹1,000 just to type one page. In Digital Sahayak, they simply speak their problem in plain Hindi or Hinglish, and Gemini generates a court-ready, portal-compliant legal affidavit formatted for A4 stamp paper in 3 seconds. Combined with **Screenshot Sahayak** and our client-side **KB Resizer**, citizens have a complete legal and technical powerhouse in their pocket for zero rupees."*
 
 ---
 

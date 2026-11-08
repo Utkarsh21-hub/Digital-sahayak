@@ -6,6 +6,7 @@ interface GuidedCoachProps {
   currentStepIndex: number;
   onStepChange: (index: number) => void;
   onOpenScreenshotModal: () => void;
+  onOpenDraftGenerator?: (templateId?: string) => void;
   language: 'hinglish' | 'hi' | 'en';
 }
 
@@ -14,6 +15,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
   currentStepIndex,
   onStepChange,
   onOpenScreenshotModal,
+  onOpenDraftGenerator,
   language,
 }) => {
   const [isExplaining, setIsExplaining] = useState(false);
@@ -173,6 +175,34 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Step-Synced Draft Generator Trigger */}
+        {currentStep.draftTemplateId && (
+          <div className="mt-4 pt-4 border-t border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-secondary/5 -mx-5 -mb-5 p-4 rounded-b-xl border-t border-secondary/20">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-base">description</span>
+              </span>
+              <div>
+                <div className="font-bold text-xs text-on-surface">
+                  {currentStep.draftButtonLabel || '📝 Generate Official Legal Draft'}
+                </div>
+                <div className="text-[11px] text-on-surface-variant">
+                  Preformatted court/portal statutory template • Free Gemini auto-fill
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onOpenDraftGenerator?.(currentStep.draftTemplateId)}
+              className="px-3.5 py-2 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition shrink-0"
+            >
+              <span>Open Draft Sahayak</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
           </div>
         )}
       </div>
