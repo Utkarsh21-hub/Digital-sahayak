@@ -10,6 +10,7 @@ interface HeaderProps {
   currentView?: 'chat' | 'dashboard';
   onViewChange?: (view: 'chat' | 'dashboard') => void;
   onOpenPitchDeck?: () => void;
+  onOpenScamShield?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentView = 'chat',
   onViewChange,
   onOpenPitchDeck,
+  onOpenScamShield,
 }) => {
   return (
     <header className="bg-surface-container-lowest text-secondary text-headline-md font-headline-md docked full-width top-0 sticky z-40 border-b border-outline-variant shadow-sm">
@@ -167,6 +169,19 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
             <span className="text-label-sm font-label-sm font-semibold">.gov.in &amp; .nic.in Only</span>
           </div>
+
+          {/* Scam Shield (Kavach) Trigger Button */}
+          <button
+            onClick={onOpenScamShield}
+            aria-label="Open Scam Shield Phishing Detector"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-bold text-xs shadow-md shadow-red-500/20 active:scale-[0.98] transition-all"
+            title="Scan suspicious WhatsApp link or message (Scam Shield / स्कैम कवच)"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-base animate-pulse">shield</span>
+            <span className="hidden sm:inline">Scam Shield</span>
+            <span className="text-[10px] bg-white/20 px-1 py-0.2 rounded font-black">कवच</span>
+          </button>
 
           <button
             onClick={onOpenHelp}

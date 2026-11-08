@@ -31,6 +31,7 @@ interface GeminiChatViewProps {
   onOpenResizer?: () => void;
   onSelectProcedure?: (procedureId: string) => void;
   preselectedTask?: string;
+  onOpenScamShield?: () => void;
 }
 
 const SUPPORTED_TASKS = [
@@ -114,6 +115,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   onOpenResizer,
   onSelectProcedure,
   preselectedTask,
+  onOpenScamShield,
 }) => {
   const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>(initialLanguage);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -471,6 +473,13 @@ Please retry your query or click one of the quick options below. Remember: Never
             >
               <span>📐 KB Resizer Tool</span>
             </button>
+            <button
+              onClick={() => onOpenScamShield?.()}
+              className="px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 hover:bg-red-100 transition flex items-center gap-1.5 shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+              <span>🛡️ Scam Shield (Check WhatsApp Link)</span>
+            </button>
           </div>
         )}
       </div>
@@ -555,6 +564,13 @@ Please retry your query or click one of the quick options below. Remember: Never
           <FileText className="w-3.5 h-3.5 text-secondary" />
           Verified Tasks (9):
         </span>
+        <button
+          onClick={() => onOpenScamShield?.()}
+          className="px-3 py-1 text-xs rounded-full bg-gradient-to-r from-red-600 to-rose-700 text-white hover:from-red-700 hover:to-rose-800 font-bold whitespace-nowrap transition flex items-center gap-1.5 shrink-0 shadow-sm"
+        >
+          <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <span>🛡️ Scam Shield (कवच)</span>
+        </button>
         {SUPPORTED_TASKS.map((task) => (
           <button
             key={task.id}

@@ -37,7 +37,7 @@
 #### 2. Bullet Points (On-Slide Text)
 - **Driving Licence Extortion:** Official online renewal costs ₹200–₹400 on Sarathi; roadside touts falsely claim "portal is down" and fleece citizens for ₹1,500–₹3,000.
 - **Gazette Notification Trap:** Legal name change on BharatKosh costs ₹1,100; unregulated brokers extort ₹8,000 to ₹15,000 for simple affidavit filings.
-- **Free Services Monetized:** First-time Aadhaar enrolment is 100% free by law; yet unlettered citizens are illegally charged ₹200–₹500 per head.
+- **WhatsApp KYC & Free Scheme Scams (Digital Loot):** Over ₹7,488 Crore lost by Indians in 2023 to fake WhatsApp links ("PM Mudra Loan", "Electricity KYC pending", "Free Solar Panel"). Rural smartphone users are targeted with fake private domains.
 - **Catastrophic Privacy Risks:** Citizens routinely hand over live Aadhaar OTPs, net banking passwords, and original identity documents to strangers at shared cyber cafe terminals.
 
 #### 3. Visual & Layout Instructions for Designer
@@ -132,31 +132,36 @@
 
 ---
 
-### Slide 5: The "WOW" Features — Gemini Chat, Screenshot Sahayak & Client-Side Doc Prep
+### Slide 5: The "WOW" Features — Gemini Chat, Scam Shield & Multimodal Vision
 
 #### 1. Slide Title & Subtitle
-- **Title:** The "WOW" Innovations: Multimodal Vision, Grounded Gemini Chat & Zero-Server Utilities
-- **Subtitle:** Three Breakthrough Technologies Solving the Core Failure Points of Citizen Portals
+- **Title:** The "WOW" Innovations: Scam Shield, Multimodal Vision & Grounded Gemini Co-Pilot
+- **Subtitle:** Four Breakthrough Technologies Solving the Core Failure Points of Citizen Portals & WhatsApp Scams
 
 #### 2. Bullet Points (On-Slide Text)
-- **Feature 1: Conversational Gemini Chat (Grounded Civic Co-Pilot):**
+- **Feature 1: "Scam Shield (स्कैम कवच)" — WhatsApp Cyber Fraud Protector:**
+  - Addresses the ₹7,488 Cr digital fraud epidemic. Citizens paste suspicious WhatsApp messages or links into Digital Sahayak.
+  - Multimodal Gemini + deterministic engine analyzes domain authenticity (`.gov.in` vs fake `.in`/`.online`).
+  - If fake (e.g. `pm-mudra-loan-apply.in`), flashes a high-alert red warning and speaks a loud voice alarm in Hindi/Hinglish: *"रुकिए! यह एक फर्जी लिंक है। सरकार व्हाट्सएप पर कभी पैसे या लोन नहीं देती!"*
+- **Feature 2: Conversational Gemini Chat (Grounded Civic Co-Pilot):**
   - Powered by Gemini 2.5 Flash Lite (Temp = 0.2) strictly bounded by audited government guides.
   - Conversational step-by-step gating in Simple Hindi, Hinglish, and English—delivers only one step at a time with "Asaan Matlab" jargon tooltips and 1-click copyable WhatsApp Revision Cards.
-- **Feature 2: "Screenshot Sahayak" (Multimodal Visual Portal Decoder):**
+- **Feature 3: "Screenshot Sahayak" (Multimodal Visual Portal Decoder):**
   - Users drop screenshots of confusing forms or cryptic red errors directly into chat.
   - Gemini Vision instantly structures the fix into 3 sections: *Screen Par Kya Likha Hai* (translation), *Galti Kyun Hui* (root cause), and *Abhi Kya Karein* (exact action).
-- **Feature 3: Client-Side HTML5 Canvas KB Resizer:**
+- **Feature 4: Client-Side HTML5 Canvas KB Resizer:**
   - 100% on-device image compressor shrinking 4–8 MB smartphone photos to strict 10–200 KB JPGs or 10–100 KB signatures in 200 ms.
   - Infinite scalability: zero cloud compute costs and total privacy (citizen IDs never leave the phone).
 
 #### 3. Visual & Layout Instructions for Designer
-- **Layout:** High-impact 3-column feature showcase card deck with clear iconography:
-  - *Column 1 (Gemini Chat UI):* Mockup of the conversational chat thread showing bilingual dialogue, animated sparkle avatar, tough-term badge (*"💡 Asaan Matlab: Deponent = Form bharne wala vyakti"*), and the green *"📲 WhatsApp Revision Card"* container.
-  - *Column 2 (Screenshot Sahayak UI):* Mockup of an uploaded portal error screenshot with the 3 decoded cards: *Screen Par Kya Likha Hai*, *Galti Kyun Hui*, and *Abhi Kya Karein*.
-  - *Column 3 (On-Device KB Resizer):* Visual slider showing *"Before: 4.2 MB"* → *"After: 85 KB (Ready for Portal)"* with a green shield icon: *"100% On-Device / Zero Cloud Upload"*.
+- **Layout:** High-impact 4-card feature showcase deck with clear iconography and dynamic alerts:
+  - *Card 1 (Scam Shield / Kavach):* Flashing red/emerald alert card with loud speaker wave icon, domain comparison (`pm-mudra-loan-apply.in` ❌ vs `mudra.org.in` ✅), and Cyber Crime 1930 button.
+  - *Card 2 (Gemini Chat UI):* Mockup of the conversational chat thread showing bilingual dialogue, animated sparkle avatar, tough-term badge (*"💡 Asaan Matlab: Deponent = Form bharne wala vyakti"*), and the green *"📲 WhatsApp Revision Card"* container.
+  - *Card 3 (Screenshot Sahayak UI):* Mockup of an uploaded portal error screenshot with the 3 decoded cards: *Screen Par Kya Likha Hai*, *Galti Kyun Hui*, and *Abhi Kya Karein*.
+  - *Card 4 (On-Device KB Resizer):* Visual slider showing *"Before: 4.2 MB"* → *"After: 85 KB (Ready for Portal)"* with a green shield icon: *"100% On-Device / Zero Cloud Upload"*.
 
 #### 4. Presenter Stage Pitch Script (30 Seconds)
-> *"Let me reveal our three 'WOW' innovations. First is **Gemini Chat**: a friendly, conversational co-pilot that talks to citizens in Hinglish or Hindi, breaks complex portals into one step at a time, explains tough legal words, and gives you a copyable WhatsApp summary card. Second is **Screenshot Sahayak**: when a confusing portal error pops up, citizens simply drop a screenshot into the chat, and Gemini's multimodal vision explains what went wrong and which button to press next. And third is our **Client-Side KB Resizer**: it compresses heavy phone photos into strict government KB limits right inside the browser's canvas—keeping private citizen documents 100% off external servers and keeping our backend costs at zero!"*
+> *"Judges, let me reveal our most powerful 'WOW' innovation: **Scam Shield (स्कैम कवच)**. In 2023, Indians lost over ₹7,488 crore to WhatsApp phishing scams like fake Mudra loans and electricity KYC threats. With Scam Shield, a citizen simply pastes that WhatsApp message into Digital Sahayak. Our AI instantly exposes the fake domain, flashes red, and speaks a loud voice warning in Hindi telling them not to click. Backed by our **Grounded Gemini Chat** co-pilot, **Screenshot Sahayak** error decoder, and client-side **KB Resizer**, Digital Sahayak is not just a form assistant—it is a live financial bodyguard for 900 million citizens."*
 
 ---
 
@@ -212,23 +217,25 @@
 ### Slide 8: Live Demo Flow — The 60-Second Walkthrough
 
 #### 1. Slide Title & Subtitle
-- **Title:** Live Demonstration: The 60-Second Flow
-- **Subtitle:** From Confusion to Completion in Three Simple Steps
+- **Title:** Live Demonstration: The 60-Second Stage Flow
+- **Subtitle:** The 4-Beat Live Demo: From WhatsApp Scam Detection to Portal Completion
 
 #### 2. Bullet Points (On-Slide Text)
-- **Step 1: Select & Verify (00–20s):** Citizen selects *"Driving Licence Renewal"* in Hinglish → Instant display of verified portal (`sarathi.parivahan.gov.in`), ₹200 fee, tout fraud alert, and Pre-Flight Checklist.
-- **Step 2: 1-Tap Document Prep (20–40s):** Citizen uploads a raw 3.8 MB phone photo → HTML5 Canvas resizer compresses it down to 85 KB with zero server upload in 200 milliseconds.
-- **Step 3: Decode Error Live (40–60s):** Citizen uploads a screenshot of a confusing portal upload error → Screenshot Sahayak decodes the failure and provides the exact one-click solution in plain everyday language.
+- **Act 1: The WOW Moment — Scam Shield (00–15s):** Live paste on stage: *"Get ₹50,000 under PM Mudra Loan today. Click www.pm-mudra-loan-apply.in"*. Hit verify → Screen flashes warning red, audio alarm speaks in Hindi (*"STOP! Yeh ek farzi scam hai..."*), exposing the fake domain.
+- **Act 2: Select & Verify (15–30s):** Citizen selects *"Driving Licence Renewal"* in Hinglish → Instant display of verified portal (`sarathi.parivahan.gov.in`), ₹200 fee, tout fraud alert, and Pre-Flight Checklist.
+- **Act 3: 1-Tap Document Prep (30–45s):** Citizen uploads a raw 3.8 MB phone photo → HTML5 Canvas resizer compresses it down to 85 KB with zero server upload in 200 milliseconds.
+- **Act 4: Decode Error Live (45–60s):** Citizen uploads a screenshot of a confusing portal upload error → Screenshot Sahayak decodes the failure and provides the exact one-click solution in plain everyday language.
 
 #### 3. Visual & Layout Instructions for Designer
-- **Layout:** Clean, minimalist 3-step storyboard with high-impact product screenshots.
-  - *Frame 1:* The verified procedure screen with green checklist pills and fee comparison.
-  - *Frame 2:* The KB Resizer slider showing "Before: 3.8 MB" → "After: 85 KB (Perfect)".
-  - *Frame 3:* The Gemini Vision chat response decoding an error with "Asaan Matlab" tough-term tags and the green "Copy WhatsApp Revision Card" button.
-- **Timer Callouts:** Bold stopwatch badges: `0:20s`, `0:40s`, `0:60s`.
+- **Layout:** High-impact 4-step horizontal demo journey with bold stopwatch badges:
+  - *Frame 1 (0:15s):* Flashing red Scam Shield alert with audio waveform and domain mismatch (`pm-mudra-loan-apply.in` ❌ vs `mudra.org.in` ✅).
+  - *Frame 2 (0:30s):* Verified DL procedure screen with green checklist pills and fee comparison.
+  - *Frame 3 (0:45s):* The KB Resizer slider showing "Before: 3.8 MB" → "After: 85 KB (Perfect)".
+  - *Frame 4 (0:60s):* The Gemini Vision chat response decoding an error with "Asaan Matlab" tough-term tags and the green "Copy WhatsApp Revision Card" button.
+- **Timer Callouts:** Bold stopwatch badges: `0:15s`, `0:30s`, `0:45s`, `0:60s`.
 
 #### 4. Presenter Stage Pitch Script (30 Seconds)
-> *"Let's see Digital Sahayak in action right now. In step one, a user clicks 'Driving Licence Renewal' in Hinglish. Instantly, they see the official Sarathi link, the real ₹200 statutory fee, and our warning not to pay touts ₹1,500. In step two, they drop their heavy camera photo into our resizer—in 200 milliseconds, it's an 85 KB portal-compliant file, without ever uploading to a server. And in step three, when a confusing error appears on screen, they snap a screenshot, drop it into Screenshot Sahayak, and our Gemini Vision model explains the exact next button to tap. Complete empowerment in under 60 seconds."*
+> *"Let's see Digital Sahayak in action right now live on stage. First, watch this: I receive a viral WhatsApp message claiming 'Get ₹50,000 PM Mudra Loan at pm-mudra-loan-apply.in'. I paste it into Scam Shield—listen to what happens! [Screen flashes red, audio speaks loud warning]. In 2 seconds, the AI catches the fake domain and protects my bank account. Next, I need a Driving Licence renewal: Digital Sahayak shows the official ₹200 fee, preventing a ₹1,500 cyber cafe rip-off. I upload a heavy 4 MB camera photo: in 200 milliseconds, our on-device resizer turns it into an 85 KB portal-ready file. And when an upload error pops up, Screenshot Sahayak decodes it instantly. That is complete citizen empowerment in 60 seconds."*
 
 ---
 

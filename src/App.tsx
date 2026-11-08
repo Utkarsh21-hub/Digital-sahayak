@@ -18,10 +18,12 @@ import { DirectoryModal } from './components/DirectoryModal';
 import { HelpModal } from './components/HelpModal';
 import { Footer } from './components/Footer';
 import { GeminiChatView } from './components/GeminiChatView';
+import { ScamShieldModal } from './components/ScamShieldModal';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('chat');
   const [selectedProcedureId, setSelectedProcedureId] = useState<string>('neet-ug-2025');
+  const [isScamShieldOpen, setIsScamShieldOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>('hinglish');
@@ -154,11 +156,41 @@ export default function App() {
         }}
         currentView={viewMode}
         onViewChange={setViewMode}
+        onOpenScamShield={() => setIsScamShieldOpen(true)}
       />
 
       {/* Main Content Area: Gemini Chat vs Procedural Dashboard */}
       {viewMode === 'chat' ? (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-4 sm:py-6 flex flex-col">
+          {/* Scam Shield (Kavach) Quick Emergency Alert Banner */}
+          <div className="mb-3.5 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-red-600/10 via-rose-500/10 to-amber-500/10 border-2 border-red-300 dark:border-red-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-rose-700 text-white flex items-center justify-center shrink-0 shadow-md shadow-red-500/30 animate-pulse">
+                <span className="material-symbols-outlined text-base">shield</span>
+              </span>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-red-700 dark:text-red-400 uppercase tracking-wide">
+                    Scam Shield (स्कैम कवच) Active:
+                  </span>
+                  <span className="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.2 rounded">
+                    Phishing Alert
+                  </span>
+                </div>
+                <p className="text-on-surface line-clamp-1 mt-0.5">
+                  Received WhatsApp message claiming "Free PM Solar Yojana", "₹50,000 Mudra Loan", or "Electricity KYC Block"?
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsScamShieldOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0 shadow-md shadow-red-600/20 transition flex items-center justify-center gap-1.5 active:scale-95"
+            >
+              <span>Scan WhatsApp Link</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
           {/* Quick Safety & Grounding Banner */}
           <div className="mb-4 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
@@ -194,6 +226,7 @@ export default function App() {
               onSelectProcedure={(procedureId) => {
                 setSelectedProcedureId(procedureId);
               }}
+              onOpenScamShield={() => setIsScamShieldOpen(true)}
             />
           </div>
         </main>
@@ -225,13 +258,22 @@ export default function App() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setViewMode('chat')}
-                className="px-4 py-2 rounded-xl bg-secondary text-white text-xs font-bold shadow hover:bg-secondary/90 transition flex items-center gap-1.5 shrink-0"
-              >
-                <span>Open Gemini Chat</span>
-                <span className="material-symbols-outlined text-sm">chat</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setIsScamShieldOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow flex items-center gap-1.5 transition active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-sm animate-pulse">shield</span>
+                  <span>Scam Shield (कवच)</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('chat')}
+                  className="px-4 py-2 rounded-xl bg-secondary text-white text-xs font-bold shadow hover:bg-secondary/90 transition flex items-center gap-1.5"
+                >
+                  <span>Open Gemini Chat</span>
+                  <span className="material-symbols-outlined text-sm">chat</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -318,6 +360,13 @@ export default function App() {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
         onOpenChat={() => setIsChatModalOpen(true)}
+      />
+
+      {/* Scam Shield (Kavach) Phishing Link Modal */}
+      <ScamShieldModal
+        isOpen={isScamShieldOpen}
+        onClose={() => setIsScamShieldOpen(false)}
+        language={language}
       />
 
       {/* Statutory Footer and Mobile Bottom Tray */}
