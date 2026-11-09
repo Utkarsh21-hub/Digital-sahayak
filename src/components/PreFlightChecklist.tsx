@@ -1,5 +1,6 @@
 import React from 'react';
 import { Procedure } from '../utils/procedures';
+import { getAppIcon } from '../utils/appIcons';
 
 interface PreFlightChecklistProps {
   procedure: Procedure;
@@ -7,6 +8,7 @@ interface PreFlightChecklistProps {
   onToggleChecklist: (itemId: string) => void;
   onOpenResizerForPreset: (presetName: string) => void;
   onStartWorkflow: () => void;
+  theme?: 'light' | 'dark';
 }
 
 export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
@@ -15,113 +17,137 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
   onToggleChecklist,
   onOpenResizerForPreset,
   onStartWorkflow,
+  theme = 'light',
 }) => {
   const readyCount = procedure.checklist.filter(
     (item) => checklistState[item.id] ?? item.defaultChecked
   ).length;
 
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 md:p-6 shadow-sm">
-      {/* Pre-flight Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-outline-variant">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs">
+      {/* Pre-flight Header matching Screenshot */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <span className="text-label-sm font-label-sm uppercase tracking-wider text-secondary font-bold">
-            Step-by-Step Self-Help Workflow
+          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">
+            STEP-BY-STEP SELF-HELP WORKFLOW
           </span>
-          <h2 className="text-headline-lg font-headline-lg text-on-surface mt-0.5">{procedure.title} Navigator</h2>
-          <p className="text-caption font-caption text-on-surface-variant">{procedure.subtitle}</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+            {procedure.title}
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {procedure.subtitle}
+          </p>
         </div>
 
-        {/* Launch Direct Official Portal Button */}
+        {/* Launch Direct Official Portal Button (Green Solid Button) */}
         <a
-          className="inline-flex items-center justify-center gap-2 bg-on-tertiary-container hover:bg-opacity-95 text-on-primary font-body-strong font-semibold px-4 py-3 rounded-xl shadow-sm transition-all active:scale-[0.98] min-h-[48px]"
+          className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 shrink-0"
           href={procedure.portalUrl}
           rel="noopener noreferrer"
           target="_blank"
         >
-          <span className="material-symbols-outlined text-lg" data-icon="open_in_new">
-            open_in_new
-          </span>
-          <span>Open Portal ({procedure.portal})</span>
+          <span>Open portal</span>
+          <span className="font-semibold underline">{procedure.portal}</span>
         </a>
       </div>
 
-      {/* Fee Transparency Comparison Box */}
-      <div className="mt-5 bg-surface-container-low border border-outline-variant rounded-xl p-4">
-        <h4 className="text-label-md font-label-md text-on-surface font-bold mb-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-secondary" data-icon="price_check">
-            price_check
+      {/* Fee Transparency Box matching Screenshot */}
+      <div className="mt-5 bg-slate-50/70 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-3 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
+            <img
+              src={getAppIcon('check', theme)}
+              alt=""
+              className="w-4 h-4 object-contain"
+            />
+            <span>Fee transparency</span>
+          </div>
+          <span className="text-slate-400 dark:text-slate-500">
+            no extra kiosk charges
           </span>
-          Fee Transparency Comparison (No Extra Kiosk Charges)
-        </h4>
+        </div>
 
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant">
-            <span className="text-caption font-caption text-on-surface-variant block">Official Portal Fee</span>
-            <span className="text-headline-sm font-headline-sm text-on-surface font-bold">
+        <div className="grid grid-cols-3 gap-2.5 text-center">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
+              Official portal fee
+            </span>
+            <span className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white block mt-0.5">
               {procedure.officialFeeLabel}
             </span>
-            <span className="text-[11px] text-on-tertiary-container block font-medium">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">
               {procedure.officialFeeSubtext}
             </span>
           </div>
 
-          <div className="bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant">
-            <span className="text-caption font-caption text-on-surface-variant block">Cyber Cafe Charge</span>
-            <span className="text-headline-sm font-headline-sm text-error font-bold line-through">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
+              Cyber cafe charge
+            </span>
+            <span className="text-base sm:text-lg font-bold text-rose-600 line-through block mt-0.5">
               {procedure.cyberCafeLabel}
             </span>
-            <span className="text-[11px] text-error block font-medium">Extra Kiosk Margin</span>
+            <span className="text-[10px] text-rose-500 block mt-0.5">
+              Extra kiosk margin
+            </span>
           </div>
 
-          <div className="bg-tertiary-fixed text-tertiary-container p-2.5 rounded-lg border border-outline-variant">
-            <span className="text-caption font-caption text-tertiary-container/80 block">Your Direct Saving</span>
-            <span className="text-headline-sm font-headline-sm font-extrabold text-tertiary-container">
+          <div className="bg-emerald-50/60 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-800/60">
+            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 block font-medium">
+              Your direct saving
+            </span>
+            <span className="text-base sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400 block mt-0.5">
               {procedure.savingsLabel}
             </span>
-            <span className="text-[11px] font-bold block">100% Free Self-Service</span>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-semibold block mt-0.5">
+              100% free self-service
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Interactive Document Checklist */}
+      {/* Pre-Flight Document Checklist */}
       <div className="mt-5">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-label-md font-label-md text-on-surface font-bold flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary" data-icon="checklist">
-              checklist
-            </span>
-            Pre-Flight Document Checklist (Ready before opening portal)
-          </h4>
-          <span className="text-label-sm font-label-sm text-on-surface-variant font-medium">
-            {readyCount} of {procedure.checklist.length} Ready
+        <div className="flex items-center justify-between mb-3 text-xs font-semibold">
+          <div className="flex items-center gap-1.5 text-slate-900 dark:text-white font-bold">
+            <img
+              src={getAppIcon('checklist', theme)}
+              alt=""
+              className="w-4 h-4 object-contain"
+            />
+            <span>Pre-flight document checklist</span>
+          </div>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">
+            {readyCount} of {procedure.checklist.length} ready
           </span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {procedure.checklist.map((item) => {
             const isChecked = checklistState[item.id] ?? item.defaultChecked;
             return (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-secondary/40 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
               >
-                <label className="flex items-center gap-3 cursor-pointer min-h-[32px] flex-1 mr-2">
+                <label className="flex items-center gap-3 cursor-pointer flex-1 mr-2 select-none">
                   <input
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => onToggleChecklist(item.id)}
-                    className="w-5 h-5 rounded border-outline-variant text-secondary focus:ring-secondary/20 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <div>
                     <span
-                      className={`text-body-strong font-body-strong ${
-                        isChecked ? 'text-on-surface' : 'text-on-surface-variant'
+                      className={`text-xs font-bold ${
+                        isChecked
+                          ? 'text-slate-900 dark:text-white'
+                          : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       {item.label}
                     </span>
-                    <span className="text-caption font-caption text-on-tertiary-container block">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
                       {item.note}
                     </span>
                   </div>
@@ -130,15 +156,15 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
                 {item.canResize && (
                   <button
                     onClick={() => onOpenResizerForPreset(item.label)}
-                    className="text-label-sm font-label-sm text-secondary bg-surface-container px-2.5 py-1.5 rounded-lg font-semibold hover:bg-surface-container-high transition-colors whitespace-nowrap cursor-pointer"
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline px-2 py-1 flex items-center gap-1 shrink-0 cursor-pointer"
                     type="button"
                   >
-                    [Resize Now]
+                    <span>Resize now</span>
                   </button>
                 )}
 
                 {item.tag && !item.canResize && (
-                  <span className="text-caption font-caption text-on-surface-variant bg-surface-container px-2 py-1 rounded whitespace-nowrap">
+                  <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md shrink-0">
                     {item.tag}
                   </span>
                 )}
@@ -148,32 +174,36 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
         </div>
       </div>
 
-      {/* Middleman Alert / Fraud Warning Panel */}
-      <div className="mt-5 bg-error-container/30 border-1.5 border-error-container rounded-xl p-4 text-on-surface flex items-start gap-3">
-        <span
-          className="material-symbols-outlined text-error text-2xl flex-shrink-0"
-          data-icon="warning"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          warning
-        </span>
+      {/* Middleman & Cyber Fraud Alert Box matching Screenshot */}
+      <div className="mt-5 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-xl p-3.5 flex items-start gap-3">
+        <img
+          src={getAppIcon('shield', theme)}
+          alt=""
+          className="w-5 h-5 object-contain shrink-0 mt-0.5"
+        />
         <div>
-          <h5 className="text-body-strong font-body-strong text-error">Middleman &amp; Cyber Fraud Alert</h5>
-          <p className="text-caption font-caption text-on-surface-variant mt-0.5">{procedure.fraudWarning}</p>
+          <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400">
+            Middleman &amp; cyber fraud alert
+          </h5>
+          <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
+            {procedure.fraudWarning}
+          </p>
         </div>
       </div>
 
-      {/* Readiness CTA Button */}
+      {/* Big Blue Readiness CTA Button matching Screenshot */}
       <div className="mt-5">
         <button
           onClick={onStartWorkflow}
-          className="w-full bg-secondary hover:bg-secondary-container text-on-secondary font-headline-sm font-semibold py-3.5 px-6 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 px-6 rounded-xl shadow-xs transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
           type="button"
         >
-          <span className="material-symbols-outlined text-xl" data-icon="check_circle">
-            check_circle
-          </span>
-          <span>I Have These Ready — Start Step 1</span>
+          <img
+            src={getAppIcon('check', 'dark')}
+            alt=""
+            className="w-4 h-4 object-contain brightness-0 invert"
+          />
+          <span>I have these ready: start step 1</span>
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAppIcon } from '../utils/appIcons';
 
 interface FooterProps {
   onOpenDirectory: () => void;
@@ -6,6 +7,7 @@ interface FooterProps {
   onOpenResizer: () => void;
   onOpenScreenshotModal: () => void;
   onOpenChat: () => void;
+  theme?: 'light' | 'dark';
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -14,129 +16,116 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenResizer,
   onOpenScreenshotModal,
   onOpenChat,
+  theme = 'light',
 }) => {
   return (
     <>
-      {/* STATUTORY FOOTER (Shared Component Anchor) */}
-      <footer className="bg-surface-container-high text-on-surface text-headline-sm font-headline-sm docked full-width bottom border-t border-outline-variant mt-12 pb-16 md:pb-0">
-        <div className="w-full py-8 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          {/* Copyright & Mandate */}
-          <div className="text-caption font-caption text-on-surface-variant text-center md:text-left max-w-2xl">
-            <p className="text-headline-sm font-headline-sm font-bold text-on-surface mb-1">
-              Digital Sahayak
-            </p>
-            © 2025 Digital Sahayak (डिजिटल सहायक). An open civic initiative for direct citizen enablement on .gov.in and .nic.in systems. No middleman charges.
+      {/* STATUTORY CLEAN FOOTER matching Screenshot */}
+      <footer className="w-full bg-slate-50 dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 mt-12 py-6 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 dark:text-slate-400">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div>
+            © 2025 Digital Sahayak. An open civic initiative. No middleman charges.
           </div>
 
-          {/* Statutory Civic Links */}
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2 text-caption font-caption">
+          <div className="flex items-center gap-3">
             <a
-              className="text-on-surface-variant hover:text-secondary transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-secondary"
               href="tel:1947"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
-              Official Helpline (1947)
+              Official helpline 1947
             </a>
+            <span>•</span>
             <a
-              className="text-secondary font-semibold underline hover:text-secondary transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-secondary"
               href="https://pgportal.gov.in"
-              rel="noopener noreferrer"
               target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
-              CPGRAMS Grievance (pgportal.gov.in)
+              CPGRAMS (pgportal.gov.in)
             </a>
-            <button
-              onClick={onOpenHelp}
-              className="text-on-surface-variant hover:text-secondary transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-secondary cursor-pointer"
-            >
-              Anti-Fraud Guidelines
-            </button>
-            <button
-              onClick={onOpenDirectory}
-              className="text-on-surface-variant hover:text-secondary transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-secondary cursor-pointer"
-            >
-              Direct Portal Directory
-            </button>
-            <button
-              onClick={onOpenHelp}
-              className="text-on-surface-variant hover:text-secondary transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-secondary cursor-pointer"
-            >
-              Privacy Policy
-            </button>
           </div>
         </div>
       </footer>
 
-      {/* Floating AI Chat Sahayak Trigger on Desktop */}
+      {/* Floating AI Chat Trigger on Desktop with provided ai-chat icon */}
       <div className="hidden md:block fixed bottom-6 right-6 z-40">
         <button
           onClick={onOpenChat}
-          className="bg-secondary hover:bg-secondary-container text-on-secondary px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 font-bold transition-all active:scale-95 cursor-pointer ring-2 ring-white/50"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 font-bold transition-all active:scale-95 cursor-pointer ring-2 ring-white/50 text-xs"
           type="button"
           title="Open Digital Sahayak AI Assistant"
         >
-          <span className="material-symbols-outlined text-2xl" data-icon="smart_toy">
-            smart_toy
-          </span>
-          <span className="text-label-md">Ask Sahayak AI</span>
+          <img
+            src={getAppIcon('ai-chat', 'dark')}
+            alt=""
+            className="w-5 h-5 object-contain brightness-0 invert"
+          />
+          <span>Ask Sahayak AI</span>
         </button>
       </div>
 
-      {/* MOBILE BOTTOM NAVIGATION TRAY (Appears on Mobile only, hidden on md+) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest border-t border-outline-variant px-4 py-2 flex items-center justify-around shadow-lg">
+      {/* MOBILE BOTTOM NAVIGATION TRAY with provided icons */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-lg">
         <button
-          className="flex flex-col items-center text-secondary font-bold cursor-pointer"
+          className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400 font-bold cursor-pointer"
           onClick={() => window.scrollTo({ top: 120, behavior: 'smooth' })}
         >
-          <span
-            className="material-symbols-outlined"
-            data-icon="home"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            home
-          </span>
-          <span className="text-[11px] font-semibold">Services</span>
+          <img
+            src={getAppIcon('checklist', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <span className="text-[10px]">Services</span>
         </button>
 
         <button
-          className="flex flex-col items-center text-on-surface-variant hover:text-secondary cursor-pointer"
+          className="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer"
           onClick={onOpenResizer}
         >
-          <span className="material-symbols-outlined" data-icon="crop">
-            crop
-          </span>
-          <span className="text-[11px]">Resizer</span>
+          <img
+            src={getAppIcon('resize', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <span className="text-[10px]">Resizer</span>
         </button>
 
         <button
-          className="flex flex-col items-center text-on-surface-variant hover:text-secondary cursor-pointer"
+          className="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer"
           onClick={onOpenScreenshotModal}
           type="button"
         >
-          <span className="material-symbols-outlined" data-icon="photo_camera">
-            photo_camera
-          </span>
-          <span className="text-[11px]">Sahayak</span>
+          <img
+            src={getAppIcon('camera', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <span className="text-[10px]">Sahayak</span>
         </button>
 
         <button
-          className="flex flex-col items-center text-on-surface-variant hover:text-secondary cursor-pointer"
+          className="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer"
           onClick={onOpenChat}
           type="button"
         >
-          <span className="material-symbols-outlined" data-icon="chat">
-            chat
-          </span>
-          <span className="text-[11px]">AI Chat</span>
+          <img
+            src={getAppIcon('ai-chat', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <span className="text-[10px]">AI Chat</span>
         </button>
 
         <a
-          className="flex flex-col items-center text-on-surface-variant hover:text-secondary cursor-pointer"
+          className="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer"
           href="tel:1947"
         >
-          <span className="material-symbols-outlined" data-icon="call">
-            call
-          </span>
-          <span className="text-[11px]">1947 Help</span>
+          <img
+            src={getAppIcon('help', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <span className="text-[10px]">1947 Help</span>
         </a>
       </nav>
     </>

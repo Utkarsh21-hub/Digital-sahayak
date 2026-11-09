@@ -870,7 +870,7 @@ Language requirement: ${langNote}`;
 });
 
 // Endpoint to verify suspicious WhatsApp / SMS links and messages for cyber scams (Scam Shield / स्कैम कवच)
-app.post('/api/verify-scam', async (req: Request, res: Response) => {
+const handleScamVerification = async (req: Request, res: Response) => {
   try {
     const { message, language = 'hinglish' } = req.body;
     if (!message || typeof message !== 'string') {
@@ -1025,7 +1025,10 @@ Extract the domain, identify red flags, check if it is an impersonation scam, pr
     console.error('Error in /api/verify-scam:', error);
     res.status(500).json({ error: 'Failed to verify scam link' });
   }
-});
+};
+
+app.post('/api/verify-scam', handleScamVerification);
+app.post('/api/scam-shield', handleScamVerification);
 
 
 // Endpoint to generate legal drafts, affidavits, and grievance letters (Official Draft Sahayak / प्रारूप सहायक)

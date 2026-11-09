@@ -35,22 +35,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
-    <!-- Initialize Light/Dark Mode before DOM renders to prevent flicker -->
+    <!-- Initialize Light/Dark Mode before DOM renders to prevent flicker: Default Light -->
     <script>
       (function() {
         try {
           var saved = localStorage.getItem('digital-sahayak-theme');
-          var isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var isDark = saved === 'dark';
           if (isDark) {
             document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
           } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
           }
         } catch (e) {}
       })();
     </script>
   </head>
-  <body class="bg-background text-on-surface antialiased min-h-screen transition-colors duration-200">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased min-h-screen transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

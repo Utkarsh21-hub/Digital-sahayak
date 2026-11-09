@@ -4,7 +4,7 @@ export const HeroTrustBanner: React.FC = () => {
   const [savingsTotal, setSavingsTotal] = useState(428950);
 
   useEffect(() => {
-    // Gentle live increment every 25 seconds simulating other citizens completing forms
+    // Live increment every 25s simulating savings
     const interval = setInterval(() => {
       setSavingsTotal((prev) => prev + Math.floor(Math.random() * 3 + 1) * 50);
     }, 25000);
@@ -16,41 +16,35 @@ export const HeroTrustBanner: React.FC = () => {
   }).format(savingsTotal);
 
   return (
-    <section className="bg-surface-container-lowest border-b border-outline-variant py-4 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
         {/* High-Trust Indicators */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-label-md font-label-md">
-          <div className="flex items-center gap-1.5 text-on-tertiary-container bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant">
-            <span
-              className="material-symbols-outlined text-base text-on-tertiary-container"
-              data-icon="verified"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              verified
-            </span>
-            <span className="font-bold">100% Official Portals</span>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-semibold">
+            <span className="text-emerald-600 font-bold">✓</span>
+            <span>100% official portals</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-secondary bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant">
-            <span className="material-symbols-outlined text-base text-secondary" data-icon="savings">
-              savings
-            </span>
-            <span>Zero Cyber Cafe Commission</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
+            <span className="text-slate-500 font-bold">✓</span>
+            <span>Zero cyber cafe commission</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-error bg-error-container/40 px-3 py-1.5 rounded-full border border-error-container">
-            <span className="material-symbols-outlined text-base text-error" data-icon="lock_reset">
-              lock_reset
-            </span>
-            <span className="font-bold">Never Share Your OTP</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-medium">
+            <span className="text-rose-600 font-bold">?</span>
+            <span>Never share your OTP</span>
           </div>
         </div>
 
         {/* Quick Savings Metric */}
-        <div className="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
-          <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 font-medium">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
           <span>
-            Citizens Saved Today: <strong className="text-on-surface font-bold">₹{formattedSavings}</strong> in middleman fees
+            Citizens saved today:{' '}
+            <strong className="text-slate-900 dark:text-white font-bold">
+              ₹{formattedSavings}
+            </strong>{' '}
+            in middleman fees
           </span>
         </div>
       </div>

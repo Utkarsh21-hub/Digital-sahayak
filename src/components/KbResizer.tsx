@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getAppIcon } from '../utils/appIcons';
 
 interface Preset {
   id: string;
   name: string;
+  label: string;
+  range: string;
   minKb: number;
   maxKb: number;
   format: 'image/jpeg' | 'application/pdf';
@@ -12,7 +15,9 @@ interface Preset {
 const PRESETS: Preset[] = [
   {
     id: 'neet-photo',
-    name: 'NEET Photo (10–200 KB)',
+    name: 'NEET photo',
+    label: 'NEET photo',
+    range: '10-200 KB',
     minKb: 10,
     maxKb: 200,
     targetKb: 85,
@@ -20,7 +25,9 @@ const PRESETS: Preset[] = [
   },
   {
     id: 'signature',
-    name: 'Signature (10–100 KB)',
+    name: 'Signature',
+    label: 'Signature',
+    range: '10-100 KB',
     minKb: 10,
     maxKb: 100,
     targetKb: 45,
@@ -28,7 +35,9 @@ const PRESETS: Preset[] = [
   },
   {
     id: 'document',
-    name: 'Document (50–300 KB)',
+    name: 'Document',
+    label: 'Document',
+    range: '50-300 KB',
     minKb: 50,
     maxKb: 300,
     targetKb: 180,
@@ -38,9 +47,10 @@ const PRESETS: Preset[] = [
 
 interface KbResizerProps {
   initialPreset?: string;
+  theme?: 'light' | 'dark';
 }
 
-export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset }) => {
+export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset, theme = 'light' }) => {
   const [selectedPreset, setSelectedPreset] = useState<Preset>(PRESETS[0]);
   const [file, setFile] = useState<{
     name: string;
@@ -61,7 +71,7 @@ export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset }) => {
   useEffect(() => {
     if (initialPreset) {
       const match = PRESETS.find((p) =>
-        initialPreset.toLowerCase().includes(p.name.split(' ')[0].toLowerCase())
+        initialPreset.toLowerCase().includes(p.name.toLowerCase())
       );
       if (match) setSelectedPreset(match);
     }
@@ -77,7 +87,6 @@ export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset }) => {
         let width = img.width;
         let height = img.height;
 
-        // Downscale large dimensions if needed
         const maxDim = 1200;
         if (width > maxDim || height > maxDim) {
           if (width > height) {
@@ -99,7 +108,6 @@ export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset }) => {
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Iterative compression towards targetKb
         let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
         let approxKb = Math.round((compressedDataUrl.length * 3) / 4 / 1024);
 
@@ -138,153 +146,123 @@ export const KbResizer: React.FC<KbResizerProps> = ({ initialPreset }) => {
       a.click();
       document.body.removeChild(a);
     } else {
-      // Demo simulated file download
+      // Create a dummy download if demo image
       const canvas = document.createElement('canvas');
-      canvas.width = 400;
-      canvas.height = 500;
+      canvas.width = 350;
+      canvas.height = 450;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(0, 0, 400, 500);
-        ctx.fillStyle = '#0051d5';
-        ctx.font = '20px Inter, sans-serif';
-        ctx.fillText('Digital Sahayak Resized File', 50, 240);
-        ctx.font = '14px Inter, sans-serif';
-        ctx.fillStyle = '#64748b';
-        ctx.fillText(`Target: ${file.resizedSizeKb} KB • 100% Client-Side`, 50, 270);
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, 350, 450);
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 16px Inter, sans-serif';
+        ctx.fillText('Digital Sahayak Resized', 50, 220);
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/jpeg', 0.85);
+        a.download = `resized_${file.name}`;
+        a.click();
       }
-      const demoUrl = canvas.toDataURL('image/jpeg', 0.82);
-      const a = document.createElement('a');
-      a.href = demoUrl;
-      a.download = `digital_sahayak_${file.resizedSizeKb}kb.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
     }
   };
 
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm" id="resizer">
-      <div className="flex items-center gap-2 pb-3 border-b border-outline-variant">
-        <span className="material-symbols-outlined text-secondary text-xl" data-icon="crop">
-          crop
-        </span>
-        <div>
-          <h3 className="text-body-strong font-body-strong text-on-surface">Client-Side KB Resizer</h3>
-          <p className="text-[11px] text-on-tertiary-container font-semibold">🔒 Files never leave your browser</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4" id="resizer">
+      {/* Resizer Header matching Screenshot */}
+      <div>
+        <div className="flex items-center gap-2">
+          <img
+            src={getAppIcon('resize', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            KB Resizer
+          </h3>
         </div>
+        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
+          Files never leave your browser
+        </p>
       </div>
 
-      {/* Spec Presets */}
-      <div className="mt-4">
-        <label className="text-label-sm font-label-sm text-on-surface-variant block mb-1.5">Preset Specifications</label>
-        <div className="grid grid-cols-1 gap-1.5">
-          {PRESETS.map((preset) => {
-            const isSelected = selectedPreset.id === preset.id;
+      {/* Preset specifications tabs */}
+      <div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+          PRESET SPECIFICATIONS
+        </span>
+        <div className="space-y-1.5">
+          {PRESETS.map((p) => {
+            const isSelected = p.id === selectedPreset.id;
             return (
               <button
-                key={preset.id}
-                onClick={() => {
-                  setSelectedPreset(preset);
-                  setFile((prev) => ({
-                    ...prev,
-                    resizedSizeKb: preset.targetKb,
-                  }));
-                }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-label-sm font-label-sm flex items-center justify-between transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-surface-container-low border border-secondary text-secondary font-bold'
-                    : 'bg-surface-container-lowest border border-outline-variant hover:border-secondary text-on-surface'
-                }`}
+                key={p.id}
+                onClick={() => setSelectedPreset(p)}
                 type="button"
+                className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-xs transition-all cursor-pointer ${
+                  isSelected
+                    ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold shadow-2xs'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                }`}
               >
-                <span>{preset.name}</span>
-                {isSelected ? (
-                  <span className="material-symbols-outlined text-base" data-icon="check_circle">
-                    check_circle
-                  </span>
-                ) : (
-                  <span className="text-caption font-caption text-on-surface-variant">JPG</span>
-                )}
+                <span>{p.label}</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                  {p.range}
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Interactive Resizer Drop/Preview Area */}
-      <div className="mt-4 border-2 border-dashed border-outline-variant rounded-xl p-3 bg-surface-container-low text-center">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="hidden"
-        />
+      {/* File status container matching Screenshot */}
+      <div className="bg-slate-50/70 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shrink-0">
+          <img
+            src={getAppIcon('camera', theme)}
+            alt=""
+            className="w-5 h-5 object-contain"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
+            {file.name}
+          </div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+            {file.origSizeKb > 1000
+              ? `${(file.origSizeKb / 1024).toFixed(1)} MB`
+              : `${file.origSizeKb} KB`}{' '}
+            →{' '}
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+              {file.resizedSizeKb} KB ready
+            </span>{' '}
+            • quality {file.quality}%
+          </div>
+        </div>
+      </div>
 
-        <div
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      {/* Action Buttons matching Screenshot */}
+      <div className="space-y-2">
+        <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg border border-outline-variant text-left cursor-pointer hover:border-secondary transition-colors"
-          title="Click to choose a file from your device"
+          className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs py-2 px-3 rounded-xl transition cursor-pointer"
+          type="button"
         >
-          <div className="w-12 h-14 bg-surface-container rounded overflow-hidden flex items-center justify-center flex-shrink-0 border border-outline-variant">
-            {file.dataUrl ? (
-              <img src={file.dataUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
-            ) : (
-              <span className="material-symbols-outlined text-2xl text-on-surface-variant" data-icon="person">
-                person
-              </span>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-label-sm font-label-sm font-bold text-on-surface truncate">
-                {file.name}
-              </span>
-              <span className="text-label-sm font-label-sm text-error font-semibold line-through">
-                {(file.origSizeKb / 1024).toFixed(1)} MB
-              </span>
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-label-sm font-label-sm text-on-tertiary-container font-extrabold flex items-center gap-1">
-                <span
-                  className="material-symbols-outlined text-sm"
-                  data-icon="check"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  check
-                </span>
-                {file.resizedSizeKb} KB (Ready)
-              </span>
-              <span className="text-[10px] text-on-surface-variant">Quality: {file.quality}%</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-2 text-[11px] text-secondary">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="hover:underline font-semibold cursor-pointer"
-          >
-            📂 Upload Another Image
-          </button>
-          <span>Within {selectedPreset.minKb}–{selectedPreset.maxKb} KB</span>
-        </div>
-
-        <p className="text-caption font-caption text-on-surface-variant mt-2 text-left">
-          Fits within standard portal {selectedPreset.minKb}–{selectedPreset.maxKb} KB envelope without losing clarity.
-        </p>
+          Upload another image
+        </button>
 
         <button
           onClick={handleDownload}
-          className="mt-3 w-full bg-secondary hover:bg-secondary-container text-on-secondary font-label-md font-semibold py-2.5 px-3 rounded-lg shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-xs transition active:scale-[0.99] cursor-pointer"
           type="button"
         >
-          <span className="material-symbols-outlined text-lg" data-icon="download">
-            download
-          </span>
-          <span>Download Resized File ({file.resizedSizeKb} KB)</span>
+          Download resized file ({file.resizedSizeKb} KB)
         </button>
       </div>
     </div>

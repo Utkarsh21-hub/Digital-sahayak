@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="hi-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Sahayak Redesign</title>
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/app-icon-32.png">
+<link rel="apple-touch-icon" href="icons/app-icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<style>
+/* Layout idea: calm civic dashboard - a sticky guide character on the left, the conversation as the main surface on the right. */
+:root{
+  --bg:#f4f6fa;
+  --surface:#ffffff;
+  --surface-2:#eef1f7;
+  --ink:#121a2c;
+  --muted:#556074;
+  --line:#dbe1eb;
+  --accent:#1f5fd6;
+  --accent-ink:#ffffff;
+  --saffron:#e8811f;
+  --green:#138a4e;
+  --danger:#c62f2f;
+  --danger-soft:#fdecec;
+  --ok-soft:#e5f5ec;
+  --warn-soft:#fff3df;
+  --shadow:0 1px 2px rgba(18,26,44,.06),0 8px 24px rgba(18,26,44,.06);
+  --font-display:"Poppins","Noto Sans Devanagari",system-ui,sans-serif;
+  --font-body:"Noto Sans","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --radius:16px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a101d;--surface:#111a2c;--surface-2:#172238;--ink:#eef2f8;--muted:#a7b1c2;--line:#25324b;
+    --accent:#5b8eff;--accent-ink:#06122b;--saffron:#f5a24a;--green:#3fd69a;--danger:#f26464;
+    --danger-soft:#2a1216;--ok-soft:#0f2a20;--warn-soft:#2b2010;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.25);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a101d;--surface:#111a2c;--surface-2:#172238;--ink:#eef2f8;--muted:#a7b1c2;--line:#25324b;
+  --accent:#5b8eff;--accent-ink:#06122b;--saffron:#f5a24a;--green:#3fd69a;--danger:#f26464;
+  --danger-soft:#2a1216;--ok-soft:#0f2a20;--warn-soft:#2b2010;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.25);color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display);line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+
+/* Icons: light and dark versions, swapped by theme */
+.ic{display:inline-grid;width:var(--s);height:var(--s);flex:none;place-items:center}
+.ic img{width:100%;height:100%;object-fit:contain;grid-area:1/1}
+.ic .d{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ic .l{display:none}:root:not([data-theme="light"]) .ic .d{display:block}}
+:root[data-theme="dark"] .ic .l{display:none}
+:root[data-theme="dark"] .ic .d{display:block}
+.brand-logo{height:54px;display:inline-grid}
+.brand-logo img{height:54px;width:auto;grid-area:1/1}
+.brand-logo .d{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand-logo .l{display:none}:root:not([data-theme="light"]) .brand-logo .d{display:block}}
+:root[data-theme="dark"] .brand-logo .l{display:none}
+:root[data-theme="dark"] .brand-logo .d{display:block}
+.theme-sun{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .theme-sun{display:inline-grid}:root:not([data-theme="light"]) .theme-moon{display:none}}
+:root[data-theme="dark"] .theme-sun{display:inline-grid}
+:root[data-theme="dark"] .theme-moon{display:none}
+.proc .pi{width:44px;height:44px}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink)}
+.brand b{font-family:var(--font-display);font-size:1.15rem;white-space:nowrap}
+.brand span{color:var(--muted);font-size:.9rem;white-space:nowrap}
+.seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:9px;font-size:.88rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--ink)}
+.drafts-btn{display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.9rem}
+.count{background:var(--saffron);color:#fff;border-radius:999px;font-size:.72rem;padding:0 7px;line-height:18px}
+
+/* Intro */
+.intro{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:22px 0 14px}
+.intro h1{font-size:clamp(1.3rem,1rem + 1.2vw,1.75rem)}
+.trust{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:.84rem;font-weight:600;border:1px solid var(--line);background:var(--surface)}
+.pill.ok{color:var(--green);background:var(--ok-soft);border-color:transparent}
+
+/* Tabs */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px}
+.tab{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:12px 14px;transition:border-color .15s,transform .15s}
+.tab:hover{border-color:var(--accent)}
+.tab .ti{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--surface-2)}
+.tab strong{display:block;font-family:var(--font-display);font-size:1rem}
+.tab small{display:block;color:var(--muted);font-size:.82rem;line-height:1.3}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent),var(--shadow)}
+.tab[aria-selected="true"] .ti{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.tab.danger .ti{color:var(--danger)}
+.tab.danger[aria-selected="true"]{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger),var(--shadow)}
+.tab.danger[aria-selected="true"] .ti{background:var(--danger-soft)}
+
+/* Main grid */
+.main{padding-bottom:40px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+/* Character: sits beside the latest message, stays put while the feed scrolls */
+.lvl{font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.lvl.easy{background:var(--ok-soft);color:var(--green)}
+.lvl.med{background:var(--warn-soft);color:var(--saffron)}
+.lvl.hard{background:var(--danger-soft);color:var(--danger)}
+.chat-body{position:relative;flex:1;display:flex;min-height:0}
+.buddy{position:absolute;left:10px;bottom:6px;width:var(--gut);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stage{position:relative;width:100%;aspect-ratio:544/540}
+.stage img,.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.stage video{visibility:hidden}
+.stage video.on{visibility:visible}
+.stage img.off{visibility:hidden}
+.mood{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.mood.busy .dot{background:var(--saffron)}
+.tasks-wrap{display:flex;align-items:flex-start;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line)}
+.tasks{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;transition:max-height .25s ease}
+.tasks.closed{max-height:28px;overflow:hidden}
+.tasks:not(.closed){max-height:400px}
+.tdrop{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent);border-radius:999px;padding:4px 12px;font-size:.82rem;font-weight:600;white-space:nowrap}
+.tdrop .chev{transition:transform .2s}
+.tdrop[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.tasks .lab{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);align-self:center;white-space:nowrap;margin-right:2px}
+.tasks button{display:flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px 3px 6px;font-size:.82rem}
+.tasks .lvl{font-size:.66rem;padding:0 6px}
+.tasks button:hover{border-color:var(--accent);color:var(--accent)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.tools button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:6px 12px;font-size:.86rem;font-weight:600}
+.tools button:hover{border-color:var(--accent);color:var(--accent)}
+.tools .ai{font-size:.68rem;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 5px}
+.tools .scam{color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted)}
+
+/* Chat */
+.chat{--gut:170px;display:flex;flex-direction:column;height:min(78vh,760px);min-height:560px}
+.chat-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.chat-head h2{font-size:1.05rem}
+.chat-head .meta{color:var(--muted);font-size:.84rem;margin-right:auto}
+.alert{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 18px 0;padding:10px 14px;border-radius:12px;background:var(--danger-soft);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.alert p{margin:0;font-size:.9rem;flex:1 1 260px}
+.alert b{color:var(--danger)}
+.btn{border:0;border-radius:10px;padding:8px 14px;font-weight:600;font-size:.9rem;background:var(--accent);color:var(--accent-ink)}
+.btn.red{background:var(--danger);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:hover{filter:brightness(1.07)}
+.feed{flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 18px 18px calc(var(--gut) + 22px);overflow-y:auto}
+.msg{max-width:min(620px,92%);padding:12px 16px;border-radius:16px;font-size:.98rem}
+.msg p{margin:0 0 8px}
+.msg p:last-child{margin:0}
+.msg ul{margin:4px 0 8px;padding-left:20px}
+.bot{background:var(--surface-2);border:1px solid var(--line);border-top-left-radius:6px}
+.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-top-right-radius:6px}
+.time{font-size:.74rem;color:var(--muted);margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.actions button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.86rem;font-weight:500}
+.actions button:hover{border-color:var(--accent);color:var(--accent)}
+.typing{display:inline-flex;gap:4px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.composer{border-top:1px solid var(--line);padding:12px 18px 14px}
+.box{display:flex;align-items:flex-end;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:6px}
+.box:focus-within{border-color:var(--accent)}
+.box textarea{flex:1;border:0;background:transparent;resize:none;outline:none;padding:8px 6px;min-height:40px;max-height:120px;font-size:.98rem}
+.send{width:40px;height:40px;border-radius:11px;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.hint{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:.78rem;margin-top:6px}
+
+/* Other views */
+.view[hidden]{display:none}
+.panel{padding:18px;display:flex;flex-direction:column;gap:14px}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.proc{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.proc h3{font-size:1rem}
+.proc p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.45}
+.proc .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+.field{display:flex;flex-wrap:wrap;gap:8px}
+.field input{flex:1 1 260px;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;outline:none}
+.field input:focus{border-color:var(--accent)}
+.result{border-radius:12px;padding:12px 14px;font-size:.92rem}
+.result.bad{background:var(--danger-soft);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.result.good{background:var(--ok-soft);border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
+
+
+/* Verified tasks: grouped grid, nothing hidden */
+.tbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line)}
+.tbar .lab{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.tcount{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px 3px 4px;font-size:.84rem}
+.tcount:hover{border-color:var(--accent)}
+#allTasksBtn{margin-left:auto}
+.tpanel{border-bottom:1px solid var(--line);padding:14px 18px;background:var(--surface-2);max-height:46vh;overflow-y:auto}
+.tgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tcol{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tcol h4{margin:0 0 2px;display:flex;align-items:center;gap:8px;font-size:.88rem;font-family:var(--font-display)}
+.tcol h4 small{color:var(--muted);font-weight:500;font-family:var(--font-body)}
+.tcol.easy h4{color:var(--green)} .tcol.med h4{color:var(--saffron)} .tcol.hard h4{color:var(--danger)}
+.tcol.flash{animation:fl 1.2s ease}
+@keyframes fl{0%,100%{background:transparent}30%{background:color-mix(in srgb,var(--accent) 12%,transparent)}}
+.tbtn{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 10px;font-size:.88rem;line-height:1.3;min-width:0}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.tbtn span.t{min-width:0}
+.tbtn small{display:block;color:var(--muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg .tgrid{margin-top:10px}
+.msg.bot.wide{max-width:min(860px,100%)}
+@media (max-width:760px){.tgrid{grid-template-columns:1fr}#allTasksBtn{margin-left:0}}
+
+/* Procedures & Tools */
+.pv{padding:18px;display:flex;flex-direction:column;gap:14px}
+.pv-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pv-strip .pill{gap:8px}
+.pill.warn{color:var(--danger);background:var(--danger-soft);border-color:transparent}
+.saved{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted)}
+.saved b{color:var(--ink)}
+.pv-search{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sbox{flex:1 1 380px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 12px}
+.sbox:focus-within{border-color:var(--accent)}
+.sbox input{flex:1;border:0;background:transparent;outline:none;padding:6px 0;min-width:0}
+.btn.sm{padding:6px 12px;font-size:.84rem;display:inline-flex;align-items:center;gap:6px}
+.btn.big{width:100%;padding:13px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn.full{width:100%;display:flex;justify-content:center;align-items:center;gap:6px}
+.btn.green{background:var(--green);color:#fff}
+.filters{display:flex;gap:6px;overflow-x:auto}
+.filters button{white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.84rem}
+.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.pv-promo{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.pv-promo>div{flex:1 1 260px}
+.pv-promo small{display:block;color:var(--muted);font-size:.84rem}
+.pv-grid{display:grid;grid-template-columns:260px minmax(0,1fr) 270px;gap:14px;align-items:start}
+.pv-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.pbox{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pbox-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{font-size:.74rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--green);border-color:transparent}
+.avg{font-size:.84rem;color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-radius:10px;padding:8px 10px}
+.plist{display:flex;flex-direction:column;gap:14px;max-height:760px;overflow-y:auto;padding:10px 4px 2px 0}
+.pitem{position:relative;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.pitem:hover{border-color:var(--accent)}
+.pitem[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
+.pitem[aria-current="true"]::after{content:"Currently guiding";position:absolute;top:-9px;right:10px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 8px}
+.pitem .row1{display:flex;align-items:center;gap:8px}
+.pitem b{font-family:var(--font-display);font-size:.95rem;line-height:1.3}
+.pitem .url{font-size:.8rem;color:var(--muted)}
+.pitem .row2{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;border-top:1px solid var(--line);padding-top:6px}
+.pitem .row2 em{font-style:normal;color:var(--green);font-weight:600}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+.wf-head{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.wf-head h2{font-size:clamp(1.25rem,1rem + .8vw,1.6rem);margin:2px 0}
+.sub{margin:0;color:var(--muted);font-size:.9rem}
+.portal{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;padding:10px 16px;line-height:1.3}
+.portal small{font-weight:400;opacity:.9;font-size:.8rem}
+.sec-h{display:flex;align-items:center;gap:8px;font-weight:600;margin-top:4px}
+.sec-h .muted{margin-left:auto;font-weight:500;font-size:.82rem;color:var(--muted)}
+.fees{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fee{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.fee small{color:var(--muted);font-size:.78rem}
+.fee b{font-family:var(--font-display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.fee span{font-size:.74rem;color:var(--muted)}
+.fee.bad b,.fee.bad span{color:var(--danger)}
+.fee.good{background:var(--ok-soft);border-color:transparent}
+.fee.good b,.fee.good span{color:var(--green)}
+.checks{display:flex;flex-direction:column;gap:8px}
+.ck{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+.ck>span{flex:1;min-width:0}
+.ck b{display:block;font-size:.93rem}
+.ck small{display:block;color:var(--muted);font-size:.8rem}
+.ck:has(input:checked){background:color-mix(in srgb,var(--green) 6%,var(--surface))}
+.ck:has(input:checked) small{color:var(--green)}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:3px 9px;font-size:.76rem;font-weight:600;color:var(--accent);white-space:nowrap}
+.chip.mute{color:var(--muted)}
+.fraud{display:flex;gap:10px;align-items:flex-start;background:var(--danger-soft);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent);border-radius:12px;padding:12px}
+.fraud b{color:var(--danger)}
+.fraud p{margin:2px 0 0;font-size:.86rem;color:var(--muted)}
+.prog-h{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.prog-h b{color:var(--accent);font-size:.92rem}
+.bar-track{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .3s}
+.steps-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.step-dots{display:flex;gap:6px}
+.step-dots button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);font-size:.82rem;font-weight:600;color:var(--muted)}
+.step-dots button.done{background:var(--ok-soft);color:var(--green);border-color:transparent}
+.step-dots button.cur{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.nav{display:flex;gap:6px}
+.coach{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.coach h3{font-size:1.1rem;line-height:1.4}
+.coach p{margin:0;color:var(--muted)}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.terms span{border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:.84rem}
+.draft-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
+.draft-cta>div{flex:1 1 200px}
+.draft-cta small{display:block;color:var(--muted);font-size:.8rem}
+.tool-h{display:flex;gap:10px;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.tool-h small{display:block;font-size:.78rem;color:var(--muted)}
+.okt{color:var(--green)!important}
+.ai-tag{background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent);border-radius:6px;padding:1px 6px;font-weight:700}
+.presets-v{display:flex;flex-direction:column;gap:6px}
+.presets-v button{display:flex;justify-content:space-between;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:.86rem;font-weight:600}
+.presets-v button small{color:var(--muted);font-weight:500}
+.presets-v button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.filecard{display:flex;gap:10px;align-items:center;border:1px dashed var(--line);border-radius:12px;padding:10px}
+.filecard .thumb{width:44px;height:44px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;flex:none}
+.filecard b{font-size:.86rem;display:block;word-break:break-all}
+.filecard small{font-size:.78rem;color:var(--muted)}
+.muted-p{margin:0;color:var(--muted);font-size:.86rem}
+.dropzone{border:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent;border-radius:12px;padding:14px;color:var(--accent);font-weight:600;font-size:.86rem}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.84rem}
+.kv code{color:var(--accent);font-size:.82rem}
+.kv a{color:var(--green);text-decoration:none;font-weight:600}
+.appcard{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.appcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;font-size:.82rem}
+.appcard dt{color:var(--muted)}
+.appcard dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.appcard dd.acc{color:var(--accent)}
+@media (max-width:1100px){.pv-grid{grid-template-columns:240px minmax(0,1fr)}.pv-grid>aside:last-child{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}}
+@media (max-width:760px){.pv-grid{grid-template-columns:1fr}.plist{max-height:none;flex-direction:row;overflow-x:auto}.pitem{min-width:230px}.fees{grid-template-columns:1fr}.saved{margin-left:0}}
+
+/* Drawer + dialog */
+.drawer{position:fixed;top:72px;right:20px;width:min(320px,calc(100% - 40px));padding:14px;z-index:30;display:flex;flex-direction:column;gap:8px}
+.drawer[hidden],.dialog[hidden]{display:none}
+.drawer .d{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.drawer .d small{display:block;color:var(--muted)}
+.dialog{position:fixed;inset:0;z-index:40;background:rgba(5,10,20,.5);display:grid;place-items:center;padding:20px}
+.dialog .card{max-width:440px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.dialog ol{margin:0;padding-left:20px;color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding:22px 0 30px;color:var(--muted);font-size:.86rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{color:var(--accent);text-decoration:none}
+
+@media (max-width:700px){ .chat{--gut:96px} .mood{display:none} }
+@media (max-width:640px){
+  .brand span,.drafts-btn .lbl{display:none}
+  .bar>.seg{display:none}
+  .tabs{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="brand"><span class="brand-logo" role="img" aria-label="Digital Sahayak"><img class="l" src="icons/light/logo-full.png" alt=""><img class="d" src="icons/dark/logo-full.png" alt=""></span></div>
+    <div class="seg" role="group" aria-label="Language" id="lang">
+      <button type="button" data-l="hinglish" aria-pressed="true">Hinglish</button>
+      <button type="button" data-l="hindi" aria-pressed="false">हिंदी</button>
+      <button type="button" data-l="english" aria-pressed="false">English</button>
+    </div>
+    <button type="button" class="drafts-btn" id="draftsBtn" aria-expanded="false"><span class="ic " style="--s:18px"><img class="l" src="icons/light/drafts.png" alt=""><img class="d" src="icons/dark/drafts.png" alt=""></span><span class="lbl">Drafts</span><span class="count">2</span></button>
+    <button type="button" class="icon-btn" id="themeBtn" aria-label="Switch light or dark mode"><span class="ic theme-moon" style="--s:20px"><img class="l" src="icons/light/moon.png" alt=""><img class="d" src="icons/dark/moon.png" alt=""></span><span class="ic theme-sun" style="--s:20px"><img class="l" src="icons/light/sun.png" alt=""><img class="d" src="icons/dark/sun.png" alt=""></span></button>
+    <button type="button" class="icon-btn" id="helpBtn" aria-label="How it works"><span class="ic " style="--s:20px"><img class="l" src="icons/light/help.png" alt=""><img class="d" src="icons/dark/help.png" alt=""></span></button>
+  </div>
+</header>
+
+<div class="card drawer" id="drawer" hidden>
+  <strong>Your drafts</strong>
+  <div class="d">Name change affidavit<small>Edited today, 3:40 PM</small></div>
+  <div class="d">Driving licence renewal checklist<small>Edited yesterday</small></div>
+</div>
+
+<div class="dialog" id="dialog" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="dlgT">
+    <h2 id="dlgT">How Digital Sahayak works</h2>
+    <ol>
+      <li>Apna kaam choose karein ya sawal poochhein.</li>
+      <li>Sahayak official .gov.in steps ek-ek karke batata hai.</li>
+      <li>Documents, photo size aur fees pehle se check karein.</li>
+      <li>Koi agent fee nahi. Sirf official portal par payment.</li>
+    </ol>
+    <button type="button" class="btn" id="dlgClose">Got it</button>
+  </div>
+</div>
+
+<div class="dialog" id="toolDlg" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="toolT">
+    <h2 id="toolT">KB Resizer</h2>
+    <div id="toolBody"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn ghost" id="toolClose">Close</button><button type="button" class="btn" id="toolGo">Continue</button></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="intro">
+    <h1 id="t-title">Official Government System Navigator for Indian Citizens</h1>
+    <div class="trust">
+      <span class="pill ok">✓ Zero agent fee</span>
+      <span class="pill">Only official .gov.in portals</span>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" aria-selected="true" data-v="chat"><span class="ti"><span class="ic " style="--s:28px"><img class="l" src="icons/light/ai-chat.png" alt=""><img class="d" src="icons/dark/ai-chat.png" alt=""></span></span><span><strong>Gemini Chat</strong><small>AI civic co-pilot</small></span></button>
+    <button class="tab" role="tab" aria-selected="false" data-v="procs"><span class="ti"><span class="ic " style="--s:28px"><img class="l" src="icons/light/checklist.png" alt=""><img class="d" src="icons/dark/checklist.png" alt=""></span></span><span><strong>Procedures &amp; Tools</strong><small>Checklists and KB resizer</small></span></button>
+    <button class="tab danger" role="tab" aria-selected="false" data-v="scam"><span class="ti"><span class="ic " style="--s:28px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span></span><span><strong>Scam Shield</strong><small>Check WhatsApp links</small></span></button>
+  </nav>
+
+  <div class="main">
+
+    <section class="card">
+      <!-- CHAT VIEW -->
+      <div class="view chat" id="view-chat">
+        <div class="chat-head">
+          <h2>Digital Sahayak</h2>
+          <span class="meta">Grounded in 9 verified government guides</span>
+          <button type="button" class="btn ghost" id="resetBtn" style="display:inline-flex;align-items:center;gap:6px"><span class="ic " style="--s:16px"><img class="l" src="icons/light/refresh.png" alt=""><img class="d" src="icons/dark/refresh.png" alt=""></span>New chat</button>
+        </div>
+        <div class="alert">
+          <span class="ic " style="--s:26px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span>
+          <p><b>Scam Shield active.</b> WhatsApp par "Free PM Solar Yojana" ya "Electricity KYC block" jaisa message aaya? Pehle link check karein.</p>
+          <button type="button" class="btn red" data-goto="scam">Check a link</button>
+        </div>
+        <div class="tasks-wrap">
+          <div class="tasks closed" id="quick"><span class="lab">Verified tasks</span></div>
+          <button type="button" class="tdrop" id="tasksToggle" aria-expanded="false" aria-controls="quick"><span id="tdLbl">All 15 tasks</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        </div>
+        <div class="chat-body">
+          <div class="feed" id="feed" aria-live="polite"></div>
+          <div class="buddy" aria-hidden="true">
+            <div class="stage" id="stage">
+              <img id="idle" src="assets/idle.png" alt="">
+              <video id="v-hi" src="assets/1-hi.webm" muted playsinline preload="auto"></video>
+              <video id="v-bulb" src="assets/2-thinking-bulb.webm" muted playsinline preload="auto"></video>
+              <video id="v-think" src="assets/3-thinking.webm" muted playsinline preload="auto"></video>
+              <video id="v-point" src="assets/4-pointing.webm" muted playsinline preload="auto"></video>
+            </div>
+            <div class="mood" id="mood"><span class="dot"></span><span id="moodText">Namaste!</span></div>
+          </div>
+        </div>
+        <div class="composer">
+          <div class="tools">
+            <button type="button" data-tool="resize"><span class="ic " style="--s:18px"><img class="l" src="icons/light/resize.png" alt=""><img class="d" src="icons/dark/resize.png" alt=""></span>KB Resizer</button>
+            <button type="button" data-tool="shot"><span class="ic " style="--s:18px"><img class="l" src="icons/light/camera.png" alt=""><img class="d" src="icons/dark/camera.png" alt=""></span>Error screenshot <span class="ai">AI</span></button>
+            <button type="button" data-tool="draft"><span class="ic " style="--s:18px"><img class="l" src="icons/light/draft.png" alt=""><img class="d" src="icons/dark/draft.png" alt=""></span>Draft Sahayak <span class="ai">AI</span></button>
+            <button type="button" class="scam" data-goto="scam"><span class="ic " style="--s:18px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span>Scam Shield</button>
+          </div>
+          <form class="box" id="form">
+            <button type="button" class="icon-btn" aria-label="Attach screenshot" style="border:0;background:transparent"><span class="ic " style="--s:20px"><img class="l" src="icons/light/attach.png" alt=""><img class="d" src="icons/dark/attach.png" alt=""></span></button>
+            <label for="q" class="sr" style="position:absolute;left:-9999px">Your question</label>
+            <textarea id="q" rows="1" placeholder="Sawal poochhein, e.g. NEET, DL renewal, Aadhaar..."></textarea>
+            <button type="button" class="icon-btn" aria-label="Speak your question" style="border:0;background:transparent"><span class="ic " style="--s:20px"><img class="l" src="icons/light/mic.png" alt=""><img class="d" src="icons/dark/mic.png" alt=""></span></button>
+            <button class="send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+          </form>
+          <div class="hint"><span>Zero commission guarantee</span><span>Press Enter to send</span></div>
+        </div>
+      </div>
+
+      <!-- PROCEDURES VIEW -->
+      <div class="view pv" id="view-procs" hidden>
+        <div class="pv-strip">
+          <span class="pill ok"><span class="ic " style="--s:16px"><img class="l" src="icons/light/check.png" alt=""><img class="d" src="icons/dark/check.png" alt=""></span>100% official portals</span>
+          <span class="pill"><span class="ic " style="--s:16px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span>Zero cyber cafe commission</span>
+          <span class="pill warn"><span class="ic " style="--s:16px"><img class="l" src="icons/light/help.png" alt=""><img class="d" src="icons/dark/help.png" alt=""></span>Never share your OTP</span>
+          <span class="saved"><span class="dot"></span>Citizens saved today: <b>₹4,28,950</b> in middleman fees</span>
+        </div>
+        <div class="pv-search">
+          <label class="sbox" for="pq"><span class="ic " style="--s:18px"><img class="l" src="icons/light/ai-chat.png" alt=""><img class="d" src="icons/dark/ai-chat.png" alt=""></span><input id="pq" placeholder="Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar"><button type="button" class="btn ghost sm"><span class="ic " style="--s:16px"><img class="l" src="icons/light/mic.png" alt=""><img class="d" src="icons/dark/mic.png" alt=""></span>Bol kar</button></label>
+          <div class="filters" id="pfilters">
+            <button type="button" data-f="all" aria-pressed="true">All <b id="cAll">16</b></button>
+            <button type="button" data-f="easy" aria-pressed="false">Easy · online</button>
+            <button type="button" data-f="med" aria-pressed="false">Medium · multi-step</button>
+            <button type="button" data-f="hard" aria-pressed="false">Hard · grievance</button>
+          </div>
+        </div>
+        <div class="pv-promo">
+          <span class="ic " style="--s:36px"><img class="l" src="icons/light/ai-chat.png" alt=""><img class="d" src="icons/dark/ai-chat.png" alt=""></span>
+          <div><b>Digital Sahayak Gemini Chat</b><small>Sawal poochhein, file size check karein, ya error screenshot samjhein: Hinglish, हिंदी ya English mein.</small></div>
+          <button type="button" class="btn red sm" data-goto="scam"><span class="ic " style="--s:16px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span>Scam Shield</button>
+          <button type="button" class="btn sm" data-goto="chat">Open Gemini Chat</button>
+        </div>
+
+        <div class="pv-grid">
+          <!-- LEFT: procedure list -->
+          <aside class="pv-col">
+            <div class="pbox">
+              <div class="pbox-h"><b>Procedures &amp; Redressal</b><span class="tag" id="verCount">16 verified</span></div>
+              <div class="avg">Average direct citizen saving: <b>₹850 per task</b></div>
+            </div>
+            <div class="plist" id="plist"></div>
+          </aside>
+
+          <!-- MIDDLE: workflow -->
+          <section class="pv-col">
+            <div class="pbox">
+              <div class="wf-head">
+                <div>
+                  <span class="eyebrow">Step-by-step self-help workflow</span>
+                  <h2 id="wfTitle">NEET UG 2025 Application Form</h2>
+                  <p class="sub" id="wfSub">National Eligibility cum Entrance Test (UG) · NTA portal</p>
+                </div>
+                <a class="btn green portal" id="wfPortal" href="https://exams.nta.ac.in">Open portal<small id="wfPortalTxt">exams.nta.ac.in</small></a>
+              </div>
+
+              <div class="sec-h"><span class="ic " style="--s:18px"><img class="l" src="icons/light/check.png" alt=""><img class="d" src="icons/dark/check.png" alt=""></span>Fee transparency <span class="muted">no extra kiosk charges</span></div>
+              <div class="fees">
+                <div class="fee"><small>Official portal fee</small><b id="fOff">₹1,700</b><span>Standard Gen/OBC</span></div>
+                <div class="fee bad"><small>Cyber cafe charge</small><b><s id="fCafe">₹2,050</s></b><span>Extra kiosk margin</span></div>
+                <div class="fee good"><small>Your direct saving</small><b id="fSave">₹350</b><span>100% free self-service</span></div>
+              </div>
+
+              <div class="sec-h"><span class="ic " style="--s:18px"><img class="l" src="icons/light/checklist.png" alt=""><img class="d" src="icons/dark/checklist.png" alt=""></span>Pre-flight document checklist <span class="muted" id="ckCount">2 of 4 ready</span></div>
+              <div class="checks" id="checks">
+                <label class="ck"><input type="checkbox" checked><span><b>Recent passport photo</b><small>JPG, 10-200 KB · white background, 80% face visible</small></span><button type="button" class="chip" data-tool="resize">Resize now</button></label>
+                <label class="ck"><input type="checkbox" checked><span><b>Scanned signature</b><small>JPG, 10-100 KB · black ink on plain white paper</small></span><button type="button" class="chip" data-tool="resize">Resize now</button></label>
+                <label class="ck"><input type="checkbox"><span><b>Class 10 marksheet / certificate</b><small>PDF, 50-300 KB · for date of birth</small></span><span class="chip mute">Needs PDF</span></label>
+                <label class="ck"><input type="checkbox"><span><b>Mobile linked to Aadhaar</b><small>Must receive SMS OTP within 10 minutes</small></span><span class="chip mute">Active SIM</span></label>
+              </div>
+
+              <div class="fraud"><span class="ic " style="--s:26px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span><div><b>Middleman &amp; cyber fraud alert</b><p>OTP ya login kisi kiosk ya WhatsApp group ko na dein. NTA aur sarkari vibhag kabhi phone, UPI QR ya Telegram par extra payment nahi maangte.</p></div></div>
+              <button type="button" class="btn big" id="startStep"><span class="ic " style="--s:18px"><img class="l" src="icons/light/check.png" alt=""><img class="d" src="icons/dark/check.png" alt=""></span>I have these ready: start step 1</button>
+            </div>
+
+            <div class="pbox">
+              <div class="prog-h"><b id="stepLbl">Step 2 of 6: Fill personal &amp; Aadhaar details</b><span class="tag" id="stepPct">33% complete</span></div>
+              <div class="bar-track"><div class="bar-fill" id="stepBar" style="width:33%"></div></div>
+              <div class="steps-row">
+                <div class="step-dots" id="stepDots"></div>
+                <div class="nav"><button type="button" class="btn ghost sm" id="stepBack">← Back</button><button type="button" class="btn ghost sm" id="stepNext">Next →</button></div>
+              </div>
+              <div class="coach">
+                <span class="eyebrow">Coach instruction</span>
+                <h3 id="coachT">Portal par "New Registration" pe tap karein aur apna 12-digit Aadhaar number daalein. OTP aane par verify karein.</h3>
+                <p id="coachP">Candidate name bilkul Class 10 certificate jaisa likhein. Shri, Mr. ya Dr. jaise prefix na lagayein.</p>
+                <span class="eyebrow">Tough terms (aasaan matlab)</span>
+                <div class="terms"><span><b>Deponent</b> = jo vyakti form bhar raha hai (aap khud)</span><span><b>Auto-fetch</b> = Aadhaar se naam aur photo apne aap aa jaana</span></div>
+                <div class="draft-cta"><span class="ic " style="--s:30px"><img class="l" src="icons/light/draft.png" alt=""><img class="d" src="icons/dark/draft.png" alt=""></span><div><b>Generate name / spelling undertaking</b><small>Ready court/portal template · free Gemini auto-fill</small></div><button type="button" class="btn sm" data-tool="draft">Open Draft Sahayak</button></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- RIGHT: tools -->
+          <aside class="pv-col">
+            <div class="pbox">
+              <div class="tool-h"><span class="ic " style="--s:28px"><img class="l" src="icons/light/resize.png" alt=""><img class="d" src="icons/dark/resize.png" alt=""></span><div><b>KB Resizer</b><small class="okt">Files never leave your browser</small></div></div>
+              <span class="eyebrow">Preset specifications</span>
+              <div class="presets-v" id="presetsV">
+                <button type="button" aria-pressed="true">NEET photo <small>10-200 KB</small></button>
+                <button type="button" aria-pressed="false">Signature <small>10-100 KB</small></button>
+                <button type="button" aria-pressed="false">Document <small>50-300 KB</small></button>
+              </div>
+              <div class="filecard">
+                <div class="thumb"><span class="ic " style="--s:24px"><img class="l" src="icons/light/camera.png" alt=""><img class="d" src="icons/dark/camera.png" alt=""></span></div>
+                <div><b>passport_photo.jpg</b><small><s>3.4 MB</s> → <span class="okt">85 KB ready</span> · quality 82%</small></div>
+              </div>
+              <button type="button" class="btn ghost sm full" data-tool="resize">Upload another image</button>
+              <button type="button" class="btn full">Download resized file (85 KB)</button>
+            </div>
+            <div class="pbox">
+              <div class="tool-h"><span class="ic " style="--s:28px"><img class="l" src="icons/light/camera.png" alt=""><img class="d" src="icons/dark/camera.png" alt=""></span><div><b>Screenshot Sahayak</b><small><span class="ai-tag">AI decoder</span></small></div></div>
+              <p class="muted-p">Sarkari portal par ajeeb error aaya? Screenshot daalein, hum Hinglish mein samjhayenge.</p>
+              <button type="button" class="dropzone" data-tool="shot">Upload error screen to analyse</button>
+            </div>
+            <div class="pbox">
+              <div class="tool-h"><span class="ic " style="--s:28px"><img class="l" src="icons/light/help.png" alt=""><img class="d" src="icons/dark/help.png" alt=""></span><div><b>Direct escalation &amp; help</b><small>Official channels, no middlemen</small></div></div>
+              <div class="kv"><span>Call portal helpline</span><code>011-40759000</code></div>
+              <div class="kv"><span>CPGRAMS central grievance</span><a href="https://pgportal.gov.in">pgportal.gov.in ↗</a></div>
+              <div class="appcard">
+                <div class="pbox-h"><b>Your application card</b><span class="tag ok">In progress</span></div>
+                <dl><dt>Task</dt><dd id="acTask">NEET UG 2025 Application</dd><dt>Temp ref</dt><dd><code>NTA-NEET-2025-APP-88492</code></dd><dt>Current</dt><dd id="acStep" class="acc">Step 2 (Fill personal…)</dd><dt>Remaining</dt><dd id="acRem">4 steps to final submit</dd></dl>
+              </div>
+              <button type="button" class="btn green full">Copy / share on WhatsApp</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- SCAM VIEW -->
+      <div class="view panel" id="view-scam" hidden>
+        <h2 style="display:flex;align-items:center;gap:10px"><span class="ic " style="--s:32px"><img class="l" src="icons/light/shield.png" alt=""><img class="d" src="icons/dark/shield.png" alt=""></span>Scam Shield · स्कैम कवच</h2>
+        <p style="margin:0;color:var(--muted)">WhatsApp ya SMS ka link yahan paste karein. Hum batayenge ki woh official sarkari site hai ya nahi.</p>
+        <form class="field" id="scamForm">
+          <label for="link" style="position:absolute;left:-9999px">Link to check</label>
+          <input id="link" placeholder="e.g. pm-solar-yojana-free.in/apply" value="pm-solar-yojana-free.in/apply">
+          <button class="btn red" type="submit">Check link</button>
+        </form>
+        <div class="result" id="scamOut" hidden></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2025 Digital Sahayak. An open civic initiative. No middleman charges.</span>
+    <span>Official helpline 1947 · <a href="https://pgportal.gov.in">CPGRAMS (pgportal.gov.in)</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // ---------- Character: video OR image, never both ----------
+  const idle = document.getElementById('idle');
+  const vids = { hi: v('v-hi'), bulb: v('v-bulb'), think: v('v-think'), point: v('v-point') };
+  function v(id){ return document.getElementById(id); }
+  let run = 0;                       // bumps on every new action, cancels old loops
+  function showIdle(){ Object.values(vids).forEach(x => { x.pause(); x.loop = false; x.classList.remove('on'); }); idle.classList.remove('off'); }
+  function play(name, loop = false) {
+    Object.values(vids).forEach(x => { if (x !== vids[name]) { x.pause(); x.classList.remove('on'); } });
+    const el = vids[name]; el.loop = loop; el.currentTime = 0;
+    el.onplaying = () => { el.classList.add('on'); idle.classList.add('off'); };
+    const p = el.play(); if (p) p.catch(() => { showIdle(); });
+    return new Promise(res => { el.onended = () => { el.classList.remove('on'); idle.classList.remove('off'); res(); }; });
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  // After an answer: point at it, rest 3 s, point again... until the next action
+  async function pointLoop(id){
+    while (id === run) { await play('point'); if (id !== run) break; await wait(3000); }
+  }
+  const mood = document.getElementById('mood'), moodText = document.getElementById('moodText');
+  function setMood(t, busy){ moodText.textContent = t; mood.classList.toggle('busy', !!busy); }
+
+  // ---------- Language ----------
+  const L = {
+    hinglish:{title:'Official Government System Navigator for Indian Citizens', ready:'Namaste!', think:'Soch raha hoon...', got:'Yeh raha jawab',
+      hello:['Namaste! Main <b>Digital Sahayak</b> hoon, aapka sarkari portal guide.','Bina kisi cyber cafe tout ko ₹300 se ₹3,000 diye, apne phone se .gov.in portals par kaam sahi aur safely karein.','Upar se koi verified task chunein, ya neeche apna sawal likhein.']},
+    hindi:{title:'भारतीय नागरिकों के लिए आधिकारिक सरकारी सिस्टम गाइड', ready:'नमस्ते!', think:'सोच रहा हूँ...', got:'यह रहा जवाब',
+      hello:['नमस्ते! मैं <b>डिजिटल सहायक</b> हूँ, आपका सरकारी पोर्टल गाइड।','किसी साइबर कैफे एजेंट को ₹300 से ₹3,000 दिए बिना, अपने फ़ोन से .gov.in पोर्टल पर काम सही और सुरक्षित तरीके से करें।','ऊपर से कोई काम चुनें या नीचे सवाल लिखें।']},
+    english:{title:'Official Government System Navigator for Indian Citizens', ready:'Hello!', think:'Thinking...', got:'Here is your answer',
+      hello:['Hello! I am <b>Digital Sahayak</b>, your guide to government portals.','Finish your work on .gov.in portals from your own phone, correctly and safely, without paying a cyber cafe agent ₹300 to ₹3,000.','Pick a verified task above or type your question below.']}
+  };
+  let lang = 'hinglish';
+  document.getElementById('lang').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    lang = b.dataset.l;
+    document.querySelectorAll('#lang button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    document.getElementById('t-title').textContent = L[lang].title;
+    resetChat();
+  });
+
+  // ---------- Chat ----------
+  const feed = document.getElementById('feed');
+  const now = () => new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  function add(html, who, actions){
+    const wrap = document.createElement('div');
+    wrap.style.alignSelf = who === 'me' ? 'flex-end' : 'flex-start';
+    wrap.innerHTML = `<div class="msg ${who}">${html}${actions ? `<div class="actions">${actions.map(a => `<button type="button" data-ask="${a}">${a}</button>`).join('')}</div>` : ''}</div><div class="time" style="text-align:${who==='me'?'right':'left'}">${now()}</div>`;
+    feed.appendChild(wrap); feed.scrollTop = feed.scrollHeight; return wrap;
+  }
+  const replies = [
+    [/neet/i, '<p><b>NEET UG application - 6 steps</b></p><ul><li>neet.nta.nic.in par register karein</li><li>Photo 10-200 KB, signature 4-30 KB</li><li>Fee sirf portal par online bharein</li></ul><p>Kya documents ready hain?</p>'],
+    [/licen|dl\b/i, '<p><b>Driving Licence renewal</b></p><ul><li>parivahan.gov.in → Sarathi</li><li>Form 9 bharein, 40+ age par medical certificate</li><li>Slot book karke fee online pay karein</li></ul>'],
+    [/aadhaar|aadhar/i, '<p><b>Aadhaar mobile update</b></p><ul><li>Mobile number sirf Aadhaar Seva Kendra par update hota hai</li><li>Appointment uidai.gov.in se book karein</li><li>Fee ₹50 hai, isse zyada na dein</li></ul>'],
+    [/gazette|name/i, '<p><b>Gazette name change</b></p><ul><li>Pehle affidavit banwayein</li><li>Do newspaper mein ad dein</li><li>egazette.gov.in par apply karein</li></ul>'],
+    [/cpgrams|grievance|shikayat/i, '<p><b>CPGRAMS grievance</b></p><ul><li>pgportal.gov.in par account banayein</li><li>Department chunein, saaf shabdon mein shikayat likhein</li><li>Registration number save karein</li></ul>'],
+  ];
+  const actionsFor = ['Yes, documents ready', 'Next step'];
+  let busy = false;
+  async function ask(text){
+    if (busy || !text.trim()) return;
+    busy = true; showView('chat'); const id = ++run;
+    add(text.replace(/</g,'&lt;'), 'me');
+    const t = document.createElement('div'); t.className = 'msg bot typing'; t.innerHTML = '<i></i><i></i><i></i>';
+    feed.appendChild(t); feed.scrollTop = feed.scrollHeight;
+    setMood(L[lang].think, true); play('think', true);
+    await wait(2800);
+    t.remove();
+    const hit = replies.find(([re]) => re.test(text));
+    add(hit ? hit[1] : '<p>Achha sawal! Is demo mein jawab sample hai. Asli site par yahan Gemini ka jawab aayega.</p>', 'bot', actionsFor);
+    setMood(L[lang].got); await play('bulb');
+    busy = false;
+    if (id === run) pointLoop(id);
+  }
+  async function resetChat(){
+    const id = ++run; busy = false; showIdle();
+    feed.innerHTML = '';
+    add(L[lang].hello.map(p => `<p>${p}</p>`).join(''), 'bot', ['NEET UG Application', 'Driving Licence Renewal']);
+    setMood(L[lang].ready); await play('hi');
+    if (id === run) pointLoop(id);
+  }
+  document.addEventListener('click', e => {
+    const a = e.target.closest('[data-ask]'); if (a) ask(a.dataset.ask);
+    const g = e.target.closest('[data-goto]'); if (g) showView(g.dataset.goto);
+    const tl = e.target.closest('[data-tool]'); if (tl) openTool(tl.dataset.tool);
+  });
+  const q = document.getElementById('q');
+  document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); ask(q.value); q.value=''; });
+  q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(q.value); q.value=''; } });
+  document.getElementById('resetBtn').addEventListener('click', resetChat);
+
+  // ---------- Tabs ----------
+  function showView(name){
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.v === name));
+    ['chat','procs','scam'].forEach(n => document.getElementById('view-'+n).hidden = n !== name);
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.v)));
+
+  // ---------- Tool buttons (design only, backend to connect) ----------
+  const toolDlg = document.getElementById('toolDlg'), toolT = document.getElementById('toolT'), toolBody = document.getElementById('toolBody');
+  const tools = {
+    resize: ['KB Resizer', '<div class="drop">Photo yahan drop karein ya tap karke choose karein</div><p style="margin:8px 0 4px;color:var(--muted);font-size:.9rem">Size chunein:</p><div class="presets"><button type="button" class="btn ghost">NEET photo · 85 KB</button><button type="button" class="btn ghost">Signature · 35 KB</button><button type="button" class="btn ghost">Portal ID · 150 KB</button></div>'],
+    shot: ['Error screenshot', '<div class="drop">Form error ka screenshot upload karein</div><p style="margin:8px 0 0;color:var(--muted);font-size:.9rem">AI screenshot padh kar batayega: kya likha hai, galti kyun hui, ab kya karein.</p>'],
+    draft: ['Draft Sahayak', '<p style="margin:0;color:var(--muted)">AI aapke liye affidavit aur application ka draft banayega.</p><div class="presets" style="margin-top:8px"><button type="button" class="btn ghost">Name change affidavit</button><button type="button" class="btn ghost">Address proof letter</button><button type="button" class="btn ghost">RTI application</button></div>']
+  };
+  function openTool(k){ toolT.textContent = tools[k][0]; toolBody.innerHTML = tools[k][1]; toolDlg.hidden = false; }
+  document.getElementById('toolClose').addEventListener('click', () => toolDlg.hidden = true);
+  document.getElementById('toolGo').addEventListener('click', () => toolDlg.hidden = true);
+  toolDlg.addEventListener('click', e => { if (e.target === toolDlg) toolDlg.hidden = true; });
+
+  // ---------- Procedures view (design demo data; backend supplies the real list) ----------
+  const P = [
+    ['neet','easy','Easy · online','NEET UG 2025 Application Form','exams.nta.ac.in',1700,350,'National Eligibility cum Entrance Test (UG) · NTA portal'],
+    ['driving-licence','med','Medium · multi-step','Driving Licence (DL) Renewal','parivahan.gov.in',200,800,'Sarathi Parivahan · Ministry of Road Transport'],
+    ['aadhaar-update','med','Medium · biometric','Aadhaar Mobile Number Update','uidai.gov.in / myaadhaar',50,200,'UIDAI · Aadhaar Seva Kendra appointment'],
+    ['gazette','hard','Hard · complex','Gazette Notification (Name Change)','egazette.gov.in',700,1300,'Department of Publication · Govt of India'],
+    ['aadhaar-new','easy','Easy · free','Fresh Aadhaar Enrolment','uidai.gov.in',0,300,'UIDAI · free first-time enrolment'],
+    ['passport','med','Medium · multi-step','Fresh / Tatkaal Passport','passportindia.gov.in',1500,1000,'Passport Seva · Ministry of External Affairs'],
+    ['grievance','hard','Hard · grievance','CPGRAMS Central Grievance','pgportal.gov.in',0,500,'Centralised Public Grievance Redress System'],
+    ['anti-corruption','hard','Hard · grievance','Delayed Service / Anti-Corruption','cvc.gov.in',0,500,'Central Vigilance Commission complaint'],
+    ['oci','hard','Hard · complex','Renunciation / OCI Card','ociservices.gov.in',2500,2000,'Ministry of Home Affairs · OCI services'],
+    ['land-records','med','Medium','Delhi Land Records (RoR / Khatauni)','dslr.delhi.gov.in',0,400,'Delhi Revenue Department'],
+    ['domicile','med','Medium','Delhi Domicile Certificate','edistrict.delhigovt.nic.in',0,400,'e-District Delhi'],
+    ['caste','med','Medium','Delhi Caste Certificate (SC/ST/OBC)','edistrict.delhigovt.nic.in',0,400,'e-District Delhi'],
+    ['land-records','easy','Easy · online','UP Bhulekh (Khatauni Land Record)','upbhulekh.gov.in',0,200,'Board of Revenue · Uttar Pradesh'],
+    ['domicile','med','Medium · eSathi','UP Domicile (Niwas Praman Patra)','esathi.up.gov.in',15,385,'eSathi · Uttar Pradesh'],
+    ['caste','med','Medium · eSathi','UP Caste Certificate (Jati Praman Patra)','esathi.up.gov.in',15,385,'eSathi · Uttar Pradesh'],
+    ['check','easy','Easy · online','Scam Shield link check','Digital Sahayak',0,0,'Check any WhatsApp or SMS link before you click']
+  ];
+  const rs = n => '₹' + n.toLocaleString('en-IN');
+  let pCur = 0, pFilter = 'all';
+  const plist = document.getElementById('plist');
+  function renderList(){
+    const q = (document.getElementById('pq').value || '').toLowerCase();
+    plist.innerHTML = '';
+    let shown = 0;
+    P.forEach((p, i) => {
+      if (pFilter !== 'all' && p[1] !== pFilter) return;
+      if (q && !(p[3] + p[4]).toLowerCase().includes(q)) return;
+      shown++;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'pitem';
+      if (i === pCur) b.setAttribute('aria-current', 'true');
+      b.innerHTML = `<span class="row1">${icon(p[0],28)}<span class="lvl ${p[1]}">${p[2]}</span></span><b>${p[3]}</b><span class="url">${p[4]}</span><span class="row2"><span>Fee: <strong>${p[5] ? rs(p[5]) : 'Free'}</strong></span>${p[6] ? `<em>Save ${rs(p[6])}</em>` : ''}</span>`;
+      b.addEventListener('click', () => { pCur = i; showTask(); renderList(); });
+      plist.appendChild(b);
+    });
+    if (!shown) plist.innerHTML = '<p class="muted-p">Koi procedure nahi mila. Doosra naam try karein.</p>';
+  }
+  function icon(n, s){ return `<span class="ic" style="--s:${s}px"><img class="l" src="icons/light/${n}.png" alt=""><img class="d" src="icons/dark/${n}.png" alt=""></span>`; }
+  function showTask(){
+    const p = P[pCur];
+    document.getElementById('wfTitle').textContent = p[3];
+    document.getElementById('wfSub').textContent = p[7];
+    document.getElementById('wfPortalTxt').textContent = p[4];
+    document.getElementById('wfPortal').href = 'https://' + p[4].split(' ')[0];
+    document.getElementById('fOff').textContent = p[5] ? rs(p[5]) : 'Free';
+    document.getElementById('fCafe').textContent = rs(p[5] + p[6]);
+    document.getElementById('fSave').textContent = rs(p[6]);
+    document.getElementById('acTask').textContent = p[3];
+    step = 1; drawSteps();
+  }
+  document.getElementById('pq').addEventListener('input', renderList);
+  document.getElementById('pfilters').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    pFilter = b.dataset.f;
+    document.querySelectorAll('#pfilters button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderList();
+  });
+  // counts on filter chips
+  (() => { const c = k => P.filter(p => p[1] === k).length;
+    const bs = document.querySelectorAll('#pfilters button');
+    bs[1].innerHTML += ` <b>${c('easy')}</b>`; bs[2].innerHTML += ` <b>${c('med')}</b>`; bs[3].innerHTML += ` <b>${c('hard')}</b>`; })();
+
+  // checklist counter
+  const checks = document.getElementById('checks');
+  function ckCount(){ const all = checks.querySelectorAll('input'), on = checks.querySelectorAll('input:checked');
+    document.getElementById('ckCount').textContent = `${on.length} of ${all.length} ready`; }
+  checks.addEventListener('change', ckCount);
+
+  // steps
+  const STEPS = [
+    ['Register on the portal','Portal par "New Registration" chunein aur email, mobile number daalein.','Ek hi email aur mobile poore process mein use karein.'],
+    ['Fill personal & Aadhaar details','Portal par "New Registration" pe tap karein aur apna 12-digit Aadhaar number daalein. OTP aane par verify karein.','Candidate name bilkul Class 10 certificate jaisa likhein. Shri, Mr. ya Dr. jaise prefix na lagayein.'],
+    ['Upload photo & signature','Photo aur signature upar wale KB Resizer se sahi size mein karke upload karein.','Photo 10-200 KB, signature 10-100 KB. Blur photo reject ho jaati hai.'],
+    ['Choose exam centre','Apne sheher ke 4 exam centre preference order mein chunein.','Centre baad mein sirf correction window mein badal sakta hai.'],
+    ['Pay the fee online','Fee sirf portal ke payment page par UPI, card ya net banking se bharein.','Kisi ke diye QR code ya link par payment na karein.'],
+    ['Submit & save confirmation','Final submit karein aur confirmation page ka PDF save karein.','Confirmation page print karke rakhein; admit card ke time kaam aayega.']
+  ];
+  let step = 1;
+  const dots = document.getElementById('stepDots');
+  function drawSteps(){
+    dots.innerHTML = '';
+    STEPS.forEach((_, i) => { const b = document.createElement('button'); b.type = 'button';
+      b.textContent = i < step ? '✓' : i + 1; if (i < step) b.className = 'done'; if (i === step) b.className = 'cur';
+      b.setAttribute('aria-label', 'Step ' + (i + 1)); b.addEventListener('click', () => { step = i; drawSteps(); }); dots.appendChild(b); });
+    const pct = Math.round(step / STEPS.length * 100);
+    document.getElementById('stepLbl').textContent = `Step ${step + 1} of ${STEPS.length}: ${STEPS[step][0]}`;
+    document.getElementById('stepPct').textContent = pct + '% complete';
+    document.getElementById('stepBar').style.width = Math.max(pct, 4) + '%';
+    document.getElementById('coachT').textContent = STEPS[step][1];
+    document.getElementById('coachP').textContent = STEPS[step][2];
+    document.getElementById('acStep').textContent = `Step ${step + 1} (${STEPS[step][0]})`;
+    document.getElementById('acRem').textContent = `${STEPS.length - step - 1} steps to final submit`;
+  }
+  document.getElementById('stepBack').addEventListener('click', () => { if (step > 0) { step--; drawSteps(); } });
+  document.getElementById('stepNext').addEventListener('click', () => { if (step < STEPS.length - 1) { step++; drawSteps(); } });
+  document.getElementById('startStep').addEventListener('click', () => { step = 0; drawSteps(); document.getElementById('stepBar').scrollIntoView({behavior:'smooth', block:'center'}); });
+  document.getElementById('presetsV').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#presetsV button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+  renderList(); showTask(); step = 1; drawSteps(); ckCount();
+
+  // ---------- Verified tasks: one wrapping row of small chips, every task visible ----------
+  const SHORT = {'NEET UG 2025 Application Form':'NEET UG Application','Driving Licence (DL) Renewal':'Driving Licence Renewal','Aadhaar Mobile Number Update':'Aadhaar Mobile Update',
+    'Gazette Notification (Name Change)':'Gazette Name Change','Delhi Land Records (RoR / Khatauni)':'Delhi Land Records','Delhi Caste Certificate (SC/ST/OBC)':'Delhi Caste Certificate',
+    'UP Bhulekh (Khatauni Land Record)':'UP Bhulekh Land Record','UP Domicile (Niwas Praman Patra)':'UP Domicile','UP Caste Certificate (Jati Praman Patra)':'UP Caste Certificate',
+    'Delayed Service / Anti-Corruption':'Anti-Corruption','Renunciation / OCI Card':'OCI / Renunciation','CPGRAMS Central Grievance':'CPGRAMS Grievance'};
+  const LV = {easy:['easy','Easy'], med:['med','Medium'], hard:['hard','Hard']};
+  const quick = document.getElementById('quick');
+  P.filter(p => p[0] !== 'check').sort((x,y) => ['easy','med','hard'].indexOf(x[1]) - ['easy','med','hard'].indexOf(y[1])).forEach(p => {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.ask = p[3] + ' ka process batao';
+    b.innerHTML = `${icon(p[0],18)}${SHORT[p[3]] || p[3]} <span class="lvl ${LV[p[1]][0]}">${LV[p[1]][1]}</span>`;
+    quick.appendChild(b);
+  });
+  const tdrop = document.getElementById('tasksToggle'), tdLbl = document.getElementById('tdLbl');
+  const nTasks = quick.querySelectorAll('button').length;
+  function setDrop(open){ quick.classList.toggle('closed', !open); tdrop.setAttribute('aria-expanded', open); tdLbl.textContent = open ? 'Show less' : `All ${nTasks} tasks`; }
+  setDrop(false);
+  tdrop.addEventListener('click', () => setDrop(quick.classList.contains('closed')));
+  quick.addEventListener('click', e => { if (e.target.closest('[data-ask]')) setDrop(false); });
+
+
+  document.getElementById('scamForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const val = document.getElementById('link').value.trim().toLowerCase(), out = document.getElementById('scamOut');
+    const safe = /\.(gov|nic)\.in(\/|$)/.test(val.replace(/^https?:\/\//,''));
+    out.hidden = false; out.className = 'result ' + (safe ? 'good' : 'bad');
+    out.innerHTML = safe ? '<b>Official site.</b> Yeh .gov.in / .nic.in domain hai. Phir bhi OTP kisi ko na batayein.'
+                         : '<b>Danger: fake link.</b> Yeh official sarkari domain nahi hai. Is par click na karein, aur 1930 par report karein.';
+  });
+
+  // ---------- Header buttons ----------
+  const root = document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+  const drawer = document.getElementById('drawer'), dBtn = document.getElementById('draftsBtn');
+  dBtn.addEventListener('click', () => { drawer.hidden = !drawer.hidden; dBtn.setAttribute('aria-expanded', !drawer.hidden); });
+  const dlg = document.getElementById('dialog');
+  document.getElementById('helpBtn').addEventListener('click', () => dlg.hidden = false);
+  document.getElementById('dlgClose').addEventListener('click', () => dlg.hidden = true);
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.hidden = true; });
+
+  // ---------- Start: wave hi when the person enters ----------
+  resetChat();
+})();
+</script>
+</body>
+</html>

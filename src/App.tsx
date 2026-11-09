@@ -20,21 +20,22 @@ import { Footer } from './components/Footer';
 import { GeminiChatView } from './components/GeminiChatView';
 import { ScamShieldModal } from './components/ScamShieldModal';
 import { DraftGeneratorModal, DraftTemplateType } from './components/DraftGeneratorModal';
+import { getAppIcon } from './utils/appIcons';
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('chat');
+  const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('dashboard');
   const [selectedProcedureId, setSelectedProcedureId] = useState<string>('neet-ug-2025');
   const [isScamShieldOpen, setIsScamShieldOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>('hinglish');
 
-  // Light / Dark mode state initialized from localStorage or system preference
+  // Light / Dark mode state: default to 'light', load saved only if explicitly set
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('digital-sahayak-theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (saved === 'dark') return 'dark';
+      if (saved === 'light') return 'light';
     }
     return 'light';
   });
@@ -43,8 +44,10 @@ export default function App() {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
     } else {
       root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
     }
     localStorage.setItem('digital-sahayak-theme', theme);
   }, [theme]);
@@ -167,7 +170,7 @@ export default function App() {
   const tempRefId = `${currentProcedure.tempRefPrefix}88492`;
 
   return (
-    <div className="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-secondary selection:text-on-secondary">
+    <div className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200">
       {/* Top Application Bar with View Mode Switcher & Dark Mode Toggle */}
       <Header
         language={language}
@@ -198,75 +201,24 @@ export default function App() {
 
       {/* Main Content Area: Gemini Chat vs Procedural Dashboard */}
       {viewMode === 'chat' ? (
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-4 sm:py-6 flex flex-col">
-          {/* Scam Shield (Kavach) Quick Emergency Alert Banner */}
-          <div className="mb-3.5 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-red-600/10 via-rose-500/10 to-amber-500/10 border-2 border-red-300 dark:border-red-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-sm">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-rose-700 text-white flex items-center justify-center shrink-0 shadow-md shadow-red-500/30 animate-pulse">
-                <span className="material-symbols-outlined text-base">shield</span>
-              </span>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-red-700 dark:text-red-400 uppercase tracking-wide">
-                    Scam Shield (स्कैम कवच) Active:
-                  </span>
-                  <span className="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.2 rounded">
-                    Phishing Alert
-                  </span>
-                </div>
-                <p className="text-on-surface line-clamp-1 mt-0.5">
-                  Received WhatsApp message claiming "Free PM Solar Yojana", "₹50,000 Mudra Loan", or "Electricity KYC Block"?
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsScamShieldOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0 shadow-md shadow-red-600/20 transition flex items-center justify-center gap-1.5 active:scale-95"
-            >
-              <span>Scan WhatsApp Link</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
-          </div>
-
-          {/* Quick Safety & Grounding Banner */}
-          <div className="mb-4 p-3 rounded-xl bg-surface-container-lowest border border-outline-variant flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="font-bold text-on-surface">Gemini 2.5 Flash Light Grounded Engine Active</span>
-              <span className="text-on-surface-variant hidden md:inline">
-                • Strict Grounding in 9 Government Portals • Temperature 0.2
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setViewMode('dashboard')}
-                className="text-secondary font-semibold hover:underline flex items-center gap-1"
-              >
-                <span>Switch to Interactive Step-by-Step Forms &amp; KB Resizer</span>
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Gemini Chat Interface Component */}
-          <div className="flex-1">
-            <GeminiChatView
-              initialLanguage={language}
-              onLanguageChange={setLanguage}
-              onOpenResizer={() => {
-                setViewMode('dashboard');
-                setTimeout(() => {
-                  const el = document.getElementById('resizer');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-              onSelectProcedure={(procedureId) => {
-                setSelectedProcedureId(procedureId);
-              }}
-              onOpenScamShield={() => setIsScamShieldOpen(true)}
-              onOpenDraftGenerator={() => handleOpenDraftModal()}
-            />
-          </div>
+        <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 py-1.5 sm:py-2.5 flex flex-col">
+          <GeminiChatView
+            initialLanguage={language}
+            onLanguageChange={setLanguage}
+            onOpenResizer={() => {
+              setViewMode('dashboard');
+              setTimeout(() => {
+                const el = document.getElementById('resizer');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }}
+            onSelectProcedure={(procedureId) => {
+              setSelectedProcedureId(procedureId);
+            }}
+            onOpenScamShield={() => setIsScamShieldOpen(true)}
+            onOpenDraftGenerator={() => handleOpenDraftModal()}
+            theme={theme}
+          />
         </main>
       ) : (
         <>
@@ -280,36 +232,49 @@ export default function App() {
             categoryFilter={categoryFilter}
             onCategoryChange={setCategoryFilter}
             counts={categoryCounts}
+            theme={theme}
           />
 
           {/* Quick Chat Callout in Dashboard */}
           <div className="max-w-7xl w-full mx-auto px-4 md:px-8 pt-4">
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <span className="material-symbols-outlined text-xl">auto_awesome</span>
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 p-2 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/40">
+                  <img
+                    src={getAppIcon('ai-chat', theme)}
+                    alt="AI Chat"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-on-surface">Digital Sahayak Gemini Chat</h4>
-                  <p className="text-xs text-on-surface-variant">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Digital Sahayak Gemini Chat</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     Ask questions, verify file sizes, or decode error screenshots in conversational Hinglish, Hindi, or English.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
                 <button
                   onClick={() => setIsScamShieldOpen(true)}
-                  className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow flex items-center gap-1.5 transition active:scale-95"
+                  className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
                 >
-                  <span className="material-symbols-outlined text-sm animate-pulse">shield</span>
+                  <img
+                    src={getAppIcon('shield', 'dark')}
+                    alt="Scam Shield"
+                    className="w-4 h-4 object-contain"
+                  />
                   <span>Scam Shield (कवच)</span>
                 </button>
                 <button
                   onClick={() => setViewMode('chat')}
-                  className="px-4 py-2 rounded-xl bg-secondary text-white text-xs font-bold shadow hover:bg-secondary/90 transition flex items-center gap-1.5"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
                 >
+                  <img
+                    src={getAppIcon('ai-chat', 'dark')}
+                    alt="Chat"
+                    className="w-4 h-4 object-contain"
+                  />
                   <span>Open Gemini Chat</span>
-                  <span className="material-symbols-outlined text-sm">chat</span>
                 </button>
               </div>
             </div>
@@ -323,6 +288,7 @@ export default function App() {
                 procedures={filteredProcedures}
                 selectedProcedureId={currentProcedure.id}
                 onSelectProcedure={handleSelectProcedure}
+                theme={theme}
               />
 
               {/* CENTER COLUMN: MAIN WORKFLOW CANVAS (lg:col-span-5 xl:col-span-6) */}
@@ -334,6 +300,7 @@ export default function App() {
                   onToggleChecklist={handleToggleChecklist}
                   onOpenResizerForPreset={handleOpenResizerForPreset}
                   onStartWorkflow={handleStartWorkflow}
+                  theme={theme}
                 />
 
                 {/* Screen C: One-Step-At-A-Time Guided Coach */}
@@ -345,6 +312,7 @@ export default function App() {
                     onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
                     onOpenDraftGenerator={(tpl) => handleOpenDraftModal(tpl)}
                     language={language}
+                    theme={theme}
                   />
                 </div>
               </section>
@@ -352,7 +320,7 @@ export default function App() {
               {/* RIGHT COLUMN: UTILITY DRAWER & ESCALATION (lg:col-span-3) */}
               <section className="lg:col-span-3 flex flex-col gap-6">
                 {/* Screen F: Client-Side KB Resizer */}
-                <KbResizer initialPreset={resizerPreset} />
+                <KbResizer initialPreset={resizerPreset} theme={theme} />
 
                 {/* Screen D Trigger + Screen E Escalation Card */}
                 <EscalationCard
@@ -360,6 +328,7 @@ export default function App() {
                   currentStepIndex={currentStepIndex}
                   tempRef={tempRefId}
                   onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
+                  theme={theme}
                 />
               </section>
             </div>
@@ -430,6 +399,7 @@ export default function App() {
         }}
         onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
         onOpenChat={() => setIsChatModalOpen(true)}
+        theme={theme}
       />
     </div>
   );

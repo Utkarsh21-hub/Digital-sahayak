@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Procedure, generateWhatsAppSummary } from '../utils/procedures';
+import { getAppIcon } from '../utils/appIcons';
 
 interface EscalationCardProps {
   procedure: Procedure;
   currentStepIndex: number;
   tempRef: string;
   onOpenScreenshotModal: () => void;
+  theme?: 'light' | 'dark';
 }
 
 export const EscalationCard: React.FC<EscalationCardProps> = ({
@@ -13,6 +15,7 @@ export const EscalationCard: React.FC<EscalationCardProps> = ({
   currentStepIndex,
   tempRef,
   onOpenScreenshotModal,
+  theme = 'light',
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -22,143 +25,136 @@ export const EscalationCard: React.FC<EscalationCardProps> = ({
   const handleWhatsAppShare = () => {
     const summaryText = generateWhatsAppSummary(procedure, currentStepIndex, tempRef);
 
-    // Copy to clipboard
     if (navigator.clipboard) {
       navigator.clipboard.writeText(summaryText);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     }
 
-    // Also open WhatsApp if user chooses
     const encoded = encodeURIComponent(summaryText);
     const waUrl = `https://api.whatsapp.com/send?text=${encoded}`;
     window.open(waUrl, '_blank');
   };
 
   return (
-    <>
-      {/* SCREEN D PREVIEW / TRIGGER: SCREENSHOT SAHAYAK */}
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm">
+    <div className="space-y-4">
+      {/* SCREENSHOT SAHAYAK CARD matching Screenshot */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-body-strong font-body-strong text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary" data-icon="document_scanner">
-              document_scanner
-            </span>
-            Screenshot Sahayak
-          </h3>
-          <span className="bg-surface-container text-secondary text-label-sm font-label-sm px-2 py-0.5 rounded-full font-bold">
-            AI Decoder
+          <div className="flex items-center gap-2">
+            <img
+              src={getAppIcon('camera', theme)}
+              alt=""
+              className="w-5 h-5 object-contain"
+            />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Screenshot Sahayak
+            </h3>
+          </div>
+          <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900/40">
+            AI decoder
           </span>
         </div>
-        <p className="text-caption font-caption text-on-surface-variant">
-          Stuck on a strange government portal error? Drag your screenshot here to decode in plain Hinglish.
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Sarkari portal par ajeeb error aaya? Screenshot daalein, hum Hinglish mein samjhayenge.
         </p>
         <button
-          className="mt-3 w-full border-2 border-dashed border-secondary/50 bg-surface-container-low hover:bg-surface-container py-3 px-3 rounded-xl text-center text-label-sm font-label-sm text-secondary font-bold transition-all flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
+          className="mt-3.5 w-full border-2 border-dashed border-blue-400/60 dark:border-blue-600/50 bg-blue-50/20 dark:bg-blue-950/20 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 py-2.5 px-3 rounded-xl text-center text-xs font-semibold text-blue-600 dark:text-blue-400 transition-all flex items-center justify-center gap-2 cursor-pointer"
           onClick={onOpenScreenshotModal}
           type="button"
         >
-          <span className="material-symbols-outlined" data-icon="add_photo_alternate">
-            add_photo_alternate
-          </span>
-          <span>Upload Error Screen to Analyze</span>
+          <span>Upload error screen to analyse</span>
         </button>
       </div>
 
-      {/* SCREEN E: ESCALATION & OFFICIAL HELPLINE + WHATSAPP SUMMARY */}
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm space-y-4" id="cpgrams">
-        <div className="border-b border-outline-variant pb-3">
-          <h3 className="text-body-strong font-body-strong text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary" data-icon="support_agent">
-              support_agent
-            </span>
-            Direct Escalation &amp; Help
-          </h3>
-          <p className="text-caption font-caption text-on-surface-variant">
-            Official redressal channels without intermediaries
+      {/* DIRECT ESCALATION & HELP CARD matching Screenshot */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-3.5" id="cpgrams">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <img
+              src={getAppIcon('help', theme)}
+              alt=""
+              className="w-5 h-5 object-contain"
+            />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Direct escalation &amp; help
+            </h3>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Official channels, no middlemen
           </p>
         </div>
 
-        {/* Click to Call & Grievance Actions */}
-        <div className="space-y-2">
-          <a
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant text-label-sm font-label-sm font-bold text-on-surface transition-colors min-h-[44px]"
-            href={`tel:${procedure.helpline}`}
-          >
-            <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary" data-icon="call">
-                call
-              </span>
-              <span>Call Portal Helpline</span>
-            </span>
-            <span className="bg-surface-container-lowest border border-outline-variant px-2 py-0.5 rounded text-secondary font-mono">
+        {/* Helpline & Grievance Links matching Screenshot */}
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
+            <span className="text-slate-600 dark:text-slate-400">Call portal helpline</span>
+            <a
+              href={`tel:${procedure.helpline}`}
+              className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+            >
               {procedure.helpline}
-            </span>
-          </a>
+            </a>
+          </div>
 
-          <a
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant text-label-sm font-label-sm font-bold text-on-surface transition-colors min-h-[44px]"
-            href="https://pgportal.gov.in"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <span className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary" data-icon="gavel">
-                gavel
-              </span>
-              <span>CPGRAMS Central Grievance</span>
-            </span>
-            <span className="text-caption font-caption text-on-tertiary-container font-semibold">
+          <div className="flex items-center justify-between py-1">
+            <span className="text-slate-600 dark:text-slate-400">CPGRAMS central grievance</span>
+            <a
+              href="https://pgportal.gov.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+            >
               pgportal.gov.in ↗
-            </span>
-          </a>
+            </a>
+          </div>
         </div>
 
-        {/* WhatsApp Progress / Citizen Record Summary Card */}
-        <div className="bg-surface-container-low border border-outline-variant rounded-xl p-3.5 space-y-2.5">
+        {/* Your Application Card matching Screenshot */}
+        <div className="bg-slate-50/70 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-label-sm font-label-sm text-on-surface font-bold">Your Application Card</span>
-            <span className="text-[11px] bg-tertiary-fixed text-tertiary-container px-2 py-0.5 rounded font-bold">
-              In-Progress
+            <span className="text-xs font-bold text-slate-900 dark:text-white">
+              Your application card
+            </span>
+            <span className="text-[10px] bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full font-bold">
+              In progress
             </span>
           </div>
 
-          <div className="text-caption font-caption space-y-1 bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant">
+          <div className="text-xs space-y-1.5 text-slate-600 dark:text-slate-400">
             <div className="flex justify-between">
-              <span className="text-on-surface-variant">Task:</span>
-              <span className="font-bold text-on-surface truncate ml-2 max-w-[170px]" title={procedure.title}>
+              <span>Task</span>
+              <span className="font-bold text-slate-900 dark:text-white truncate ml-2 max-w-[160px]" title={procedure.title}>
                 {procedure.title}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-on-surface-variant">Temp Ref:</span>
-              <span className="font-mono text-on-surface font-semibold">{tempRef}</span>
+              <span>Temp ref</span>
+              <span className="font-mono text-slate-900 dark:text-white font-semibold">{tempRef}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-on-surface-variant">Current:</span>
-              <span className="text-secondary font-semibold">
-                Step {currentStep.stepNumber} ({currentStep.title.slice(0, 15)}...)
+              <span>Current</span>
+              <span className="text-blue-600 dark:text-blue-400 font-semibold truncate ml-2 max-w-[160px]">
+                Step {currentStep.stepNumber} ({currentStep.title.slice(0, 16)}...)
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-on-surface-variant">Remaining:</span>
-              <span className="text-on-surface">{remainingSteps} steps to final submit</span>
+              <span>Remaining</span>
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {remainingSteps} steps to final submit
+              </span>
             </div>
           </div>
 
-          {/* WhatsApp Share Button */}
           <button
             onClick={handleWhatsAppShare}
-            className="w-full bg-on-tertiary-container hover:bg-opacity-90 text-on-primary text-label-sm font-label-sm font-semibold py-2.5 px-3 rounded-lg shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+            className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
             type="button"
           >
-            <span className="material-symbols-outlined text-lg" data-icon="share">
-              share
-            </span>
-            <span>{copied ? 'Copied to Clipboard! ✓' : 'Copy / Share on WhatsApp'}</span>
+            <span>{copied ? '✓ Copied to clipboard!' : 'Copy / share on WhatsApp'}</span>
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };

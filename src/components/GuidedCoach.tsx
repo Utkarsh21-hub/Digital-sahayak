@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Procedure, StepInfo } from '../utils/procedures';
+import { getAppIcon } from '../utils/appIcons';
 
 interface GuidedCoachProps {
   procedure: Procedure;
@@ -8,6 +9,7 @@ interface GuidedCoachProps {
   onOpenScreenshotModal: () => void;
   onOpenDraftGenerator?: (templateId?: string) => void;
   language: 'hinglish' | 'hi' | 'en';
+  theme?: 'light' | 'dark';
 }
 
 export const GuidedCoach: React.FC<GuidedCoachProps> = ({
@@ -17,6 +19,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
   onOpenScreenshotModal,
   onOpenDraftGenerator,
   language,
+  theme = 'light',
 }) => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [explanationText, setExplanationText] = useState<string | null>(null);
@@ -43,7 +46,6 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
 
   const handleExplainSimply = async () => {
     if (explanationText) {
-      // Toggle visibility if already fetched
       setExplanationText(null);
       return;
     }
@@ -81,28 +83,28 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
   };
 
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 md:p-6 shadow-sm">
-      {/* Stepper Header with Progress Bar */}
-      <div className="space-y-2 pb-4 border-b border-outline-variant">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs">
+      {/* Stepper Header with Progress Bar matching Screenshot */}
+      <div className="space-y-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <span className="text-label-md font-label-md text-secondary font-bold">
+          <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
             Step {currentStep.stepNumber} of {currentStep.totalSteps}: {currentStep.title}
           </span>
-          <span className="text-label-sm font-label-sm font-semibold bg-surface-container px-2.5 py-0.5 rounded-full text-on-surface">
-            {progressPercent}% Complete
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            {progressPercent}% complete
           </span>
         </div>
 
         {/* Progress Line */}
-        <div className="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-secondary rounded-full transition-all duration-300"
+            className="h-full bg-blue-600 rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
 
-        {/* Quick Step Indicators */}
-        <div className="flex items-center justify-between pt-1">
+        {/* Stepper Indicators + Back/Next matching Screenshot */}
+        <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 overflow-x-auto py-1">
             {steps.map((s, idx) => (
               <button
@@ -113,10 +115,10 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
                 }}
                 className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
                   idx === currentStepIndex
-                    ? 'bg-secondary text-on-secondary shadow-sm ring-2 ring-secondary/30'
+                    ? 'bg-blue-600 text-white shadow-xs'
                     : idx < currentStepIndex
-                    ? 'bg-tertiary-fixed text-tertiary-container'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
                 title={`Jump to Step ${s.stepNumber}: ${s.title}`}
               >
@@ -125,18 +127,18 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={handlePrevStep}
               disabled={currentStepIndex === 0}
-              className="px-2.5 py-1 text-label-sm font-semibold rounded-lg border border-outline-variant hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
             >
               ← Back
             </button>
             <button
               onClick={handleNextStep}
               disabled={currentStepIndex === totalSteps - 1}
-              className="px-2.5 py-1 text-label-sm font-semibold rounded-lg border border-outline-variant hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
             >
               Next →
             </button>
@@ -144,53 +146,56 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
         </div>
       </div>
 
-      {/* Active Step Focus Card */}
-      <div className="mt-5 bg-surface-container-low border-2 border-secondary/40 rounded-xl p-5">
-        <div className="flex items-center gap-2 text-label-sm font-label-sm text-secondary font-bold mb-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse" />
-          ACTIONABLE COACH INSTRUCTION
-        </div>
+      {/* Active Step Focus Card matching Screenshot */}
+      <div className="mt-5 bg-blue-50/30 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/50 rounded-2xl p-5">
+        <span className="text-[10px] font-extrabold tracking-wider text-blue-600 dark:text-blue-400 uppercase block">
+          COACH INSTRUCTION
+        </span>
 
-        <p className="text-headline-md font-headline-md text-on-surface leading-snug">
+        <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
           {currentStep.actionInstruction}
         </p>
 
-        <p className="text-body-md font-body-md text-on-surface-variant mt-2.5">
+        <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
           {currentStep.detailInstruction}
         </p>
 
-        {/* Tough Terms (Asaan Matlab) Pill Section */}
+        {/* Tough Terms (Aasaan Matlab) Section matching Screenshot */}
         {currentStep.toughTerms && currentStep.toughTerms.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-outline-variant space-y-2">
-            <span className="text-label-sm font-label-sm uppercase text-on-surface-variant font-bold block">
-              Tough Terms (Asaan Matlab)
+          <div className="mt-4 pt-3.5 border-t border-blue-100 dark:border-blue-900/40 space-y-2">
+            <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide block">
+              TOUGH TERMS (AASAAN MATLAB)
             </span>
             <div className="flex flex-wrap gap-2">
               {currentStep.toughTerms.map((item, idx) => (
                 <div
                   key={idx}
-                  className="bg-surface-container-lowest border border-outline-variant px-3 py-1.5 rounded-lg text-caption font-caption"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg text-xs"
                 >
-                  <strong className="text-on-surface font-semibold">{item.term}</strong> = {item.meaning}
+                  <strong className="text-slate-900 dark:text-white font-semibold">{item.term}</strong> = {item.meaning}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Step-Synced Draft Generator Trigger */}
+        {/* Step-Synced Draft Generator Trigger matching Screenshot */}
         {currentStep.draftTemplateId && (
-          <div className="mt-4 pt-4 border-t border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-secondary/5 -mx-5 -mb-5 p-4 rounded-b-xl border-t border-secondary/20">
+          <div className="mt-4 pt-3.5 border-t border-blue-100 dark:border-blue-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center shrink-0 shadow-xs">
-                <span className="material-symbols-outlined text-base">description</span>
-              </span>
+              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shrink-0">
+                <img
+                  src={getAppIcon('draft', theme)}
+                  alt=""
+                  className="w-4 h-4 object-contain"
+                />
+              </div>
               <div>
-                <div className="font-bold text-xs text-on-surface">
-                  {currentStep.draftButtonLabel || '📝 Generate Official Legal Draft'}
+                <div className="font-bold text-xs text-slate-900 dark:text-white">
+                  {currentStep.draftButtonLabel || 'Generate name / spelling undertaking'}
                 </div>
-                <div className="text-[11px] text-on-surface-variant">
-                  Preformatted court/portal statutory template • Free Gemini auto-fill
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Ready court/portal template • free Gemini auto-fill
                 </div>
               </div>
             </div>
@@ -198,10 +203,9 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
             <button
               type="button"
               onClick={() => onOpenDraftGenerator?.(currentStep.draftTemplateId)}
-              className="px-3.5 py-2 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition shrink-0"
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition shrink-0 cursor-pointer"
             >
               <span>Open Draft Sahayak</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           </div>
         )}
@@ -209,81 +213,84 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
 
       {/* AI Explanation Accordion/Box */}
       {isExplaining && (
-        <div className="mt-4 p-4 rounded-xl bg-surface-container-low border border-secondary/30 flex items-center gap-3">
-          <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin flex-shrink-0" />
-          <span className="text-body-md text-secondary font-medium">
+        <div className="mt-4 p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center gap-3">
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">
             Digital Sahayak AI step explanation generate kar raha hai...
           </span>
         </div>
       )}
 
       {explanationError && (
-        <div className="mt-4 p-3 rounded-xl bg-error-container/40 border border-error text-error text-caption">
+        <div className="mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 text-rose-700 text-xs">
           {explanationError}
         </div>
       )}
 
       {explanationText && (
-        <div className="mt-4 p-4 rounded-xl bg-surface-container border border-secondary/40 space-y-2 text-on-surface">
-          <div className="flex items-center justify-between pb-2 border-b border-outline-variant">
-            <span className="text-label-sm font-bold text-secondary flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm" data-icon="auto_awesome">
-                auto_awesome
-              </span>
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 space-y-2 text-slate-900 dark:text-white">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700 text-xs">
+            <span className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+              <img
+                src={getAppIcon('ai-chat', theme)}
+                alt=""
+                className="w-3.5 h-3.5 object-contain"
+              />
               Digital Sahayak — AI Step Guidance
             </span>
             <button
               onClick={() => setExplanationText(null)}
-              className="text-caption text-on-surface-variant hover:text-on-surface cursor-pointer"
+              className="text-slate-400 hover:text-slate-600 cursor-pointer"
             >
               ✕ Close
             </button>
           </div>
-          <div className="text-body-md whitespace-pre-line leading-relaxed text-on-surface">
+          <div className="text-xs whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-300">
             {explanationText}
           </div>
         </div>
       )}
 
-      {/* Step Action Controls (Primary, Explain, Camera) */}
-      <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-        {/* Primary Step Advance */}
+      {/* Step Action Controls */}
+      <div className="mt-5 flex flex-col sm:flex-row items-center gap-2.5">
         <button
           onClick={handleNextStep}
-          className="w-full sm:flex-1 bg-on-tertiary-container hover:bg-opacity-90 text-on-primary font-body-strong font-semibold py-3 px-4 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
+          disabled={currentStepIndex === totalSteps - 1}
+          className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
           type="button"
         >
-          <span className="material-symbols-outlined text-xl" data-icon="task_alt">
-            task_alt
-          </span>
-          <span>
-            {currentStepIndex === totalSteps - 1 ? 'Step Complete — All Steps Done! 🎉' : 'Step Complete — Next Step'}
-          </span>
+          <span>Complete &amp; Next Step</span>
+          <img
+            src={getAppIcon('next', 'dark')}
+            alt=""
+            className="w-3.5 h-3.5 object-contain brightness-0 invert"
+          />
         </button>
 
-        {/* Amber Explain in Hinglish */}
         <button
           onClick={handleExplainSimply}
-          className="w-full sm:w-auto bg-surface-container-lowest border border-outline-variant hover:border-on-surface text-on-surface font-body-strong font-semibold py-3 px-4 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
+          className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
           type="button"
         >
-          <span className="material-symbols-outlined text-secondary" data-icon="translate">
-            translate
-          </span>
-          <span>Explain Simply ({language === 'hi' ? 'हिंदी' : language === 'en' ? 'English' : 'Hinglish'})</span>
+          <img
+            src={getAppIcon('ai-chat', theme)}
+            alt=""
+            className="w-3.5 h-3.5 object-contain"
+          />
+          <span>{explanationText ? 'Hide explanation' : 'AI explain simply'}</span>
         </button>
 
-        {/* Camera Trigger for Screenshot Sahayak */}
         <button
           onClick={onOpenScreenshotModal}
-          className="w-full sm:w-auto bg-surface-container hover:bg-surface-container-high text-on-surface font-body-strong font-semibold py-3 px-4 rounded-xl border border-outline-variant transition-all active:scale-[0.98] flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
-          title="Upload Screenshot to Decode Portal Error"
+          className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
           type="button"
         >
-          <span className="material-symbols-outlined text-secondary" data-icon="photo_camera">
-            photo_camera
-          </span>
-          <span>Screenshot Sahayak</span>
+          <img
+            src={getAppIcon('camera', theme)}
+            alt=""
+            className="w-3.5 h-3.5 object-contain"
+          />
+          <span>Scan screen</span>
         </button>
       </div>
     </div>

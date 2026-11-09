@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getAppIcon } from '../utils/appIcons';
 
 interface SearchFilterBarProps {
   searchQuery: string;
@@ -6,6 +7,7 @@ interface SearchFilterBarProps {
   categoryFilter: 'all' | 'easy' | 'medium' | 'hard';
   onCategoryChange: (cat: 'all' | 'easy' | 'medium' | 'hard') => void;
   counts: { all: number; easy: number; medium: number; hard: number };
+  theme?: 'light' | 'dark';
 }
 
 export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
@@ -14,11 +16,11 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   categoryFilter,
   onCategoryChange,
   counts,
+  theme = 'light',
 }) => {
   const [isListening, setIsListening] = useState(false);
 
   const startVoiceSearch = () => {
-    // Check for Web Speech API support
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -29,7 +31,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 
     try {
       const recognition = new SpeechRecognition();
-      recognition.lang = 'hi-IN'; // Default to Hindi/Indian English
+      recognition.lang = 'hi-IN';
       recognition.interimResults = false;
 
       recognition.onstart = () => {
@@ -58,88 +60,88 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   };
 
   return (
-    <section className="bg-surface py-4 px-4 md:px-8 border-b border-outline-variant">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 items-center justify-between">
-        {/* Search Input with Speech Icon */}
-        <div className="relative w-full lg:w-3/5">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
-            <span className="material-symbols-outlined" data-icon="search">
-              search
-            </span>
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-center justify-between">
+        {/* Search Input with Provided Speech Icon & Mic Button */}
+        <div className="relative w-full lg:flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <img
+              src={getAppIcon('ai-chat', theme)}
+              alt=""
+              className="w-4 h-4 object-contain opacity-70"
+            />
           </div>
           <input
-            className="w-full min-h-[48px] pl-11 pr-24 py-2.5 bg-surface-container-lowest border-1.5 border-outline-variant rounded-xl text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all outline-none"
-            placeholder="Bol kar khojein / Type procedure or grievance (e.g., Driving Licence, NEET, Aadhaar, CPGRAMS)..."
+            className="w-full min-h-[44px] pl-10 pr-24 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none shadow-2xs"
+            placeholder="Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar"
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           <button
             onClick={startVoiceSearch}
-            className={`absolute inset-y-1.5 right-1.5 px-3 rounded-lg flex items-center gap-1 text-label-sm font-label-sm transition-colors ${
+            className={`absolute inset-y-1.5 right-1.5 px-2.5 rounded-lg flex items-center gap-1.5 text-xs font-semibold transition-colors ${
               isListening
-                ? 'bg-red-100 text-error animate-pulse border border-error'
-                : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
+                ? 'bg-red-100 text-red-700 animate-pulse border border-red-300'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
-            title="Voice Search (Hindi / Hinglish)"
+            title="Voice Search (Bol kar)"
             type="button"
           >
-            <span
-              className={`material-symbols-outlined ${isListening ? 'text-error' : 'text-secondary'}`}
-              data-icon="mic"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              mic
-            </span>
-            <span className="hidden sm:inline">{isListening ? 'Sun rahe hain...' : 'Bol kar'}</span>
+            <img
+              src={getAppIcon('mic', theme)}
+              alt=""
+              className="w-3.5 h-3.5 object-contain"
+            />
+            <span>{isListening ? 'Sun rahe...' : 'Bol kar'}</span>
           </button>
         </div>
 
-        {/* Category Filter Pills */}
+        {/* Category Filter Pills Matching Screenshot */}
         <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0" role="tablist">
           <button
             onClick={() => onCategoryChange('all')}
-            className={`px-3 py-2 rounded-full text-label-sm font-label-sm whitespace-nowrap active:scale-[0.98] transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer ${
               categoryFilter === 'all'
-                ? 'bg-secondary text-on-secondary font-bold shadow-sm'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant'
+                ? 'bg-blue-600 text-white font-bold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 font-medium'
             }`}
             type="button"
           >
-            All ({counts.all})
+            All {counts.all}
           </button>
           <button
             onClick={() => onCategoryChange('easy')}
-            className={`px-3 py-2 rounded-full text-label-sm font-label-sm whitespace-nowrap active:scale-[0.98] transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer ${
               categoryFilter === 'easy'
-                ? 'bg-secondary text-on-secondary font-bold shadow-sm'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant'
+                ? 'bg-blue-600 text-white font-bold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 font-medium'
             }`}
             type="button"
           >
-            Easy (Online) ({counts.easy})
+            Easy • online {counts.easy}
           </button>
           <button
             onClick={() => onCategoryChange('medium')}
-            className={`px-3 py-2 rounded-full text-label-sm font-label-sm whitespace-nowrap active:scale-[0.98] transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer ${
               categoryFilter === 'medium'
-                ? 'bg-secondary text-on-secondary font-bold shadow-sm'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant'
+                ? 'bg-blue-600 text-white font-bold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 font-medium'
             }`}
             type="button"
           >
-            Medium (Multi-Step) ({counts.medium})
+            Medium • multi-step {counts.medium}
           </button>
           <button
             onClick={() => onCategoryChange('hard')}
-            className={`px-3 py-2 rounded-full text-label-sm font-label-sm whitespace-nowrap active:scale-[0.98] transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all cursor-pointer ${
               categoryFilter === 'hard'
-                ? 'bg-secondary text-on-secondary font-bold shadow-sm'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant'
+                ? 'bg-blue-600 text-white font-bold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 font-medium'
             }`}
             type="button"
           >
-            Hard (Grievance/Complex) ({counts.hard})
+            Hard • grievance {counts.hard}
           </button>
         </div>
       </div>
