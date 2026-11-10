@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-slate-850: #172033;
+  --color-slate-750: #23314d;
+}
+
 :root {
   --bg: #f4f6fa;
   --surface: #ffffff;
@@ -41,6 +46,71 @@
   --warn-soft: #2b2010;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
   color-scheme: dark;
+}
+
+/* Material surface token fallbacks ensuring zero transparency in modals */
+.bg-surface-container-lowest {
+  background-color: var(--surface, #ffffff) !important;
+}
+.dark .bg-surface-container-lowest,
+[data-theme="dark"] .bg-surface-container-lowest {
+  background-color: var(--surface, #111a2c) !important;
+}
+
+.bg-surface-container-low {
+  background-color: var(--surface-2, #eef1f7) !important;
+}
+.dark .bg-surface-container-low,
+[data-theme="dark"] .bg-surface-container-low {
+  background-color: var(--surface-2, #172238) !important;
+}
+
+.bg-surface-container {
+  background-color: var(--surface-2, #eef1f7) !important;
+}
+.dark .bg-surface-container,
+[data-theme="dark"] .bg-surface-container {
+  background-color: var(--surface-2, #172238) !important;
+}
+
+.bg-surface-container-high {
+  background-color: #e2e8f0 !important;
+}
+.dark .bg-surface-container-high,
+[data-theme="dark"] .bg-surface-container-high {
+  background-color: #23314d !important;
+}
+
+.border-outline-variant {
+  border-color: var(--line, #dbe1eb) !important;
+}
+.dark .border-outline-variant,
+[data-theme="dark"] .border-outline-variant {
+  border-color: var(--line, #25324b) !important;
+}
+
+.text-on-surface {
+  color: var(--ink, #121a2c) !important;
+}
+.dark .text-on-surface,
+[data-theme="dark"] .text-on-surface {
+  color: var(--ink, #eef2f8) !important;
+}
+
+.text-on-surface-variant {
+  color: var(--muted, #556074) !important;
+}
+.dark .text-on-surface-variant,
+[data-theme="dark"] .text-on-surface-variant {
+  color: var(--muted, #a7b1c2) !important;
+}
+
+.text-secondary {
+  color: var(--accent, #1f5fd6) !important;
+}
+.dark .text-secondary,
+[data-theme="dark"] .text-secondary {
+  color: var(--accent, #5b8eff) !important;
 }
 
 * {

@@ -202,12 +202,12 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
       <div
-        className={`bg-surface-container-lowest max-w-3xl w-full rounded-3xl border-2 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all duration-300 ${
+        className={`bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 max-w-3xl w-full rounded-3xl border-2 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all duration-300 ${
           result?.verdict === 'SCAM'
             ? 'border-red-600 ring-4 ring-red-500/30'
             : result?.verdict === 'SAFE'
             ? 'border-emerald-600 ring-4 ring-emerald-500/20'
-            : 'border-outline-variant'
+            : 'border-slate-200 dark:border-slate-800'
         }`}
       >
         {/* HEADER */}
@@ -217,7 +217,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
               ? 'bg-red-600 text-white border-red-700'
               : result?.verdict === 'SAFE'
               ? 'bg-emerald-600 text-white border-emerald-700'
-              : 'bg-gradient-to-r from-red-600 via-rose-700 to-indigo-900 text-white border-outline-variant'
+              : 'bg-gradient-to-r from-red-600 via-rose-700 to-indigo-900 text-white border-red-700 dark:border-slate-800'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -271,17 +271,17 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
         </div>
 
         {/* BODY CONTAINER */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-white dark:bg-slate-900">
           {/* CRITICAL REALITY BAR */}
-          <div className="p-3 rounded-2xl bg-surface-container border border-outline-variant flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping shrink-0"></span>
-              <span className="text-on-surface">
+              <span className="text-slate-800 dark:text-slate-200">
                 <strong>Market Reality:</strong> In 2023, Indians lost over{' '}
-                <strong className="text-red-600 font-bold">₹7,488 Crore</strong> to WhatsApp/SMS phishing links.
+                <strong className="text-red-600 dark:text-red-400 font-bold">₹7,488 Crore</strong> to WhatsApp/SMS phishing links.
               </span>
             </div>
-            <span className="text-on-surface-variant shrink-0 font-medium">
+            <span className="text-slate-500 dark:text-slate-400 shrink-0 font-medium">
               Verified against National Cyber Crime DB
             </span>
           </div>
@@ -289,11 +289,11 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
           {/* STAGE DEMO PRESET BUTTONS (WOW MOMENT) */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-amber-500" />
                 <span>1-Click Hackathon Stage Demo Samples:</span>
               </label>
-              <span className="text-[11px] text-secondary font-semibold">Test on Stage Live</span>
+              <span className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Test on Stage Live</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -306,12 +306,12 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                   }}
                   className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 group hover:scale-[1.01] active:scale-[0.99] ${
                     preset.color === 'red'
-                      ? 'bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-800 text-red-950 dark:text-red-100 hover:bg-red-100'
+                      ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-950 dark:text-red-100 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : preset.color === 'orange'
-                      ? 'bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 text-orange-950 dark:text-orange-100 hover:bg-orange-100'
+                      ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-300 dark:border-orange-800 text-orange-950 dark:text-orange-100 hover:bg-orange-100 dark:hover:bg-orange-900/40'
                       : preset.color === 'amber'
-                      ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-100 hover:bg-amber-100'
-                      : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-100 hover:bg-emerald-100'
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                      : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-100 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
                   }`}
                 >
                   <div className="truncate">
@@ -337,7 +337,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                 onChange={(e) => setInputText(e.target.value)}
                 rows={3}
                 placeholder="WhatsApp ya SMS me aaya koi bhi sandesh ya link yahan paste karein (e.g. 'PM Mudra loan ke liye click karein www.pm-mudra-loan-apply.in')..."
-                className="w-full p-3.5 pr-28 rounded-2xl bg-surface-container-lowest border-2 border-outline-variant focus:border-red-600 focus:ring-4 focus:ring-red-500/20 text-sm text-on-surface placeholder:text-on-surface-variant outline-none transition"
+                className="w-full p-3.5 pr-28 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-slate-200 dark:border-slate-700 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition"
               />
               <button
                 onClick={() => handleScan()}
@@ -437,36 +437,36 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
 
               {/* DOMAIN BREAKDOWN INSPECTION */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant">
-                  <span className="text-[11px] font-bold uppercase text-on-surface-variant block mb-1">
+                <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
                     Detected Impersonator Domain:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-red-100 text-red-800 border border-red-200">
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800">
                       {result.detectedDomain}
                     </span>
-                    <span className="text-xs text-red-600 font-bold">❌ Non-Gov Domain</span>
+                    <span className="text-xs text-red-600 dark:text-red-400 font-bold">❌ Non-Gov Domain</span>
                   </div>
-                  <span className="text-[11px] text-on-surface-variant mt-1 block">
-                    Claiming to be: <strong>{result.impersonatedAgency}</strong>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 block">
+                    Claiming to be: <strong className="text-slate-900 dark:text-white">{result.impersonatedAgency}</strong>
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant">
-                  <span className="text-[11px] font-bold uppercase text-on-surface-variant block mb-1">
+                <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
                     Genuine Official Government Portal:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                       {result.officialPortalName}
                     </span>
-                    <span className="text-xs text-emerald-600 font-bold">✅ Authorized</span>
+                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">✅ Authorized</span>
                   </div>
                   <a
                     href={result.officialPortalUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-secondary font-bold underline mt-1 flex items-center gap-1 hover:opacity-80"
+                    className="text-xs text-blue-600 dark:text-blue-400 font-bold underline mt-1 flex items-center gap-1 hover:opacity-80"
                   >
                     <span>Open Official: {result.officialPortalUrl}</span>
                     <ExternalLink className="w-3 h-3" />
@@ -508,7 +508,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                     href="https://cybercrime.gov.in"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-xs border border-outline-variant flex items-center gap-1.5 transition"
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>cybercrime.gov.in</span>
@@ -529,14 +529,14 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
         </div>
 
         {/* FOOTER */}
-        <div className="px-5 py-3.5 bg-surface-container-low border-t border-outline-variant flex items-center justify-between text-xs text-on-surface-variant">
+        <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>Digital Sahayak Anti-Phishing Guard • Powered by Gemini 2.5 Flash Lite</span>
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-bold transition"
+            className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold transition"
           >
             Close
           </button>

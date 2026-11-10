@@ -1,11 +1,13 @@
 import React from 'react';
 import { Procedure } from '../utils/procedures';
 import { getProcedureIcon } from '../utils/appIcons';
+import { Language, UI_TRANSLATIONS } from '../utils/translations';
 
 interface ProcedureListProps {
   procedures: Procedure[];
   selectedProcedureId: string;
   onSelectProcedure: (id: string) => void;
+  language?: Language;
   theme?: 'light' | 'dark';
 }
 
@@ -13,6 +15,7 @@ export const ProcedureList: React.FC<ProcedureListProps> = ({
   procedures,
   selectedProcedureId,
   onSelectProcedure,
+  language = 'hinglish',
   theme = 'light',
 }) => {
   return (
@@ -21,16 +24,16 @@ export const ProcedureList: React.FC<ProcedureListProps> = ({
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-sm font-bold text-slate-900 dark:text-white">
-            Procedures &amp; Redressal
+            {language === 'hi' ? 'प्रक्रियाएं और निवारण' : 'Procedures & Redressal'}
           </span>
           <span className="text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">
-            {procedures.length} verified
+            {procedures.length} {language === 'hi' ? 'सत्यापित' : 'verified'}
           </span>
         </div>
         <div className="bg-blue-50/70 dark:bg-blue-950/40 p-2.5 rounded-xl border border-blue-100 dark:border-blue-900/40 text-xs text-blue-700 dark:text-blue-300 font-medium">
-          Average direct citizen saving:{' '}
+          {language === 'hi' ? 'नागरिक की सीधी बचत: ' : 'Average direct citizen saving: '}
           <strong className="font-bold text-blue-800 dark:text-blue-200">
-            ₹850 per task
+            {language === 'hi' ? '₹850 प्रति कार्य' : '₹850 per task'}
           </strong>
         </div>
       </div>
@@ -39,8 +42,14 @@ export const ProcedureList: React.FC<ProcedureListProps> = ({
       <div className="flex flex-col gap-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-1">
         {procedures.length === 0 ? (
           <div className="p-6 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <p className="text-sm font-medium">Koi procedure nahi mila</p>
-            <p className="text-xs mt-1 text-slate-400">Try another search keyword or reset filters.</p>
+            <p className="text-sm font-medium">
+              {language === 'hi' ? 'कोई प्रक्रिया नहीं मिली' : 'Koi procedure nahi mila'}
+            </p>
+            <p className="text-xs mt-1 text-slate-400">
+              {language === 'hi'
+                ? 'कृपया अन्य कीवर्ड खोजें या फ़िल्टर बदलें।'
+                : 'Try another search keyword or reset filters.'}
+            </p>
           </div>
         ) : (
           procedures.map((proc) => {
@@ -68,7 +77,7 @@ export const ProcedureList: React.FC<ProcedureListProps> = ({
               >
                 {isSelected && (
                   <div className="absolute -top-2.5 right-3 bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide flex items-center gap-1 shadow-xs uppercase">
-                    CURRENTLY GUIDING
+                    {language === 'hi' ? 'वर्तमान मार्गदर्शन' : 'CURRENTLY GUIDING'}
                   </div>
                 )}
 
@@ -106,10 +115,11 @@ export const ProcedureList: React.FC<ProcedureListProps> = ({
 
                 <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                   <span className="text-slate-600 dark:text-slate-400">
-                    Fee: <strong className="text-slate-900 dark:text-white font-bold">{proc.officialFeeLabel}</strong>
+                    {language === 'hi' ? 'शुल्क: ' : 'Fee: '}
+                    <strong className="text-slate-900 dark:text-white font-bold">{proc.officialFeeLabel}</strong>
                   </span>
                   <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                    Save {proc.savingsLabel}
+                    {language === 'hi' ? 'बचत ' : 'Save '}{proc.savingsLabel}
                   </span>
                 </div>
               </article>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getAppIcon } from '../utils/appIcons';
+import { Language, UI_TRANSLATIONS } from '../utils/translations';
 
 interface SearchFilterBarProps {
   searchQuery: string;
@@ -7,6 +8,7 @@ interface SearchFilterBarProps {
   categoryFilter: 'all' | 'easy' | 'medium' | 'hard';
   onCategoryChange: (cat: 'all' | 'easy' | 'medium' | 'hard') => void;
   counts: { all: number; easy: number; medium: number; hard: number };
+  language?: Language;
   theme?: 'light' | 'dark';
 }
 
@@ -16,6 +18,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   categoryFilter,
   onCategoryChange,
   counts,
+  language = 'hinglish',
   theme = 'light',
 }) => {
   const [isListening, setIsListening] = useState(false);
@@ -73,7 +76,13 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           </div>
           <input
             className="w-full min-h-[44px] pl-10 pr-24 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none shadow-2xs"
-            placeholder="Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar"
+            placeholder={
+              language === 'hi'
+                ? 'प्रक्रिया, फॉर्म या एरर कोड से खोजें...'
+                : language === 'en'
+                ? 'Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar'
+                : 'Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar'
+            }
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -93,7 +102,19 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
               alt=""
               className="w-3.5 h-3.5 object-contain"
             />
-            <span>{isListening ? 'Sun rahe...' : 'Bol kar'}</span>
+            <span>
+              {isListening
+                ? language === 'hi'
+                  ? 'सुन रहे हैं...'
+                  : language === 'en'
+                  ? 'Listening...'
+                  : 'Sun rahe...'
+                : language === 'hi'
+                ? 'बोलकर'
+                : language === 'en'
+                ? 'Voice'
+                : 'Bol kar'}
+            </span>
           </button>
         </div>
 
@@ -108,7 +129,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            All {counts.all}
+            {language === 'hi' ? 'सभी ' : 'All '}{counts.all}
           </button>
           <button
             onClick={() => onCategoryChange('easy')}
@@ -119,7 +140,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            Easy • online {counts.easy}
+            {language === 'hi' ? 'सरल • ऑनलाइन ' : 'Easy • online '}{counts.easy}
           </button>
           <button
             onClick={() => onCategoryChange('medium')}
@@ -130,7 +151,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            Medium • multi-step {counts.medium}
+            {language === 'hi' ? 'मध्यम • बहु-चरणीय ' : 'Medium • multi-step '}{counts.medium}
           </button>
           <button
             onClick={() => onCategoryChange('hard')}
@@ -141,7 +162,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            Hard • grievance {counts.hard}
+            {language === 'hi' ? 'कठिन • शिकायत ' : 'Hard • grievance '}{counts.hard}
           </button>
         </div>
       </div>

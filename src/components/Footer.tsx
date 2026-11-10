@@ -1,5 +1,6 @@
 import React from 'react';
 import { getAppIcon } from '../utils/appIcons';
+import { Language } from '../utils/translations';
 
 interface FooterProps {
   onOpenDirectory: () => void;
@@ -7,6 +8,7 @@ interface FooterProps {
   onOpenResizer: () => void;
   onOpenScreenshotModal: () => void;
   onOpenChat: () => void;
+  language?: Language;
   theme?: 'light' | 'dark';
 }
 
@@ -16,6 +18,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenResizer,
   onOpenScreenshotModal,
   onOpenChat,
+  language = 'hinglish',
   theme = 'light',
 }) => {
   return (
@@ -24,7 +27,9 @@ export const Footer: React.FC<FooterProps> = ({
       <footer className="w-full bg-slate-50 dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 mt-12 py-6 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div>
-            © 2025 Digital Sahayak. An open civic initiative. No middleman charges.
+            {language === 'hi'
+              ? '© 2025 डिजिटल सहायक। एक स्वच्छ जनहित पहल। ज़ीरो दलाल शुल्क।'
+              : '© 2025 Digital Sahayak. An open civic initiative. No middleman charges.'}
           </div>
 
           <div className="flex items-center gap-3">
@@ -32,7 +37,7 @@ export const Footer: React.FC<FooterProps> = ({
               href="tel:1947"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
-              Official helpline 1947
+              {language === 'hi' ? 'आधिकारिक हेल्पलाइन 1947' : 'Official helpline 1947'}
             </a>
             <span>•</span>
             <a
@@ -60,7 +65,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain brightness-0 invert"
           />
-          <span>Ask Sahayak AI</span>
+          <span>{language === 'hi' ? 'सहायक एआई से पूछें' : 'Ask Sahayak AI'}</span>
         </button>
       </div>
 
@@ -75,7 +80,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">Services</span>
+          <span className="text-[10px]">{language === 'hi' ? 'सेवाएं' : 'Services'}</span>
         </button>
 
         <button
@@ -87,7 +92,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">Resizer</span>
+          <span className="text-[10px]">{language === 'hi' ? 'रीसाइज़र' : 'Resizer'}</span>
         </button>
 
         <button
@@ -100,7 +105,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">Sahayak</span>
+          <span className="text-[10px]">{language === 'hi' ? 'सहायक' : 'Sahayak'}</span>
         </button>
 
         <button
@@ -113,7 +118,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">AI Chat</span>
+          <span className="text-[10px]">{language === 'hi' ? 'एआई चैट' : 'AI Chat'}</span>
         </button>
 
         <a
@@ -125,7 +130,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">1947 Help</span>
+          <span className="text-[10px]">{language === 'hi' ? '1947 सहायता' : '1947 Help'}</span>
         </a>
       </nav>
     </>

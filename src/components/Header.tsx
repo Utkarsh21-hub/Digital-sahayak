@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenDraftGenerator}
               aria-label="Open Official Draft Generator"
               title="Generate Official Affidavits & Grievance Letters"
-              className="h-9 px-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-2 active:scale-95 transition-all text-xs font-semibold shadow-xs"
+              className="h-9 px-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 flex items-center gap-2 active:scale-95 transition-all text-xs font-semibold shadow-xs"
             >
               <img
                 src={getAppIcon('drafts', theme)}
@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onToggleTheme}
               aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center active:scale-95 transition-all shadow-xs"
+              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center active:scale-95 transition-all shadow-xs"
             >
               <img
                 src={theme === 'dark' ? getAppIcon('sun', theme) : getAppIcon('moon', theme)}
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenHelp}
               aria-label="Help & Guidance"
               title="Help and Assistance"
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center active:scale-95 transition-all shadow-xs"
+              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center active:scale-95 transition-all shadow-xs"
             >
               <img
                 src={getAppIcon('help', theme)}

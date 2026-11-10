@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { getAppIcon, getProcedureIcon } from '../utils/appIcons';
 import { AvatarAnimator, BotState } from './AvatarAnimator';
+import { Language, UI_TRANSLATIONS, PROCEDURE_TRANSLATIONS } from '../utils/translations';
 
 export interface ChatMessage {
   id: string;
@@ -28,8 +29,9 @@ export interface ChatMessage {
 }
 
 interface GeminiChatViewProps {
-  initialLanguage?: 'hinglish' | 'hi' | 'en';
-  onLanguageChange?: (lang: 'hinglish' | 'hi' | 'en') => void;
+  language?: Language;
+  initialLanguage?: Language;
+  onLanguageChange?: (lang: Language) => void;
   onOpenResizer?: () => void;
   onSelectProcedure?: (procedureId: string) => void;
   preselectedTask?: string;
@@ -203,6 +205,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
 ];
 
 export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
+  language: propLanguage,
   initialLanguage = 'hinglish',
   onLanguageChange,
   onOpenResizer,
@@ -212,7 +215,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   onOpenDraftGenerator,
   theme = 'light',
 }) => {
-  const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>(initialLanguage);
+  const [language, setLanguage] = useState<Language>(propLanguage || initialLanguage);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -226,29 +229,40 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   const latestMessageRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Initialize welcome conversation following Language First rule
+  // Sync with prop changes from header language toggle
   useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: 'welcome-gemini',
-          sender: 'assistant',
-          text: `Namaste! Main **Digital Sahayak** hoon — aapka government portal AI assistant powered by **Gemini 2.5 Flash Light**. 🇮🇳✨
-
-Mera maksad hai ki aap bina kisi cyber cafe tout ko ₹300–₹3,000 diye, apne phone se sarkari portals (.gov.in / .nic.in) par saare kaam 100% sahi aur safely complete karein.
-
-Aap kis bhasha me baat karna chahte hain? (Select your preferred language):
-• **Hinglish** (Roman Hindi + English)
-• **Simple Hindi (सरल हिंदी)**
-• **Simple English**
-
-Neeche diye gaye 15 verified central aur state tasks (Delhi, UP) me se koi bhi select karein, ya apna sawal poochhein!`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          modelUsed: 'gemini-2.5-flash-lite',
-        },
-      ]);
+    if (propLanguage && propLanguage !== language) {
+      setLanguage(propLanguage);
     }
-  }, [messages.length]);
+  }, [propLanguage]);
+
+  // Update welcome message if chat is at initial state
+  useEffect(() => {
+    setMessages((prev) => {
+      const welcomeContent =
+        UI_TRANSLATIONS.chat.welcomeText[language] || UI_TRANSLATIONS.chat.welcomeText.hinglish;
+      if (prev.length === 0) {
+        return [
+          {
+            id: 'welcome-gemini',
+            sender: 'assistant',
+            text: welcomeContent,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            modelUsed: 'gemini-2.5-flash-lite',
+          },
+        ];
+      }
+      if (prev.length === 1 && prev[0].id === 'welcome-gemini') {
+        return [
+          {
+            ...prev[0],
+            text: welcomeContent,
+          },
+        ];
+      }
+      return prev;
+    });
+  }, [language]);
 
   // Pre-fill query if coming from task selection
   useEffect(() => {
@@ -569,16 +583,32 @@ Please retry your query or click one of the quick options below. Remember: Never
         {isBot && (
           <div className="pt-2 flex flex-wrap gap-2 border-t border-slate-200/60 dark:border-slate-700/60 mt-3">
             <button
-              onClick={() => handleSend('Haan, mere paas ye documents hain aur ready hain. Step 1 batayein.')}
+              onClick={() =>
+                handleSend(
+                  language === 'hi'
+                    ? 'हाँ, मेरे पास ये दस्तावेज़ तैयार हैं। स्टेप 1 बताएं।'
+                    : language === 'en'
+                    ? 'Yes, my documents are ready. Please guide me through Step 1.'
+                    : 'Haan, mere paas ye documents hain aur ready hain. Step 1 batayein.'
+                )
+              }
               className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition shadow-2xs flex items-center gap-1.5"
             >
-              <span>✅ Yes, Documents Ready! Show Step 1</span>
+              <span>{UI_TRANSLATIONS.chat.btnDocumentsReady[language]}</span>
             </button>
             <button
-              onClick={() => handleSend('Maine ye step pura kar liya hai! Agla step batayein.')}
+              onClick={() =>
+                handleSend(
+                  language === 'hi'
+                    ? 'मैंने यह स्टेप पूरा कर लिया है! अगला स्टेप बताएं।'
+                    : language === 'en'
+                    ? 'I have completed this step! Please explain the next step.'
+                    : 'Maine ye step pura kar liya hai! Agla step batayein.'
+                )
+              }
               className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 transition shadow-2xs flex items-center gap-1.5"
             >
-              <span>➡️ Step Complete! Next Step</span>
+              <span>{UI_TRANSLATIONS.chat.btnStepComplete[language]}</span>
             </button>
           </div>
         )}
@@ -587,23 +617,23 @@ Please retry your query or click one of the quick options below. Remember: Never
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden w-full max-h-[calc(100vh-120px)]">
+    <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden w-full min-h-[580px] lg:min-h-[660px]">
       {/* CARD TOP BAR */}
       <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Digital Sahayak</h2>
           <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">
-            Grounded in 9 verified government guides
+            {UI_TRANSLATIONS.chat.groundedNotice[language]}
           </span>
         </div>
         <button
           type="button"
           onClick={handleResetChat}
-          className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
+          className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
           title="Start new conversation"
         >
           <img src={getAppIcon('refresh', theme)} alt="Refresh" className="w-3.5 h-3.5 object-contain" />
-          <span>New chat</span>
+          <span>{UI_TRANSLATIONS.chat.newChat[language]}</span>
         </button>
       </div>
 
@@ -618,8 +648,7 @@ Please retry your query or click one of the quick options below. Remember: Never
             />
           </span>
           <p className="text-slate-700 dark:text-slate-300">
-            <span className="font-bold text-rose-900 dark:text-rose-200">Scam Shield active.</span>{' '}
-            WhatsApp par "Free PM Solar Yojana" ya "Electricity KYC block" jaisa message aaya? Pehle link check karein.
+            {UI_TRANSLATIONS.chat.scamNotice[language]}
           </p>
         </div>
         <button
@@ -627,7 +656,7 @@ Please retry your query or click one of the quick options below. Remember: Never
           onClick={() => onOpenScamShield?.()}
           className="px-3.5 py-1.5 rounded-lg bg-[#c04337] hover:bg-[#ad3a2f] text-white font-medium text-xs shrink-0 transition shadow-xs active:scale-95 text-center whitespace-nowrap"
         >
-          Check a link
+          {UI_TRANSLATIONS.chat.checkLink[language]}
         </button>
       </div>
 
@@ -639,46 +668,58 @@ Please retry your query or click one of the quick options below. Remember: Never
           }`}
         >
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider shrink-0 mr-0.5 uppercase whitespace-nowrap">
-            VERIFIED TASKS
+            {UI_TRANSLATIONS.chat.verifiedTasks[language]}
           </span>
 
-          {(isTasksExpanded ? SUPPORTED_TASKS : SUPPORTED_TASKS.slice(0, 4)).map((task) => (
-            <button
-              key={task.id}
-              type="button"
-              onClick={() => {
-                onSelectProcedure?.(task.id);
-                handleSend(task.prompt);
-              }}
-              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium transition active:scale-95 shadow-2xs whitespace-nowrap ${
-                isTasksExpanded ? 'shrink-0' : 'flex-1 min-w-0 justify-center'
-              }`}
-            >
-              <img
-                src={getProcedureIcon(task.id, theme)}
-                alt=""
-                className="w-3.5 h-3.5 shrink-0 object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
+          {(isTasksExpanded ? SUPPORTED_TASKS : SUPPORTED_TASKS.slice(0, 4)).map((task) => {
+            const localizedTitle = PROCEDURE_TRANSLATIONS[task.id]?.[language]?.title || task.title;
+            const localizedLevel =
+              language === 'hi'
+                ? task.level === 'Easy'
+                  ? 'सरल'
+                  : task.level === 'Medium'
+                  ? 'मध्यम'
+                  : 'कठिन'
+                : task.level;
+
+            return (
+              <button
+                key={task.id}
+                type="button"
+                onClick={() => {
+                  onSelectProcedure?.(task.id);
+                  handleSend(task.prompt);
                 }}
-              />
-              <span className="truncate">{task.title}</span>
-              <span
-                className={`text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none shrink-0 ${task.levelColor} ${
-                  isTasksExpanded ? 'inline-block' : 'hidden md:inline-block'
+                className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition active:scale-95 shadow-2xs whitespace-nowrap ${
+                  isTasksExpanded ? 'shrink-0' : 'flex-1 min-w-0 justify-center'
                 }`}
               >
-                {task.level}
-              </span>
-            </button>
-          ))}
+                <img
+                  src={getProcedureIcon(task.id, theme)}
+                  alt=""
+                  className="w-3.5 h-3.5 shrink-0 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <span className="truncate">{localizedTitle}</span>
+                <span
+                  className={`text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none shrink-0 ${task.levelColor} ${
+                    isTasksExpanded ? 'inline-block' : 'hidden md:inline-block'
+                  }`}
+                >
+                  {localizedLevel}
+                </span>
+              </button>
+            );
+          })}
 
           <button
             type="button"
             onClick={() => setIsTasksExpanded((prev) => !prev)}
             className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 text-xs font-semibold shrink-0 transition whitespace-nowrap"
           >
-            <span>{isTasksExpanded ? 'Show less' : 'Show more'}</span>
+            <span>{isTasksExpanded ? (language === 'hi' ? 'कम देखें' : 'Show less') : (language === 'hi' ? 'और देखें' : 'Show more')}</span>
             <span>{isTasksExpanded ? '⌃' : '⌄'}</span>
           </button>
         </div>
@@ -688,7 +729,7 @@ Please retry your query or click one of the quick options below. Remember: Never
       <div className="border-b border-slate-200/80 dark:border-slate-800 my-1"></div>
 
       {/* CHAT MESSAGES SCROLL AREA */}
-      <div className="overflow-y-auto px-4 sm:px-6 py-4 space-y-4 bg-slate-50/40 dark:bg-slate-950/30">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 bg-slate-50/40 dark:bg-slate-950/30 min-h-[380px] lg:min-h-[460px]">
         {messages.map((msg, index) => {
           const isUser = msg.sender === 'user';
           const isLatestBotMessage =
@@ -723,26 +764,38 @@ Please retry your query or click one of the quick options below. Remember: Never
           const activeStateForThisMsg = isLatestBotMessage ? (isLoading ? 'idle' : botState) : 'idle';
           const statusText =
             index === 0 && activeStateForThisMsg === 'idle'
-              ? 'Namaste!'
+              ? language === 'hi'
+                ? 'नमस्ते!'
+                : 'Namaste!'
               : activeStateForThisMsg === 'greeting'
-              ? 'Namaste!'
+              ? language === 'hi'
+                ? 'नमस्ते!'
+                : 'Namaste!'
               : activeStateForThisMsg === 'thinking'
-              ? 'Thinking...'
+              ? language === 'hi'
+                ? 'सोच रहे हैं...'
+                : 'Thinking...'
               : activeStateForThisMsg === 'answering'
-              ? 'Answering...'
+              ? language === 'hi'
+                ? 'उत्तर दे रहे हैं...'
+                : 'Answering...'
               : activeStateForThisMsg === 'pointing'
-              ? 'Guiding...'
+              ? language === 'hi'
+                ? 'मार्गदर्शन...'
+                : 'Guiding...'
+              : language === 'hi'
+              ? 'नमस्ते!'
               : 'Namaste!';
 
           return (
             <div
               key={msg.id}
               ref={index === messages.length - 1 ? latestMessageRef : undefined}
-              className="flex flex-row items-start gap-4 w-full max-w-4xl mx-auto"
+              className="flex flex-row items-start gap-4 sm:gap-5 w-full max-w-4xl mx-auto"
             >
-              {/* Character Animation Wrapper (Fixed Size, Left-aligned, Top-aligned) */}
-              <div className="flex-shrink-0 flex flex-col items-center w-20 sm:w-24">
-                <div className="w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center overflow-hidden">
+              {/* Character Animation Wrapper (Fixed Size - Enlarged 150%, Left-aligned, Top-aligned) */}
+              <div className="flex-shrink-0 flex flex-col items-center w-28 sm:w-36">
+                <div className="w-[96px] h-[120px] sm:w-[120px] sm:h-[144px] flex items-center justify-center overflow-hidden">
                   <AvatarAnimator
                     botState={activeStateForThisMsg}
                     className="w-full h-full"
@@ -753,7 +806,7 @@ Please retry your query or click one of the quick options below. Remember: Never
                     }}
                   />
                 </div>
-                <div className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 shadow-2xs whitespace-nowrap">
+                <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 shadow-2xs whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>{statusText}</span>
                 </div>
@@ -781,14 +834,14 @@ Please retry your query or click one of the quick options below. Remember: Never
           );
         })}
 
-        {/* Loading Spinner Row with Thinking Character */}
+        {/* Loading Spinner Row with Thinking Character (Enlarged 150%) */}
         {isLoading && (
-          <div className="flex flex-row items-start gap-4 w-full max-w-4xl mx-auto">
-            <div className="flex-shrink-0 flex flex-col items-center w-20 sm:w-24">
-              <div className="w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center overflow-hidden">
+          <div className="flex flex-row items-start gap-4 sm:gap-5 w-full max-w-4xl mx-auto">
+            <div className="flex-shrink-0 flex flex-col items-center w-28 sm:w-36">
+              <div className="w-[96px] h-[120px] sm:w-[120px] sm:h-[144px] flex items-center justify-center overflow-hidden">
                 <AvatarAnimator botState="thinking" className="w-full h-full" />
               </div>
-              <div className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 text-[11px] font-medium text-amber-700 dark:text-amber-300 shadow-2xs whitespace-nowrap">
+              <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 text-[11px] font-medium text-amber-700 dark:text-amber-300 shadow-2xs whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
                 <span>Thinking...</span>
               </div>
@@ -820,39 +873,39 @@ Please retry your query or click one of the quick options below. Remember: Never
             <button
               type="button"
               onClick={() => onOpenResizer?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
             >
               <img src={getAppIcon('resize', theme)} alt="KB Resizer" className="w-3.5 h-3.5 object-contain" />
-              <span>KB Resizer</span>
+              <span>{UI_TRANSLATIONS.chat.pills.resizer[language]}</span>
             </button>
 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
             >
               <img src={getAppIcon('camera', theme)} alt="Error screenshot" className="w-3.5 h-3.5 object-contain" />
-              <span>Error screenshot</span>
+              <span>{UI_TRANSLATIONS.chat.pills.screenshot[language]}</span>
               <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none">AI</span>
             </button>
 
             <button
               type="button"
               onClick={() => onOpenDraftGenerator?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
             >
               <img src={getAppIcon('draft', theme)} alt="Draft" className="w-3.5 h-3.5 object-contain" />
-              <span>Draft Sahayak</span>
+              <span>{UI_TRANSLATIONS.chat.pills.draft[language]}</span>
               <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none">AI</span>
             </button>
 
             <button
               type="button"
               onClick={() => onOpenScamShield?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
             >
               <img src={getAppIcon('shield', theme)} alt="Scam Shield" className="w-3.5 h-3.5 object-contain" />
-              <span>Scam Shield</span>
+              <span>{UI_TRANSLATIONS.chat.pills.shield[language]}</span>
             </button>
           </div>
 
@@ -910,11 +963,7 @@ Please retry your query or click one of the quick options below. Remember: Never
                 }
               }}
               rows={1}
-              placeholder={
-                language === 'hi'
-                  ? 'संदेह पूछें, e.g. NEET, DL renewal, Aadhaar...'
-                  : 'Sawal poochhein, e.g. NEET, DL renewal, Aadhaar...'
-              }
+              placeholder={UI_TRANSLATIONS.chat.inputPlaceholder[language]}
               className="flex-1 bg-transparent border-0 outline-none resize-none px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 min-h-[38px] max-h-32"
             />
 
@@ -954,8 +1003,8 @@ Please retry your query or click one of the quick options below. Remember: Never
 
           {/* Subtext Grounding Guarantee */}
           <div className="flex items-center justify-between px-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
-            <span>Zero commission guarantee</span>
-            <span>Press Enter to send</span>
+            <span>{UI_TRANSLATIONS.chat.zeroCommission[language]}</span>
+            <span>{UI_TRANSLATIONS.chat.pressEnter[language]}</span>
           </div>
         </div>
       </div>

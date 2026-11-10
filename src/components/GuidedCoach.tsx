@@ -88,10 +88,13 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
       <div className="space-y-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-            Step {currentStep.stepNumber} of {currentStep.totalSteps}: {currentStep.title}
+            {language === 'hi'
+              ? `चरण ${currentStep.stepNumber} / ${currentStep.totalSteps}`
+              : `Step ${currentStep.stepNumber} of ${currentStep.totalSteps}`}
+            : {currentStep.title}
           </span>
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            {progressPercent}% complete
+            {progressPercent}% {language === 'hi' ? 'पूर्ण' : 'complete'}
           </span>
         </div>
 
@@ -133,14 +136,14 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
               disabled={currentStepIndex === 0}
               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
             >
-              ← Back
+              ← {language === 'hi' ? 'पीछे' : 'Back'}
             </button>
             <button
               onClick={handleNextStep}
               disabled={currentStepIndex === totalSteps - 1}
               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer"
             >
-              Next →
+              {language === 'hi' ? 'आगे' : 'Next'} →
             </button>
           </div>
         </div>
@@ -149,7 +152,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
       {/* Active Step Focus Card matching Screenshot */}
       <div className="mt-5 bg-blue-50/30 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/50 rounded-2xl p-5">
         <span className="text-[10px] font-extrabold tracking-wider text-blue-600 dark:text-blue-400 uppercase block">
-          COACH INSTRUCTION
+          {language === 'hi' ? 'मार्गदर्शन निर्देश' : 'COACH INSTRUCTION'}
         </span>
 
         <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
@@ -164,7 +167,11 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
         {currentStep.toughTerms && currentStep.toughTerms.length > 0 && (
           <div className="mt-4 pt-3.5 border-t border-blue-100 dark:border-blue-900/40 space-y-2">
             <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide block">
-              TOUGH TERMS (AASAAN MATLAB)
+              {language === 'hi'
+                ? '💡 कठिन शब्द (सरल अर्थ)'
+                : language === 'en'
+                ? '💡 TOUGH TERMS (SIMPLE MEANINGS)'
+                : '💡 TOUGH TERMS (AASAAN MATLAB)'}
             </span>
             <div className="flex flex-wrap gap-2">
               {currentStep.toughTerms.map((item, idx) => (
@@ -195,7 +202,9 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
                   {currentStep.draftButtonLabel || 'Generate name / spelling undertaking'}
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Ready court/portal template • free Gemini auto-fill
+                  {language === 'hi'
+                    ? 'तैयार कानूनी/पोर्टल प्रारूप • निःशुल्क जेमिनी ऑटो-फिल'
+                    : 'Ready court/portal template • free Gemini auto-fill'}
                 </div>
               </div>
             </div>
@@ -205,7 +214,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
               onClick={() => onOpenDraftGenerator?.(currentStep.draftTemplateId)}
               className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition shrink-0 cursor-pointer"
             >
-              <span>Open Draft Sahayak</span>
+              <span>{language === 'hi' ? 'ड्राफ्ट सहायक खोलें' : 'Open Draft Sahayak'}</span>
             </button>
           </div>
         )}
@@ -216,7 +225,9 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
         <div className="mt-4 p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center gap-3">
           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
           <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-            Digital Sahayak AI step explanation generate kar raha hai...
+            {language === 'hi'
+              ? 'डिजिटल सहायक एआई सरल व्याख्या तैयार कर रहा है...'
+              : 'Digital Sahayak AI step explanation generate kar raha hai...'}
           </span>
         </div>
       )}
@@ -228,7 +239,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
       )}
 
       {explanationText && (
-        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 space-y-2 text-slate-900 dark:text-white">
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 text-slate-900 dark:text-white">
           <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700 text-xs">
             <span className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
               <img
@@ -236,13 +247,13 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
                 alt=""
                 className="w-3.5 h-3.5 object-contain"
               />
-              Digital Sahayak — AI Step Guidance
+              {language === 'hi' ? 'डिजिटल सहायक — एआई चरण मार्गदर्शन' : 'Digital Sahayak — AI Step Guidance'}
             </span>
             <button
               onClick={() => setExplanationText(null)}
               className="text-slate-400 hover:text-slate-600 cursor-pointer"
             >
-              ✕ Close
+              ✕ {language === 'hi' ? 'बंद करें' : 'Close'}
             </button>
           </div>
           <div className="text-xs whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-300">
@@ -259,7 +270,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
           className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
           type="button"
         >
-          <span>Complete &amp; Next Step</span>
+          <span>{language === 'hi' ? 'चरण पूरा हुआ! अगला चरण' : 'Complete & Next Step'}</span>
           <img
             src={getAppIcon('next', 'dark')}
             alt=""
@@ -277,7 +288,15 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
             alt=""
             className="w-3.5 h-3.5 object-contain"
           />
-          <span>{explanationText ? 'Hide explanation' : 'AI explain simply'}</span>
+          <span>
+            {explanationText
+              ? language === 'hi'
+                ? 'व्याख्या छिपाएं'
+                : 'Hide explanation'
+              : language === 'hi'
+              ? 'एआई से सरल समझें'
+              : 'AI explain simply'}
+          </span>
         </button>
 
         <button
@@ -290,7 +309,7 @@ export const GuidedCoach: React.FC<GuidedCoachProps> = ({
             alt=""
             className="w-3.5 h-3.5 object-contain"
           />
-          <span>Scan screen</span>
+          <span>{language === 'hi' ? 'स्क्रीन स्कैन करें' : 'Scan screen'}</span>
         </button>
       </div>
     </div>

@@ -21,6 +21,7 @@ import { GeminiChatView } from './components/GeminiChatView';
 import { ScamShieldModal } from './components/ScamShieldModal';
 import { DraftGeneratorModal, DraftTemplateType } from './components/DraftGeneratorModal';
 import { getAppIcon } from './utils/appIcons';
+import { getLocalizedProcedure } from './utils/translations';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('dashboard');
@@ -96,18 +97,19 @@ export default function App() {
     };
   }, []);
 
-  // Filtered procedures
+  // Filtered procedures localized reactively
   const filteredProcedures = useMemo(() => {
-    return filterProcedures(PROCEDURES_DATA, searchQuery, categoryFilter);
-  }, [searchQuery, categoryFilter]);
+    const raw = filterProcedures(PROCEDURES_DATA, searchQuery, categoryFilter);
+    return raw.map((p) => getLocalizedProcedure(p, language));
+  }, [searchQuery, categoryFilter, language]);
 
-  // Current selected procedure
+  // Current selected procedure localized reactively
   const currentProcedure: Procedure = useMemo(() => {
-    return (
+    const raw =
       PROCEDURES_DATA.find((p) => p.id === selectedProcedureId) ||
-      PROCEDURES_DATA[0]
-    );
-  }, [selectedProcedureId]);
+      PROCEDURES_DATA[0];
+    return getLocalizedProcedure(raw, language);
+  }, [selectedProcedureId, language]);
 
   const currentStepIndex = stepIndexMap[currentProcedure.id] ?? 0;
   const currentChecklist = checklistMap[currentProcedure.id] ?? {};
@@ -203,6 +205,7 @@ export default function App() {
       {viewMode === 'chat' ? (
         <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 py-1.5 sm:py-2.5 flex flex-col">
           <GeminiChatView
+            language={language}
             initialLanguage={language}
             onLanguageChange={setLanguage}
             onOpenResizer={() => {
@@ -223,7 +226,7 @@ export default function App() {
       ) : (
         <>
           {/* Hero Trust Banner */}
-          <HeroTrustBanner />
+          <HeroTrustBanner language={language} />
 
           {/* Search & Filter Bar */}
           <SearchFilterBar
@@ -232,6 +235,7 @@ export default function App() {
             categoryFilter={categoryFilter}
             onCategoryChange={setCategoryFilter}
             counts={categoryCounts}
+            language={language}
             theme={theme}
           />
 
@@ -247,9 +251,15 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">Digital Sahayak Gemini Chat</h4>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                    {language === 'hi' ? 'डिजिटल सहायक जेमिनी चैट' : 'Digital Sahayak Gemini Chat'}
+                  </h4>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Ask questions, verify file sizes, or decode error screenshots in conversational Hinglish, Hindi, or English.
+                    {language === 'hi'
+                      ? 'सवाल पूछें, फ़ाइल साइज़ चेक करें, या एरर स्क्रीनशॉट को सरल हिंदी में समझें।'
+                      : language === 'en'
+                      ? 'Ask questions, verify file sizes, or decode error screenshots in simple Hindi, Hinglish, or English.'
+                      : 'Ask questions, verify file sizes, or decode error screenshots in conversational Hinglish, Hindi, or English.'}
                   </p>
                 </div>
               </div>
@@ -263,7 +273,7 @@ export default function App() {
                     alt="Scam Shield"
                     className="w-4 h-4 object-contain"
                   />
-                  <span>Scam Shield (कवच)</span>
+                  <span>{language === 'hi' ? 'स्कैम कवच' : 'Scam Shield (कवच)'}</span>
                 </button>
                 <button
                   onClick={() => setViewMode('chat')}
@@ -274,7 +284,7 @@ export default function App() {
                     alt="Chat"
                     className="w-4 h-4 object-contain"
                   />
-                  <span>Open Gemini Chat</span>
+                  <span>{language === 'hi' ? 'जेमिनी चैट खोलें' : 'Open Gemini Chat'}</span>
                 </button>
               </div>
             </div>
@@ -288,6 +298,7 @@ export default function App() {
                 procedures={filteredProcedures}
                 selectedProcedureId={currentProcedure.id}
                 onSelectProcedure={handleSelectProcedure}
+                language={language}
                 theme={theme}
               />
 
@@ -300,6 +311,7 @@ export default function App() {
                   onToggleChecklist={handleToggleChecklist}
                   onOpenResizerForPreset={handleOpenResizerForPreset}
                   onStartWorkflow={handleStartWorkflow}
+                  language={language}
                   theme={theme}
                 />
 
@@ -320,7 +332,7 @@ export default function App() {
               {/* RIGHT COLUMN: UTILITY DRAWER & ESCALATION (lg:col-span-3) */}
               <section className="lg:col-span-3 flex flex-col gap-6">
                 {/* Screen F: Client-Side KB Resizer */}
-                <KbResizer initialPreset={resizerPreset} theme={theme} />
+                <KbResizer initialPreset={resizerPreset} language={language} theme={theme} />
 
                 {/* Screen D Trigger + Screen E Escalation Card */}
                 <EscalationCard
@@ -328,6 +340,7 @@ export default function App() {
                   currentStepIndex={currentStepIndex}
                   tempRef={tempRefId}
                   onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
+                  language={language}
                   theme={theme}
                 />
               </section>
@@ -399,6 +412,7 @@ export default function App() {
         }}
         onOpenScreenshotModal={() => setIsScreenshotModalOpen(true)}
         onOpenChat={() => setIsChatModalOpen(true)}
+        language={language}
         theme={theme}
       />
     </div>

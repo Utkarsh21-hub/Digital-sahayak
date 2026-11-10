@@ -1,6 +1,7 @@
 import React from 'react';
 import { Procedure } from '../utils/procedures';
 import { getAppIcon } from '../utils/appIcons';
+import { Language, UI_TRANSLATIONS } from '../utils/translations';
 
 interface PreFlightChecklistProps {
   procedure: Procedure;
@@ -8,6 +9,7 @@ interface PreFlightChecklistProps {
   onToggleChecklist: (itemId: string) => void;
   onOpenResizerForPreset: (presetName: string) => void;
   onStartWorkflow: () => void;
+  language?: Language;
   theme?: 'light' | 'dark';
 }
 
@@ -17,6 +19,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
   onToggleChecklist,
   onOpenResizerForPreset,
   onStartWorkflow,
+  language = 'hinglish',
   theme = 'light',
 }) => {
   const readyCount = procedure.checklist.filter(
@@ -29,7 +32,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">
-            STEP-BY-STEP SELF-HELP WORKFLOW
+            {language === 'hi' ? 'चरण-दर-चरण स्व-सहायता वर्कफ़्लो' : 'STEP-BY-STEP SELF-HELP WORKFLOW'}
           </span>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
             {procedure.title}
@@ -46,13 +49,13 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
           rel="noopener noreferrer"
           target="_blank"
         >
-          <span>Open portal</span>
+          <span>{language === 'hi' ? 'पोर्टल खोलें' : 'Open portal'}</span>
           <span className="font-semibold underline">{procedure.portal}</span>
         </a>
       </div>
 
       {/* Fee Transparency Box matching Screenshot */}
-      <div className="mt-5 bg-slate-50/70 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4">
+      <div className="mt-5 bg-slate-50/70 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-3 text-xs">
           <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
             <img
@@ -60,17 +63,17 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
               alt=""
               className="w-4 h-4 object-contain"
             />
-            <span>Fee transparency</span>
+            <span>{UI_TRANSLATIONS.checklist.feeTransparency[language] || 'Fee transparency'}</span>
           </div>
           <span className="text-slate-400 dark:text-slate-500">
-            no extra kiosk charges
+            {UI_TRANSLATIONS.checklist.noExtraCharges[language] || 'no extra kiosk charges'}
           </span>
         </div>
 
         <div className="grid grid-cols-3 gap-2.5 text-center">
           <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
             <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
-              Official portal fee
+              {UI_TRANSLATIONS.checklist.officialPortalFee[language] || 'Official portal fee'}
             </span>
             <span className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white block mt-0.5">
               {procedure.officialFeeLabel}
@@ -82,25 +85,25 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
 
           <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
             <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
-              Cyber cafe charge
+              {UI_TRANSLATIONS.checklist.cyberCafeCharge[language] || 'Cyber cafe charge'}
             </span>
             <span className="text-base sm:text-lg font-bold text-rose-600 line-through block mt-0.5">
               {procedure.cyberCafeLabel}
             </span>
             <span className="text-[10px] text-rose-500 block mt-0.5">
-              Extra kiosk margin
+              {UI_TRANSLATIONS.checklist.extraKioskMargin[language] || 'Extra kiosk margin'}
             </span>
           </div>
 
           <div className="bg-emerald-50/60 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-800/60">
             <span className="text-[11px] text-emerald-700 dark:text-emerald-400 block font-medium">
-              Your direct saving
+              {UI_TRANSLATIONS.checklist.directSaving[language] || 'Your direct saving'}
             </span>
             <span className="text-base sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400 block mt-0.5">
               {procedure.savingsLabel}
             </span>
             <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-semibold block mt-0.5">
-              100% free self-service
+              {UI_TRANSLATIONS.checklist.freeSelfService[language] || '100% free self-service'}
             </span>
           </div>
         </div>
@@ -115,10 +118,10 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
               alt=""
               className="w-4 h-4 object-contain"
             />
-            <span>Pre-flight document checklist</span>
+            <span>{UI_TRANSLATIONS.checklist.preflightTitle[language] || 'Pre-flight document checklist'}</span>
           </div>
           <span className="text-slate-500 dark:text-slate-400 font-medium">
-            {readyCount} of {procedure.checklist.length} ready
+            {readyCount} {language === 'hi' ? 'में से' : 'of'} {procedure.checklist.length} {language === 'hi' ? 'तैयार' : 'ready'}
           </span>
         </div>
 
@@ -128,7 +131,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
             return (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
               >
                 <label className="flex items-center gap-3 cursor-pointer flex-1 mr-2 select-none">
                   <input
@@ -159,7 +162,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
                     className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline px-2 py-1 flex items-center gap-1 shrink-0 cursor-pointer"
                     type="button"
                   >
-                    <span>Resize now</span>
+                    <span>{language === 'hi' ? 'साइज़ बदलें' : 'Resize now'}</span>
                   </button>
                 )}
 
@@ -183,7 +186,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
         />
         <div>
           <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400">
-            Middleman &amp; cyber fraud alert
+            {UI_TRANSLATIONS.checklist.middlemanAlert[language] || 'Middleman & cyber fraud alert'}
           </h5>
           <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
             {procedure.fraudWarning}
@@ -203,7 +206,7 @@ export const PreFlightChecklist: React.FC<PreFlightChecklistProps> = ({
             alt=""
             className="w-4 h-4 object-contain brightness-0 invert"
           />
-          <span>I have these ready: start step 1</span>
+          <span>{language === 'hi' ? 'ये दस्तावेज़ तैयार हैं: चरण 1 शुरू करें' : 'I have these ready: start step 1'}</span>
         </button>
       </div>
     </div>
