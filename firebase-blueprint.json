@@ -1,0 +1,242 @@
+{
+  "entities": {
+    "OfficerProfile": {
+      "title": "OfficerProfile",
+      "description": "Public directory listing for an onboarded government/authorized officer (Notary Public / Advocate, Gazetted Officer, Tehsildar / Revenue Officer, or Registered MBBS Doctor). Strictly excludes personal PII.",
+      "type": "object",
+      "properties": {
+        "ownerUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the officer account that submitted this listing.",
+          "maxLength": 128
+        },
+        "fullName": {
+          "type": "string",
+          "description": "Officer's public professional name.",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "notary_advocate",
+            "gazetted_officer",
+            "tehsildar_revenue",
+            "mbbs_doctor"
+          ],
+          "description": "Canonical officer role matching Digital Sahayak government task requirements."
+        },
+        "designation": {
+          "type": "string",
+          "description": "Official title or specialty (e.g., Notary Public Govt. of India, Class-I Gazetted Officer, Tehsildar, MBBS Medical Officer).",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "officeName": {
+          "type": "string",
+          "description": "Office, chamber, tehsil, or clinic name.",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "addressLine": {
+          "type": "string",
+          "description": "Public office street address and landmark.",
+          "minLength": 4,
+          "maxLength": 240
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "district": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "state": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "pinCode": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{5}$",
+          "description": "6-digit Indian Postal Index Number (PIN)."
+        },
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lng": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "visitingHours": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "supportedTasks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "minItems": 1,
+          "maxItems": 15
+        },
+        "languagesSpoken": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "feeNote": {
+          "type": "string",
+          "maxLength": 160,
+          "description": "Transparent statutory or consultation fee note."
+        },
+        "officeContact": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "Optional public office desk phone number."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["pending", "verified", "rejected"],
+          "description": "Moderation badge state. Non-admins may only create with pending."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerUid",
+        "fullName",
+        "role",
+        "designation",
+        "officeName",
+        "addressLine",
+        "city",
+        "district",
+        "state",
+        "pinCode",
+        "lat",
+        "lng",
+        "visitingHours",
+        "supportedTasks",
+        "languagesSpoken",
+        "feeNote",
+        "officeContact",
+        "verificationStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OfficerPrivateCredentials": {
+      "title": "OfficerPrivateCredentials",
+      "description": "Restricted PII and verification credentials for an officer listing. Readable/writable strictly by the owning officer or verified admins.",
+      "type": "object",
+      "properties": {
+        "ownerUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160
+        },
+        "personalPhone": {
+          "type": "string",
+          "minLength": 7,
+          "maxLength": 24
+        },
+        "registrationId": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 100,
+          "description": "Bar Council / Notary Reg No / Govt Employee ID / NMC Medical Registration Number."
+        },
+        "reviewNotes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "reviewedByUid": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerUid",
+        "personalEmail",
+        "personalPhone",
+        "registrationId",
+        "reviewNotes",
+        "reviewedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized Digital Sahayak verifier account.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["email", "role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/officers/{officerId}": {
+      "schema": {
+        "$ref": "#/entities/OfficerProfile"
+      },
+      "description": "Publicly searchable directory of verified officers (and owner/admin accessible pending/rejected listings)."
+    },
+    "/officers/{officerId}/private/credentials": {
+      "schema": {
+        "$ref": "#/entities/OfficerPrivateCredentials"
+      },
+      "description": "Private PII and license/registration credentials restricted to the owner and admins."
+    },
+    "/admins/{uid}": {
+      "schema": {
+        "$ref": "#/entities/AdminUser"
+      },
+      "description": "Registry of additional admin verifiers managed by the bootstrapped admin."
+    }
+  }
+}

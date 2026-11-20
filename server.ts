@@ -1423,6 +1423,301 @@ COMMISSION EXPIRES: [EXPIRY DATE]
 });
 
 
+const GMP_ATTRIBUTION_ID = 'gmp_mcp_codeassist_v1_aistudio';
+
+function getServerMapsApiKey(): string {
+  return (
+    process.env.GOOGLE_MAPS_API_KEY ||
+    process.env.VITE_GOOGLE_MAPS_API_KEY ||
+    ''
+  ).trim();
+}
+
+function mapAppLangToGmpLang(lang?: string): string {
+  const allowed: Record<string, string> = {
+    en: 'en',
+    hi: 'hi',
+    hinglish: 'en',
+    bn: 'bn',
+    mr: 'mr',
+    te: 'te',
+    ta: 'ta',
+    gu: 'gu',
+    kn: 'kn',
+  };
+  return allowed[lang || 'en'] || 'en';
+}
+
+const OFFICER_ROLE_SEARCH_QUERIES: Record<string, string> = {
+  notary_advocate: 'Notary Public Advocate Lawyer',
+  gazetted_officer: 'SDM Office Government Gazetted Officer',
+  tehsildar_revenue: 'Tehsildar Office Revenue Office',
+  mbbs_doctor: 'MBBS Doctor Clinic Government Hospital',
+};
+
+// Expose client Maps API key securely from runtime environment
+app.get('/api/maps-config', (_req: Request, res: Response) => {
+  const apiKey = getServerMapsApiKey();
+  res.json({
+    apiKey,
+    configured: apiKey.length > 0,
+  });
+});
+
+// Forward Geocoding proxy (Indian PIN code or city/locality -> lat/lng)
+// Docs: https://developers.google.com/maps/documentation/geocoding/overview?utm_campaign=gmp_mcp_codeassist_v1_aistudio
+app.post('/api/geocode-pin', async (req: Request, res: Response) => {
+  try {
+    const apiKey = getServerMapsApiKey();
+    if (!apiKey) {
+      return res.status(503).json({
+        error: 'Google Maps API key is not configured on the server.',
+      });
+    }
+
+    const rawQuery = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
+    const languageCode = mapAppLangToGmpLang(req.body?.language);
+
+    if (!rawQuery || rawQuery.length < 2 || rawQuery.length > 200) {
+      return res.status(400).json({
+        error: 'Please enter a valid 6-digit PIN code or city/area name.',
+      });
+    }
+
+    const searchAddress = /india$/i.test(rawQuery) ? rawQuery : `${rawQuery}, India`;
+    const encodedAddress = encodeURIComponent(searchAddress);
+
+    // Primary: Geocoding API v4 endpoint
+    const v4Url = `https://geocode.googleapis.com/v4/geocode/address/${encodedAddress}?regionCode=in&languageCode=${encodeURIComponent(languageCode)}`;
+    const v4Resp = await fetch(v4Url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask':
+          'results.placeId,results.location,results.formattedAddress,results.postalAddress,results.addressComponents',
+        'X-Goog-Maps-Solution-ID': GMP_ATTRIBUTION_ID,
+      },
+    });
+
+    const v4Data: any = await v4Resp.json().catch(() => ({}));
+
+    if (
+      v4Resp.status === 429 ||
+      v4Data?.error?.status === 'RESOURCE_EXHAUSTED'
+    ) {
+      return res.status(429).json({
+        error: 'RESOURCE_EXHAUSTED',
+        quotaExceeded: true,
+      });
+    }
+
+    if (v4Resp.ok && Array.isArray(v4Data?.results) && v4Data.results.length > 0) {
+      const first = v4Data.results[0];
+      const lat = first?.location?.latitude;
+      const lng = first?.location?.longitude;
+      if (typeof lat === 'number' && typeof lng === 'number') {
+        const components: any[] = Array.isArray(first.addressComponents)
+          ? first.addressComponents
+          : [];
+        const findComp = (type: string) =>
+          components.find((c) => Array.isArray(c.types) && c.types.includes(type))
+            ?.longText || '';
+
+        return res.json({
+          lat,
+          lng,
+          formattedAddress: first.formattedAddress || searchAddress,
+          pinCode:
+            first.postalAddress?.postalCode ||
+            findComp('postal_code') ||
+            (/^[1-9][0-9]{5}$/.test(rawQuery) ? rawQuery : ''),
+          city:
+            first.postalAddress?.locality ||
+            findComp('locality') ||
+            findComp('administrative_area_level_2') ||
+            '',
+          district: findComp('administrative_area_level_3') || findComp('administrative_area_level_2') || '',
+          state:
+            first.postalAddress?.administrativeArea ||
+            findComp('administrative_area_level_1') ||
+            '',
+        });
+      }
+    }
+
+    // Fallback: Standard Geocoding REST endpoint if v4 returned empty or non-200
+    const legacyRestUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&region=in&language=${encodeURIComponent(languageCode)}&key=${encodeURIComponent(apiKey)}`;
+    const restResp = await fetch(legacyRestUrl, {
+      headers: {
+        'X-Goog-Maps-Solution-ID': GMP_ATTRIBUTION_ID,
+      },
+    });
+    const restData: any = await restResp.json().catch(() => ({}));
+
+    if (
+      restResp.status === 429 ||
+      restData?.status === 'OVER_QUERY_LIMIT' ||
+      restData?.status === 'OVER_DAILY_LIMIT'
+    ) {
+      return res.status(429).json({
+        error: 'RESOURCE_EXHAUSTED',
+        quotaExceeded: true,
+      });
+    }
+
+    const restFirst = restData?.results?.[0];
+    if (restData?.status === 'OK' && restFirst?.geometry?.location) {
+      const comps: any[] = Array.isArray(restFirst.address_components)
+        ? restFirst.address_components
+        : [];
+      const findRestComp = (type: string) =>
+        comps.find((c) => Array.isArray(c.types) && c.types.includes(type))
+          ?.long_name || '';
+
+      return res.json({
+        lat: restFirst.geometry.location.lat,
+        lng: restFirst.geometry.location.lng,
+        formattedAddress: restFirst.formatted_address || searchAddress,
+        pinCode:
+          findRestComp('postal_code') ||
+          (/^[1-9][0-9]{5}$/.test(rawQuery) ? rawQuery : ''),
+        city:
+          findRestComp('locality') ||
+          findRestComp('administrative_area_level_2') ||
+          '',
+        district:
+          findRestComp('administrative_area_level_3') ||
+          findRestComp('administrative_area_level_2') ||
+          '',
+        state: findRestComp('administrative_area_level_1') || '',
+      });
+    }
+
+    return res.status(404).json({
+      error: 'Location not found. Try a valid 6-digit Indian PIN code or city name.',
+    });
+  } catch (error: any) {
+    console.error('Error in /api/geocode-pin:', error);
+    return res.status(500).json({ error: 'Failed to geocode location.' });
+  }
+});
+
+// Nearby Officers proxy using Places API (New) Text Search
+// Docs: https://developers.google.com/maps/documentation/places/web-service/text-search?utm_campaign=gmp_mcp_codeassist_v1_aistudio
+app.post('/api/nearby-officers', async (req: Request, res: Response) => {
+  try {
+    const apiKey = getServerMapsApiKey();
+    if (!apiKey) {
+      return res.status(503).json({
+        error: 'Google Maps API key is not configured on the server.',
+        places: [],
+      });
+    }
+
+    const lat = Number(req.body?.lat);
+    const lng = Number(req.body?.lng);
+    const radiusKm = Math.min(Math.max(Number(req.body?.radiusKm) || 10, 1), 50);
+    const radiusMeters = radiusKm * 1000;
+    const requestedRoles: string[] = Array.isArray(req.body?.roles) && req.body.roles.length > 0
+      ? req.body.roles.filter((r: unknown) => typeof r === 'string' && r in OFFICER_ROLE_SEARCH_QUERIES)
+      : Object.keys(OFFICER_ROLE_SEARCH_QUERIES);
+    const languageCode = mapAppLangToGmpLang(req.body?.language);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: 'Valid latitude and longitude are required.' });
+    }
+
+    // Cap per-role pageSize so combined results stay crisp and quota-friendly
+    const perRoleLimit = requestedRoles.length === 1 ? 10 : 5;
+    const fieldMask =
+      'places.id,places.displayName,places.formattedAddress,places.location,places.googleMapsUri,places.nationalPhoneNumber,places.regularOpeningHours,places.rating,places.userRatingCount';
+
+    let quotaHit = false;
+    const results: any[] = [];
+    const seenIds = new Set<string>();
+
+    for (const role of requestedRoles) {
+      const textQuery = OFFICER_ROLE_SEARCH_QUERIES[role];
+      const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': fieldMask,
+          'X-Goog-Maps-Solution-ID': GMP_ATTRIBUTION_ID,
+        },
+        body: JSON.stringify({
+          textQuery,
+          pageSize: perRoleLimit,
+          languageCode,
+          regionCode: 'IN',
+          rankPreference: 'DISTANCE',
+          locationBias: {
+            circle: {
+              center: { latitude: lat, longitude: lng },
+              radius: radiusMeters,
+            },
+          },
+        }),
+      });
+
+      const payload: any = await response.json().catch(() => ({}));
+
+      if (
+        response.status === 429 ||
+        payload?.error?.status === 'RESOURCE_EXHAUSTED'
+      ) {
+        quotaHit = true;
+        break;
+      }
+
+      if (!response.ok) {
+        console.warn(`Places searchText failed for role=${role}:`, response.status, payload?.error?.message);
+        continue;
+      }
+
+      const rawPlaces: any[] = Array.isArray(payload?.places) ? payload.places : [];
+      for (const p of rawPlaces) {
+        if (!p?.id || seenIds.has(p.id)) continue;
+        const pLat = p?.location?.latitude;
+        const pLng = p?.location?.longitude;
+        if (typeof pLat !== 'number' || typeof pLng !== 'number') continue;
+
+        seenIds.add(p.id);
+        results.push({
+          id: p.id,
+          name: p.displayName?.text || textQuery,
+          role,
+          formattedAddress: p.formattedAddress || '',
+          lat: pLat,
+          lng: pLng,
+          googleMapsUri: p.googleMapsUri || '',
+          nationalPhoneNumber: p.nationalPhoneNumber || '',
+          openNow: p.regularOpeningHours?.openNow,
+          weekdayDescriptions: p.regularOpeningHours?.weekdayDescriptions || [],
+          rating: typeof p.rating === 'number' ? p.rating : undefined,
+          userRatingCount:
+            typeof p.userRatingCount === 'number' ? p.userRatingCount : undefined,
+        });
+      }
+    }
+
+    if (quotaHit) {
+      return res.status(429).json({
+        error: 'RESOURCE_EXHAUSTED',
+        quotaExceeded: true,
+        places: results,
+      });
+    }
+
+    return res.json({ places: results });
+  } catch (error: any) {
+    console.error('Error in /api/nearby-officers:', error);
+    return res.status(500).json({ error: 'Failed to search nearby officers.', places: [] });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
   res.json({

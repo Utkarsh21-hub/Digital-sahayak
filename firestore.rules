@@ -1,0 +1,293 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn()
+        && request.auth.token.email == 'utkarsh.tech21@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin()
+        || (isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    function isValidRole(role) {
+      return role is string && role in [
+        'notary_advocate',
+        'gazetted_officer',
+        'tehsildar_revenue',
+        'mbbs_doctor'
+      ];
+    }
+
+    function isValidStatus(status) {
+      return status is string && status in ['pending', 'verified', 'rejected'];
+    }
+
+    function isValidOfficerProfile(data) {
+      return data.keys().hasOnly([
+        'ownerUid',
+        'fullName',
+        'role',
+        'designation',
+        'officeName',
+        'addressLine',
+        'city',
+        'district',
+        'state',
+        'pinCode',
+        'lat',
+        'lng',
+        'visitingHours',
+        'supportedTasks',
+        'languagesSpoken',
+        'feeNote',
+        'officeContact',
+        'verificationStatus',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasAll([
+        'ownerUid',
+        'fullName',
+        'role',
+        'designation',
+        'officeName',
+        'addressLine',
+        'city',
+        'district',
+        'state',
+        'pinCode',
+        'lat',
+        'lng',
+        'visitingHours',
+        'supportedTasks',
+        'languagesSpoken',
+        'feeNote',
+        'officeContact',
+        'verificationStatus',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.ownerUid is string && data.ownerUid.size() >= 1 && data.ownerUid.size() <= 128
+      && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+      && isValidRole(data.role)
+      && data.designation is string && data.designation.size() >= 2 && data.designation.size() <= 120
+      && data.officeName is string && data.officeName.size() >= 2 && data.officeName.size() <= 160
+      && data.addressLine is string && data.addressLine.size() >= 4 && data.addressLine.size() <= 240
+      && data.city is string && data.city.size() >= 2 && data.city.size() <= 80
+      && data.district is string && data.district.size() >= 2 && data.district.size() <= 80
+      && data.state is string && data.state.size() >= 2 && data.state.size() <= 80
+      && data.pinCode is string && data.pinCode.matches('^[1-9][0-9]{5}$')
+      && data.lat is number && data.lat >= -90 && data.lat <= 90
+      && data.lng is number && data.lng >= -180 && data.lng <= 180
+      && data.visitingHours is string && data.visitingHours.size() >= 2 && data.visitingHours.size() <= 120
+      && data.supportedTasks is list && data.supportedTasks.size() >= 1 && data.supportedTasks.size() <= 15
+      && data.languagesSpoken is list && data.languagesSpoken.size() >= 1 && data.languagesSpoken.size() <= 12
+      && data.feeNote is string && data.feeNote.size() <= 160
+      && data.officeContact is string && data.officeContact.size() <= 32
+      && isValidStatus(data.verificationStatus)
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidPrivateCredentials(data) {
+      return data.keys().hasOnly([
+        'ownerUid',
+        'personalEmail',
+        'personalPhone',
+        'registrationId',
+        'reviewNotes',
+        'reviewedByUid',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasAll([
+        'ownerUid',
+        'personalEmail',
+        'personalPhone',
+        'registrationId',
+        'reviewNotes',
+        'reviewedByUid',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.ownerUid is string && data.ownerUid.size() >= 1 && data.ownerUid.size() <= 128
+      && data.personalEmail is string && data.personalEmail.size() >= 5 && data.personalEmail.size() <= 160
+      && data.personalPhone is string && data.personalPhone.size() >= 7 && data.personalPhone.size() <= 24
+      && data.registrationId is string && data.registrationId.size() >= 3 && data.registrationId.size() <= 100
+      && data.reviewNotes is string && data.reviewNotes.size() <= 500
+      && data.reviewedByUid is string && data.reviewedByUid.size() <= 128
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminUser(data) {
+      return data.keys().hasOnly(['email', 'role', 'createdAt'])
+        && data.keys().hasAll(['email', 'role', 'createdAt'])
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 160
+        && data.role == 'admin'
+        && data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Public Officer Directory Collection
+    // ===============================================================
+    match /officers/{officerId} {
+      allow get: if isValidId(officerId) && (
+        resource.data.verificationStatus == 'verified'
+        || (isSignedIn() && (resource.data.ownerUid == request.auth.uid || isAdmin()))
+      );
+
+      // Cost-Optimization: No exists()/get() calls inside allow list
+      allow list: if resource.data.verificationStatus == 'verified'
+        || (isSignedIn() && (resource.data.ownerUid == request.auth.uid || isBootstrappedAdmin()));
+
+      allow create: if isSignedIn()
+        && isValidId(officerId)
+        && isValidOfficerProfile(request.resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.verificationStatus == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(officerId)
+        && isValidOfficerProfile(request.resource.data)
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (
+          // Action 1: Owner edits unverified profile fields only
+          (
+            resource.data.ownerUid == request.auth.uid
+            && resource.data.verificationStatus in ['pending', 'rejected']
+            && request.resource.data.verificationStatus == resource.data.verificationStatus
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'fullName',
+              'role',
+              'designation',
+              'officeName',
+              'addressLine',
+              'city',
+              'district',
+              'state',
+              'pinCode',
+              'lat',
+              'lng',
+              'visitingHours',
+              'supportedTasks',
+              'languagesSpoken',
+              'feeNote',
+              'officeContact',
+              'updatedAt'
+            ])
+          )
+          ||
+          // Action 2: Admin updates verification status only
+          (
+            isAdmin()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'verificationStatus',
+              'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isSignedIn()
+        && isValidId(officerId)
+        && (resource.data.ownerUid == request.auth.uid || isAdmin());
+
+      // ===============================================================
+      // Restricted Officer PII & Credentials Subcollection
+      // ===============================================================
+      match /private/credentials {
+        allow get: if isSignedIn()
+          && isValidId(officerId)
+          && (resource.data.ownerUid == request.auth.uid || isAdmin());
+
+        allow list: if false;
+
+        allow create: if isSignedIn()
+          && isValidId(officerId)
+          && isValidPrivateCredentials(request.resource.data)
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.reviewNotes == ''
+          && request.resource.data.reviewedByUid == ''
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+
+        allow update: if isSignedIn()
+          && isValidId(officerId)
+          && isValidPrivateCredentials(request.resource.data)
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.updatedAt == request.time
+          && (
+            (
+              resource.data.ownerUid == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                'personalEmail',
+                'personalPhone',
+                'registrationId',
+                'updatedAt'
+              ])
+            )
+            ||
+            (
+              isAdmin()
+              && request.resource.data.reviewedByUid == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                'reviewNotes',
+                'reviewedByUid',
+                'updatedAt'
+              ])
+            )
+          );
+
+        allow delete: if isSignedIn()
+          && isValidId(officerId)
+          && (resource.data.ownerUid == request.auth.uid || isAdmin());
+      }
+    }
+
+    // ===============================================================
+    // Admin Registry Collection
+    // ===============================================================
+    match /admins/{uid} {
+      allow get: if isSignedIn() && isValidId(uid) && (request.auth.uid == uid || isBootstrappedAdmin());
+      allow list: if isBootstrappedAdmin();
+      allow create: if isBootstrappedAdmin()
+        && isValidId(uid)
+        && isValidAdminUser(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isBootstrappedAdmin()
+        && isValidId(uid)
+        && isValidAdminUser(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isBootstrappedAdmin() && isValidId(uid);
+    }
+
+    // ===============================================================
+    // Default Deny All Other Paths
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

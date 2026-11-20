@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Globe, ChevronDown, Check } from 'lucide-react';
+import { Globe, ChevronDown, Check, MapPin } from 'lucide-react';
 import { getAppIcon } from '../utils/appIcons';
 import {
   Language,
@@ -18,8 +18,8 @@ interface HeaderProps {
   onOpenHelp: () => void;
   onOpenResizer?: () => void;
   onOpenCpgrams?: () => void;
-  currentView?: 'chat' | 'dashboard';
-  onViewChange?: (view: 'chat' | 'dashboard') => void;
+  currentView?: 'chat' | 'dashboard' | 'officers';
+  onViewChange?: (view: 'chat' | 'dashboard' | 'officers') => void;
   onOpenPitchDeck?: () => void;
   onOpenScamShield?: () => void;
   onOpenDraftGenerator?: () => void;
@@ -236,9 +236,9 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* =========================================================================
-            SECTION 3: Main 3 Feature Cards (Gemini Chat, Procedures & Tools, Scam Shield)
+            SECTION 3: Main 4 Feature Cards (Gemini Chat, Procedures & Tools, Find Officer, Scam Shield)
             ========================================================================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-5">
           {/* Card 1: Gemini Chat */}
           <button
             type="button"
@@ -293,7 +293,30 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </button>
 
-          {/* Card 3: Scam Shield */}
+          {/* Card 3: Find Nearest Officer Directory */}
+          <button
+            type="button"
+            onClick={() => onViewChange?.('officers')}
+            className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${
+              currentView === 'officers'
+                ? 'border-2 border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 dark:border-emerald-500 shadow-sm'
+                : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
+            }`}
+          >
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-bold text-sm text-slate-900 dark:text-white">
+                {t(UI_TRANSLATIONS.officers.nav.tabTitle, language)}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {t(UI_TRANSLATIONS.officers.nav.tabSub, language)}
+              </div>
+            </div>
+          </button>
+
+          {/* Card 4: Scam Shield */}
           <button
             type="button"
             onClick={onOpenScamShield}

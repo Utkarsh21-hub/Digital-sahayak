@@ -20,6 +20,7 @@ import { Footer } from './components/Footer';
 import { GeminiChatView } from './components/GeminiChatView';
 import { ScamShieldModal } from './components/ScamShieldModal';
 import { DraftGeneratorModal, DraftTemplateType } from './components/DraftGeneratorModal';
+import { OfficerFinderView } from './components/OfficerFinderView';
 import { getAppIcon } from './utils/appIcons';
 import {
   Language,
@@ -32,12 +33,21 @@ import {
 } from './utils/translations';
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('dashboard');
+  const [viewMode, setViewMode] = useState<'chat' | 'dashboard' | 'officers'>('dashboard');
+  const [gmpQuotaExceeded, setGmpQuotaExceeded] = useState(false);
   const [selectedProcedureId, setSelectedProcedureId] = useState<string>('neet-ug-2025');
   const [isScamShieldOpen, setIsScamShieldOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [language, setLanguage] = useState<Language>(() => getSavedLanguage());
+
+  useEffect(() => {
+    const handleQuotaExceeded = () => setGmpQuotaExceeded(true);
+    window.addEventListener('gmp-quota-exceeded', handleQuotaExceeded);
+    return () => {
+      window.removeEventListener('gmp-quota-exceeded', handleQuotaExceeded);
+    };
+  }, []);
 
   useEffect(() => {
     saveLanguage(language);
@@ -188,6 +198,22 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200">
+      {gmpQuotaExceeded && (
+        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
+          <span>
+            Google Maps Platform quota reached. If you are the app owner, visit{' '}
+            <a
+              href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-semibold text-amber-950 hover:text-amber-800"
+            >
+              maps developer site
+            </a>{' '}
+            for instructions to update your account.
+          </span>
+        </div>
+      )}
       {/* Top Application Bar with View Mode Switcher & Dark Mode Toggle */}
       <Header
         language={language}
@@ -216,7 +242,7 @@ export default function App() {
         onOpenDraftGenerator={() => handleOpenDraftModal()}
       />
 
-      {/* Main Content Area: Gemini Chat vs Procedural Dashboard */}
+      {/* Main Content Area: Gemini Chat vs Nearest Officer Finder vs Procedural Dashboard */}
       {viewMode === 'chat' ? (
         <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 py-1.5 sm:py-2.5 flex flex-col">
           <GeminiChatView
@@ -238,6 +264,8 @@ export default function App() {
             theme={theme}
           />
         </main>
+      ) : viewMode === 'officers' ? (
+        <OfficerFinderView language={language} theme={theme} />
       ) : (
         <>
           {/* Hero Trust Banner */}
