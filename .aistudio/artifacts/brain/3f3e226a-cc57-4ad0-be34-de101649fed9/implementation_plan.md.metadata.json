@@ -1,6 +1,0 @@
-{
-  "summary":  "Implementation plan for the 'Official Draft Sahayak' (प्रारूप सहायक / Legal Draft & Affidavit Generator) feature. Enables citizens to generate ready-to-print official legal affidavits, CPGRAMS grievance escalation letters, and exam undertakings using Gemini prompt-based generation and step-synced templates with zero cyber cafe or typist fees.",
-  "updatedAt":  "2026-11-08T09:50:25.047839381Z",
-  "requestFeedback":  true,
-  "userFacing":  true
-}

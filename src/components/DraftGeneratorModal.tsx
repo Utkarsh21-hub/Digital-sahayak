@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Language, SUPPORTED_LANGUAGES, UI_TRANSLATIONS, t } from '../utils/translations';
 
 export type DraftTemplateType =
   | 'gazette-name-change'
@@ -21,12 +22,15 @@ interface DraftGeneratorModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTemplate?: DraftTemplateType;
+  appLanguage?: Language;
   stepContext?: {
     taskTitle: string;
     stepTitle: string;
     procedureId?: string;
   };
 }
+
+const DRAFT_LANGUAGE_OPTIONS = SUPPORTED_LANGUAGES.filter((l) => l.code !== 'hinglish');
 
 const TEMPLATE_OPTIONS: {
   id: DraftTemplateType;
@@ -78,22 +82,30 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
   isOpen,
   onClose,
   initialTemplate = 'gazette-name-change',
+  appLanguage = 'en',
   stepContext,
 }) => {
+  const dm = UI_TRANSLATIONS.draftModal;
+  const resolvedDefaultDraftLang: Language = appLanguage === 'hinglish' ? 'en' : appLanguage;
+
   const [selectedTemplate, setSelectedTemplate] = useState<DraftTemplateType>(initialTemplate);
   const [prompt, setPrompt] = useState<string>('');
-  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  const [draftLanguage, setDraftLanguage] = useState<Language>(resolvedDefaultDraftLang);
   const [isGenerating, setIsGenerating] = useState(false);
   const [draft, setDraft] = useState<DraftResponse | null>(null);
   const [editedText, setEditedText] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  useEffect(() => {
+    setDraftLanguage(appLanguage === 'hinglish' ? 'en' : appLanguage);
+  }, [appLanguage]);
+
   // Sync initial template when opened from a specific step
   useEffect(() => {
     if (initialTemplate) {
       setSelectedTemplate(initialTemplate);
-      const matched = TEMPLATE_OPTIONS.find((t) => t.id === initialTemplate);
+      const matched = TEMPLATE_OPTIONS.find((opt) => opt.id === initialTemplate);
       if (matched && !prompt) {
         setPrompt(matched.defaultPrompt);
       }
@@ -103,27 +115,28 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
   // Generate draft automatically on first view if no draft is loaded
   useEffect(() => {
     if (isOpen && !draft) {
-      handleGenerateDraft(selectedTemplate, prompt || undefined);
+      handleGenerateDraft(selectedTemplate, prompt || undefined, draftLanguage);
     }
   }, [isOpen, selectedTemplate]);
 
   if (!isOpen) return null;
 
   const currentTemplateMeta =
-    TEMPLATE_OPTIONS.find((t) => t.id === selectedTemplate) || TEMPLATE_OPTIONS[0];
+    TEMPLATE_OPTIONS.find((opt) => opt.id === selectedTemplate) || TEMPLATE_OPTIONS[0];
 
   const handleSelectTemplate = (templateId: DraftTemplateType) => {
     setSelectedTemplate(templateId);
-    const matched = TEMPLATE_OPTIONS.find((t) => t.id === templateId);
+    const matched = TEMPLATE_OPTIONS.find((opt) => opt.id === templateId);
     if (matched) {
       setPrompt(matched.defaultPrompt);
-      handleGenerateDraft(templateId, matched.defaultPrompt);
+      handleGenerateDraft(templateId, matched.defaultPrompt, draftLanguage);
     }
   };
 
   const handleGenerateDraft = async (
     templateToUse = selectedTemplate,
-    promptToUse = prompt
+    promptToUse = prompt,
+    langToUse = draftLanguage
   ) => {
     setIsGenerating(true);
     setErrorMsg(null);
@@ -134,7 +147,7 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
         body: JSON.stringify({
           templateType: templateToUse,
           prompt: promptToUse,
-          language,
+          language: langToUse,
         }),
       });
 
@@ -146,7 +159,7 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
       }
     } catch (err: any) {
       console.warn('Draft generation API failed:', err);
-      setErrorMsg('Could not reach Gemini server. Default statutory template loaded.');
+      setErrorMsg('Could not reach server. Default statutory template loaded.');
     } finally {
       setIsGenerating(false);
     }
@@ -159,7 +172,6 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }
@@ -172,106 +184,79 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
       <div className="bg-surface-container-lowest max-w-4xl w-full rounded-3xl border border-outline-variant shadow-2xl overflow-hidden flex flex-col max-h-[92vh] my-auto">
-        {/* =========================================================================
-            MODAL HEADER
-            ========================================================================= */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-outline-variant/70 bg-surface-container-lowest/90 sticky top-0 z-10">
-          <div className="flex items-center gap-3">
+        {/* MODAL HEADER */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-outline-variant/70 bg-surface-container-lowest/90 sticky top-0 z-10 gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
               <span className="material-symbols-outlined text-2xl">description</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-extrabold text-on-surface">
-                  Official Draft Sahayak
-                </h3>
-                <span className="text-xs font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
-                  प्रारूप सहायक
-                </span>
-              </div>
-              <p className="text-xs text-on-surface-variant font-medium">
-                {stepContext?.taskTitle
-                  ? `Synced with ${stepContext.taskTitle} (Step Formats)`
-                  : 'Court-Ready Statutory Affidavits & Formal Grievance Petitions • Zero Typist Fee'}
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-extrabold text-on-surface truncate">
+                {t(dm.title, appLanguage)}
+              </h3>
+              <p className="text-xs text-on-surface-variant font-medium truncate">
+                {stepContext?.taskTitle ? stepContext.taskTitle : t(dm.subtitle, appLanguage)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Language toggle for legal document */}
-            <div className="bg-surface-container p-0.5 rounded-xl border border-outline-variant flex items-center text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguage('en');
-                  handleGenerateDraft(selectedTemplate, prompt);
-                }}
-                className={`px-2.5 py-1 rounded-lg transition-all ${
-                  language === 'en'
-                    ? 'bg-surface-container-lowest text-secondary shadow-xs font-bold'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-              >
-                English
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguage('hi');
-                  handleGenerateDraft(selectedTemplate, prompt);
-                }}
-                className={`px-2.5 py-1 rounded-lg transition-all ${
-                  language === 'hi'
-                    ? 'bg-surface-container-lowest text-secondary shadow-xs font-bold'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-              >
-                हिंदी
-              </button>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Regional language selector for legal document */}
+            <select
+              aria-label={t(UI_TRANSLATIONS.header.selectLanguage, appLanguage)}
+              value={draftLanguage}
+              onChange={(e) => {
+                const nextLang = e.target.value as Language;
+                setDraftLanguage(nextLang);
+                handleGenerateDraft(selectedTemplate, prompt, nextLang);
+              }}
+              className="bg-surface-container text-on-surface text-xs font-bold px-2.5 py-1.5 rounded-xl border border-outline-variant focus:outline-none focus:border-secondary cursor-pointer"
+            >
+              {DRAFT_LANGUAGE_OPTIONS.map((langOpt) => (
+                <option key={langOpt.code} value={langOpt.code}>
+                  {langOpt.nativeName} ({langOpt.englishName})
+                </option>
+              ))}
+            </select>
 
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close modal"
-              className="w-9 h-9 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors"
+              aria-label={t(dm.closeBtn, appLanguage)}
+              className="w-9 h-9 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
         </div>
 
-        {/* =========================================================================
-            TEMPLATE SELECTOR PILLS
-            ========================================================================= */}
+        {/* TEMPLATE SELECTOR PILLS */}
         <div className="px-5 sm:px-6 py-2.5 bg-surface-container-low/50 border-b border-outline-variant/60 flex items-center gap-2 overflow-x-auto no-scrollbar">
           <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider shrink-0 mr-1">
-            Format:
+            {t(dm.formatLabel, appLanguage)}
           </span>
-          {TEMPLATE_OPTIONS.map((t) => (
+          {TEMPLATE_OPTIONS.map((opt) => (
             <button
-              key={t.id}
+              key={opt.id}
               type="button"
-              onClick={() => handleSelectTemplate(t.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 flex items-center gap-1.5 border transition-all ${
-                selectedTemplate === t.id
+              onClick={() => handleSelectTemplate(opt.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 flex items-center gap-1.5 border transition-all cursor-pointer ${
+                selectedTemplate === opt.id
                   ? 'bg-secondary text-white border-secondary shadow-xs font-bold'
                   : 'bg-surface-container-lowest text-on-surface border-outline-variant hover:border-secondary/40'
               }`}
             >
-              <span className="material-symbols-outlined text-sm">{t.icon}</span>
-              <span>{t.name}</span>
+              <span className="material-symbols-outlined text-sm">{opt.icon}</span>
+              <span>{opt.name}</span>
             </button>
           ))}
         </div>
 
-        {/* =========================================================================
-            MAIN CONTENT AREA
-            ========================================================================= */}
+        {/* MAIN CONTENT AREA */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
           {/* AI Prompt Input Bar */}
           <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-xs space-y-2.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <label
                 htmlFor="draft-prompt"
                 className="text-xs font-bold text-on-surface flex items-center gap-1.5"
@@ -279,11 +264,8 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
                 <span className="material-symbols-outlined text-base text-secondary">
                   auto_awesome
                 </span>
-                <span>Enter Your Details in Plain Words (English, Hindi, or Hinglish):</span>
+                <span>{t(dm.detailsLabel, appLanguage)}</span>
               </label>
-              <span className="text-[11px] text-on-surface-variant font-medium">
-                AI fills official legal clauses automatically
-              </span>
             </div>
 
             <textarea
@@ -291,31 +273,28 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
               rows={2}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. My name is Rajesh Kumar, changing to Rajesh Sharma, resident of Varanasi. Classified ad published in Dainik Jagran on 15 Jan 2025..."
+              placeholder={currentTemplateMeta.defaultPrompt}
               className="w-full text-xs sm:text-sm p-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 resize-none font-medium"
             />
 
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
-                <span className="font-bold">Quick Stage Presets:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const preset = currentTemplateMeta.defaultPrompt;
-                    setPrompt(preset);
-                    handleGenerateDraft(selectedTemplate, preset);
-                  }}
-                  className="px-2 py-0.5 rounded-lg bg-surface-container border border-outline-variant hover:bg-secondary/10 hover:text-secondary hover:border-secondary/30 transition text-[11px]"
-                >
-                  ⚡ Load Sample Data
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const preset = currentTemplateMeta.defaultPrompt;
+                  setPrompt(preset);
+                  handleGenerateDraft(selectedTemplate, preset, draftLanguage);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant hover:bg-secondary/10 hover:text-secondary hover:border-secondary/30 transition text-[11px] font-semibold cursor-pointer"
+              >
+                ⚡ Load Sample Data
+              </button>
 
               <button
                 type="button"
-                onClick={() => handleGenerateDraft(selectedTemplate, prompt)}
+                onClick={() => handleGenerateDraft(selectedTemplate, prompt, draftLanguage)}
                 disabled={isGenerating}
-                className="px-4 py-1.5 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition disabled:opacity-50"
+                className="px-4 py-1.5 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition disabled:opacity-50 cursor-pointer"
               >
                 <span
                   className={`material-symbols-outlined text-sm ${
@@ -324,7 +303,7 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
                 >
                   {isGenerating ? 'sync' : 'auto_awesome'}
                 </span>
-                <span>{isGenerating ? 'Drafting with Gemini...' : 'Generate / Update Draft'}</span>
+                <span>{isGenerating ? t(dm.generating, appLanguage) : t(dm.generateBtn, appLanguage)}</span>
               </button>
             </div>
           </div>
@@ -345,12 +324,12 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
                 </span>
                 <div>
                   <div className="font-extrabold text-on-surface">
-                    Statutory Requirement: {draft.stampPaperRequirement}
+                    {draft.stampPaperRequirement}
                   </div>
                   <div className="text-[11px] text-on-surface-variant font-medium">
                     {draft.notaryRequired
-                      ? 'Requires physical attestation by a Notary Public / Oath Commissioner'
-                      : 'Self-declaration format • No court stamp paper or fee required'}
+                      ? 'Notary Public / Oath Commissioner attestation required'
+                      : 'Self-declaration format • No court stamp paper fee'}
                   </div>
                 </div>
               </div>
@@ -359,40 +338,39 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyText}
-                  className="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant font-bold text-xs text-on-surface flex items-center gap-1.5 transition active:scale-95 shadow-2xs"
+                  className="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant font-bold text-xs text-on-surface flex items-center gap-1.5 transition active:scale-95 shadow-2xs cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">
                     {copied ? 'check' : 'content_copy'}
                   </span>
-                  <span>{copied ? 'Copied!' : 'Copy Text'}</span>
+                  <span>{copied ? t(dm.copied, appLanguage) : t(dm.copyText, appLanguage)}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="px-3.5 py-1.5 rounded-xl bg-secondary text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-secondary/90 transition active:scale-95"
+                  className="px-3.5 py-1.5 rounded-xl bg-secondary text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-secondary/90 transition active:scale-95 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">print</span>
-                  <span>Print A4 / PDF</span>
+                  <span>{t(dm.printPdf, appLanguage)}</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Live Formatted Legal Document Preview (Printable Target) */}
+          {/* Live Formatted Legal Document Preview */}
           <div className="border-2 border-outline-variant/80 rounded-2xl bg-white text-slate-900 shadow-md p-6 sm:p-10 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto print:p-0 print:border-none print:shadow-none print:m-0">
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="text-center font-bold text-sm sm:text-base border-b-2 border-slate-900 pb-2 mb-4">
                 {draft?.title || currentTemplateMeta.name.toUpperCase()}
               </div>
 
-              {/* Editable legal draft content */}
               <textarea
                 value={editedText}
                 onChange={(e) => setEditedText(e.target.value)}
                 rows={20}
                 className="w-full bg-transparent border-none text-slate-900 font-mono text-xs sm:text-sm leading-relaxed focus:outline-none resize-y min-h-[360px]"
-                placeholder="Generating legal draft..."
+                placeholder={t(dm.generating, appLanguage)}
               />
             </div>
           </div>
@@ -402,46 +380,41 @@ export const DraftGeneratorModal: React.FC<DraftGeneratorModalProps> = ({
             <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-300/80 dark:border-amber-800/60 text-xs space-y-2">
               <div className="font-extrabold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base text-amber-700">shield</span>
-                <span>Important Safety & Submission Checklist:</span>
+                <span>{t(UI_TRANSLATIONS.checklist.middlemanAlert, appLanguage)}</span>
               </div>
               <ul className="list-disc pl-5 space-y-1 text-amber-950 dark:text-amber-100 font-medium text-[11px] sm:text-xs">
                 {draft.guidanceNotes.map((note, idx) => (
                   <li key={idx}>{note}</li>
                 ))}
-                <li>
-                  <strong className="text-red-700 dark:text-red-400">Never sign blank stamp papers:</strong> Always verify that your full text is typed and printed before affixing your signature in front of the Notary.
-                </li>
               </ul>
             </div>
           )}
         </div>
 
-        {/* =========================================================================
-            MODAL FOOTER
-            ========================================================================= */}
+        {/* MODAL FOOTER */}
         <div className="px-5 sm:px-6 py-3.5 border-t border-outline-variant/70 bg-surface-container-low/50 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-on-surface-variant font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Zero Typist Fee • Standard Statutory Legal Format</span>
+            <span>{t(UI_TRANSLATIONS.header.zeroAgentFee, appLanguage)}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant text-on-surface font-bold transition active:scale-95"
+              className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant text-on-surface font-bold transition active:scale-95 cursor-pointer"
             >
-              Done / Close
+              {t(dm.closeBtn, appLanguage)}
             </button>
             <button
               type="button"
               onClick={handleCopyText}
-              className="px-4 py-2 rounded-xl bg-secondary text-white font-bold transition active:scale-95 flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 rounded-xl bg-secondary text-white font-bold transition active:scale-95 flex items-center gap-1.5 shadow-sm cursor-pointer"
             >
               <span className="material-symbols-outlined text-sm">
                 {copied ? 'check' : 'content_copy'}
               </span>
-              <span>{copied ? 'Copied!' : 'Copy Formatted Draft'}</span>
+              <span>{copied ? t(dm.copied, appLanguage) : t(dm.copyText, appLanguage)}</span>
             </button>
           </div>
         </div>

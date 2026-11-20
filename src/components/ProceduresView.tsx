@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { PROCEDURES_DATA, Procedure, filterProcedures } from '../utils/procedures';
 import { Icon, getProcedureIcon } from './Icon';
+import { Language } from '../utils/translations';
 
 interface ProceduresViewProps {
   selectedProcedureId: string;
@@ -10,7 +11,7 @@ interface ProceduresViewProps {
   onOpenDraftGenerator: (template?: string) => void;
   onGoToChat: () => void;
   onGoToScam: () => void;
-  language?: 'hinglish' | 'hi' | 'en';
+  language?: Language;
 }
 
 export const ProceduresView: React.FC<ProceduresViewProps> = ({

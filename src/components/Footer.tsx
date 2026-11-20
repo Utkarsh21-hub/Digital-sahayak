@@ -1,6 +1,6 @@
 import React from 'react';
 import { getAppIcon } from '../utils/appIcons';
-import { Language } from '../utils/translations';
+import { Language, UI_TRANSLATIONS, t } from '../utils/translations';
 
 interface FooterProps {
   onOpenDirectory: () => void;
@@ -21,23 +21,21 @@ export const Footer: React.FC<FooterProps> = ({
   language = 'hinglish',
   theme = 'light',
 }) => {
+  const f = UI_TRANSLATIONS.footer;
+
   return (
     <>
-      {/* STATUTORY CLEAN FOOTER matching Screenshot */}
+      {/* STATUTORY CLEAN FOOTER */}
       <footer className="w-full bg-slate-50 dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 mt-12 py-6 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div>
-            {language === 'hi'
-              ? '© 2025 डिजिटल सहायक। एक स्वच्छ जनहित पहल। ज़ीरो दलाल शुल्क।'
-              : '© 2025 Digital Sahayak. An open civic initiative. No middleman charges.'}
-          </div>
+          <div>{t(f.copyright, language)}</div>
 
           <div className="flex items-center gap-3">
             <a
               href="tel:1947"
               className="hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
-              {language === 'hi' ? 'आधिकारिक हेल्पलाइन 1947' : 'Official helpline 1947'}
+              {t(f.helpline1947, language)}
             </a>
             <span>•</span>
             <a
@@ -52,24 +50,24 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
       </footer>
 
-      {/* Floating AI Chat Trigger on Desktop with provided ai-chat icon */}
+      {/* Floating AI Chat Trigger on Desktop */}
       <div className="hidden md:block fixed bottom-6 right-6 z-40">
         <button
           onClick={onOpenChat}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 font-bold transition-all active:scale-95 cursor-pointer ring-2 ring-white/50 text-xs"
           type="button"
-          title="Open Digital Sahayak AI Assistant"
+          title={t(f.askSahayakAi, language)}
         >
           <img
             src={getAppIcon('ai-chat', 'dark')}
             alt=""
             className="w-5 h-5 object-contain brightness-0 invert"
           />
-          <span>{language === 'hi' ? 'सहायक एआई से पूछें' : 'Ask Sahayak AI'}</span>
+          <span>{t(f.askSahayakAi, language)}</span>
         </button>
       </div>
 
-      {/* MOBILE BOTTOM NAVIGATION TRAY with provided icons */}
+      {/* MOBILE BOTTOM NAVIGATION TRAY */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-lg">
         <button
           className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-400 font-bold cursor-pointer"
@@ -80,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">{language === 'hi' ? 'सेवाएं' : 'Services'}</span>
+          <span className="text-[10px]">{t(f.mobileServices, language)}</span>
         </button>
 
         <button
@@ -92,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">{language === 'hi' ? 'रीसाइज़र' : 'Resizer'}</span>
+          <span className="text-[10px]">{t(f.mobileResizer, language)}</span>
         </button>
 
         <button
@@ -105,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">{language === 'hi' ? 'सहायक' : 'Sahayak'}</span>
+          <span className="text-[10px]">{t(f.mobileSahayak, language)}</span>
         </button>
 
         <button
@@ -118,7 +116,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">{language === 'hi' ? 'एआई चैट' : 'AI Chat'}</span>
+          <span className="text-[10px]">{t(f.mobileAiChat, language)}</span>
         </button>
 
         <a
@@ -130,7 +128,7 @@ export const Footer: React.FC<FooterProps> = ({
             alt=""
             className="w-5 h-5 object-contain"
           />
-          <span className="text-[10px]">{language === 'hi' ? '1947 सहायता' : '1947 Help'}</span>
+          <span className="text-[10px]">{t(f.mobileHelp1947, language)}</span>
         </a>
       </nav>
     </>

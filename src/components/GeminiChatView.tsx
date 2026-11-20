@@ -17,7 +17,14 @@ import {
 } from 'lucide-react';
 import { getAppIcon, getProcedureIcon } from '../utils/appIcons';
 import { AvatarAnimator, BotState } from './AvatarAnimator';
-import { Language, UI_TRANSLATIONS, PROCEDURE_TRANSLATIONS } from '../utils/translations';
+import {
+  Language,
+  UI_TRANSLATIONS,
+  PROCEDURE_TRANSLATIONS,
+  t,
+  getSpeechLocale,
+  getLanguageMeta,
+} from '../utils/translations';
 
 export interface ChatMessage {
   id: string;
@@ -60,7 +67,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
     fee: '₹1,000–₹1,700',
     icon: '🎓',
-    prompt: 'Mujhe NEET UG application form bharna hai. Kripya shuru se guide karein.',
+    prompt: 'Guide me step-by-step to fill the NEET UG application form on the official NTA portal.',
   },
   {
     id: 'fresh-aadhaar-enrolment',
@@ -70,7 +77,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
     fee: '₹0 (Completely Free)',
     icon: '🪪',
-    prompt: 'Naya Aadhaar card banwane ka official process kya hai?',
+    prompt: 'What is the official free process for fresh Aadhaar card enrolment?',
   },
   {
     id: 'up-bhulekh',
@@ -80,7 +87,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
     fee: '₹0 (100% Free)',
     icon: '🏛️',
-    prompt: 'UP Bhulekh par Real-Time Khatauni nakal Gata/Khata number se kaise dekhein?',
+    prompt: 'How can I check Real-Time Khatauni land records on UP Bhulekh using Gata/Khata number?',
   },
   {
     id: 'driving-licence-renewal',
@@ -90,7 +97,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹200–₹400',
     icon: '🚗',
-    prompt: 'Online Driving Licence renew kaise karein bina RTO jaye?',
+    prompt: 'How do I renew my Driving Licence online on Sarathi Parivahan without visiting the RTO?',
   },
   {
     id: 'aadhaar-mobile-update',
@@ -100,7 +107,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹50 (Statutory)',
     icon: '📱',
-    prompt: 'Aadhaar me mobile number update karne ka sahi sarkari tarika kya hai?',
+    prompt: 'What is the official UIDAI process to update my mobile number in Aadhaar?',
   },
   {
     id: 'tatkaal-passport',
@@ -110,7 +117,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹1,500–₹3,500',
     icon: '🛂',
-    prompt: 'Tatkaal passport online apply karne ke liye kya steps aur documents chahiye?',
+    prompt: 'What steps and documents are required to apply for a Fresh or Tatkaal Passport online?',
   },
   {
     id: 'delhi-land-records',
@@ -120,7 +127,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹0 (Free view)',
     icon: '🗺️',
-    prompt: 'Delhi me DLR Act ya PLR Act ke tahat Khasra/Khatauni RoR kaise check aur download karein?',
+    prompt: 'How do I check and download Khasra/Khatauni RoR records on Delhi Land Records (DLRC)?',
   },
   {
     id: 'delhi-domicile',
@@ -130,7 +137,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹0 (NIL official fee)',
     icon: '🏠',
-    prompt: 'Delhi e-District par Domicile (Niwas) praman patra ke liye 3-year proof kaise submit karein?',
+    prompt: 'How do I apply for a Delhi Domicile Certificate on e-District Delhi with 3-year proof?',
   },
   {
     id: 'delhi-caste',
@@ -140,7 +147,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹0 (NIL official fee)',
     icon: '📜',
-    prompt: 'Delhi me OBC / SC certificate ke liye father caste proof aur cut-off document kaise lagayein?',
+    prompt: 'How do I apply for an OBC/SC/ST Caste Certificate on e-District Delhi?',
   },
   {
     id: 'up-domicile',
@@ -150,7 +157,7 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹15 (Official fee)',
     icon: '🏠',
-    prompt: 'Uttar Pradesh eSathi portal par Niwas Praman Patra (Domicile) apply karne ka process batayein.',
+    prompt: 'Guide me through applying for a UP Domicile Certificate on the eSathi Uttar Pradesh portal.',
   },
   {
     id: 'up-caste',
@@ -160,17 +167,17 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     fee: '₹15 (Official fee)',
     icon: '📜',
-    prompt: 'UP eSathi par Jati Praman Patra (OBC/SC/ST) ke liye swa-pramanit ghoshana patra aur process batayein.',
+    prompt: 'Guide me through applying for a UP Caste Certificate on the eSathi portal.',
   },
   {
-    id: 'gazette-name-change',
+    id: 'gazette-notification',
     title: 'Gazette Name Change',
     portal: 'egazette.gov.in',
     level: 'Hard',
     levelColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     fee: '₹1,100',
     icon: '📰',
-    prompt: 'Gazette me legal name change notification kaise publish karwayein?',
+    prompt: 'How do I publish a legal name change notification in the Official Gazette of India?',
   },
   {
     id: 'cpgrams-grievance',
@@ -180,34 +187,33 @@ const SUPPORTED_TASKS: VerifiedTask[] = [
     levelColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     fee: '₹0 (Free Citizen Right)',
     icon: '📋',
-    prompt: 'Sarkari vibhag kaam nahi kar raha, CPGRAMS par grievance kaise darj karein?',
+    prompt: 'How do I file a formal citizen grievance on CPGRAMS (pgportal.gov.in) for a delayed service?',
   },
   {
-    id: 'delayed-service-redressal',
+    id: 'anti-corruption-delayed-service',
     title: 'Anti-Corruption',
     portal: 'cvc.gov.in / lokpal.gov.in',
     level: 'Hard',
     levelColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     fee: '₹0 (CBI/Lokpal)',
     icon: '🛡️',
-    prompt: 'Citizen Charter SLA exceed ho gaya ya rishwat maangi ja rahi hai, kya karein?',
+    prompt: 'What official steps can I take on CVC/Lokpal if a government officer delays my service or asks for a bribe?',
   },
   {
-    id: 'renunciation-citizenship',
+    id: 'oci-citizenship',
     title: 'OCI / Renunciation',
     portal: 'indiancitizenshiponline.nic.in',
     level: 'Hard',
     levelColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     fee: '₹8,000 + OCI fee',
     icon: '🛂',
-    prompt: 'Indian citizenship renunciation aur fresh OCI card application ka process batayein.',
+    prompt: 'Explain the official process for Indian citizenship renunciation and fresh OCI card application.',
   },
 ];
 
 export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   language: propLanguage,
   initialLanguage = 'hinglish',
-  onLanguageChange,
   onOpenResizer,
   onSelectProcedure,
   preselectedTask,
@@ -222,6 +228,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   const [attachedImage, setAttachedImage] = useState<{ base64: string; name: string } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [noticeText, setNoticeText] = useState<string | null>(null);
   const [isTasksExpanded, setIsTasksExpanded] = useState(false);
   const [botState, setBotState] = useState<BotState>('greeting');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -229,18 +236,19 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   const latestMessageRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Sync with prop changes from header language toggle
+  const chatT = UI_TRANSLATIONS.chat;
+
+  // Sync with prop changes from header language selector
   useEffect(() => {
     if (propLanguage && propLanguage !== language) {
       setLanguage(propLanguage);
     }
-  }, [propLanguage]);
+  }, [propLanguage, language]);
 
   // Update welcome message if chat is at initial state
   useEffect(() => {
     setMessages((prev) => {
-      const welcomeContent =
-        UI_TRANSLATIONS.chat.welcomeText[language] || UI_TRANSLATIONS.chat.welcomeText.hinglish;
+      const welcomeContent = t(chatT.welcomeText, language);
       if (prev.length === 0) {
         return [
           {
@@ -267,7 +275,9 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   // Pre-fill query if coming from task selection
   useEffect(() => {
     if (preselectedTask) {
-      const match = SUPPORTED_TASKS.find((t) => t.title.toLowerCase().includes(preselectedTask.toLowerCase()));
+      const match = SUPPORTED_TASKS.find((task) =>
+        task.title.toLowerCase().includes(preselectedTask.toLowerCase())
+      );
       if (match) {
         setInput(match.prompt);
       }
@@ -282,15 +292,9 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
     }
   }, [messages, isLoading]);
 
-  const handleLanguageSelect = (newLang: 'hinglish' | 'hi' | 'en') => {
-    setLanguage(newLang);
-    onLanguageChange?.(newLang);
-    const langNames = {
-      hinglish: 'Hinglish (Hindi in English script)',
-      hi: 'Simple Hindi (सरल हिंदी)',
-      en: 'Simple English',
-    };
-    handleSend(`Maine meri language "${langNames[newLang]}" select ki hai. Please confirm karein aur batayein aap kin tasks me guide kar sakte hain.`);
+  const showTransientNotice = (msg: string) => {
+    setNoticeText(msg);
+    setTimeout(() => setNoticeText(null), 3500);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,7 +302,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file (JPG, PNG, or WebP).');
+      showTransientNotice('Please select an image file (JPG, PNG, or WebP).');
       return;
     }
 
@@ -311,13 +315,12 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       });
     };
     reader.readAsDataURL(file);
-    // Reset file input so same file can be re-selected if removed
     e.target.value = '';
   };
 
   const handleToggleVoice = () => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert('Speech recognition is not supported in this browser. Please type your query.');
+      showTransientNotice('Speech recognition is not supported in this browser. Please type your query.');
       return;
     }
 
@@ -333,7 +336,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
     recognitionRef.current = recognition;
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.lang = getSpeechLocale(language);
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -364,7 +367,11 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: 'user',
-      text: textToSend || (attachedImage ? 'Maine portal ka screenshot attach kiya hai. Kripya dekhein aur batayein kya karna hai.' : ''),
+      text:
+        textToSend ||
+        (attachedImage
+          ? 'I have attached a government portal screenshot. Please explain the error and next steps.'
+          : ''),
       image: attachedImage?.base64,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
@@ -403,7 +410,6 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       };
       setMessages((prev) => [...prev, botMsg]);
 
-      // Determine animation: Pointing (Directing / Forms / Buttons / Side panel) vs Answering (Thought bubble & lightbulb)
       const lower = replyText.toLowerCase();
       const hasActionOrForm =
         lower.includes('form') ||
@@ -423,8 +429,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       const errorMsg: ChatMessage = {
         id: `bot-err-${Date.now()}`,
         sender: 'assistant',
-        text: `Temporary network delay in contacting Gemini 2.5 Flash Light. 
-Please retry your query or click one of the quick options below. Remember: Never pay any agent fee!`,
+        text: `Temporary network delay. Please retry your query or click one of the verified tasks above. Remember: Never pay any agent fee!`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         modelUsed: 'digital-sahayak-engine',
       };
@@ -443,10 +448,16 @@ Please retry your query or click one of the quick options below. Remember: Never
   };
 
   const handleResetChat = () => {
-    if (confirm('Kya aap naye sire se chat shuru karna chahte hain?')) {
-      setMessages([]);
-      setBotState('greeting');
-    }
+    setMessages([
+      {
+        id: 'welcome-gemini',
+        sender: 'assistant',
+        text: t(chatT.welcomeText, language),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        modelUsed: 'gemini-2.5-flash-lite',
+      },
+    ]);
+    setBotState('greeting');
   };
 
   // Helper to render message text with Markdown-like styling and WhatsApp card detection
@@ -454,13 +465,11 @@ Please retry your query or click one of the quick options below. Remember: Never
     const isBot = msg.sender === 'assistant';
     const text = msg.text;
 
-    // Check if message contains a WhatsApp card or revision card
     const isWhatsAppCard =
       text.includes('WhatsApp Revision Card') ||
       text.includes('REVISION SUMMARY') ||
       text.includes('WhatsApp Summary');
 
-    // Split paragraphs
     const paragraphs = text.split('\n\n');
 
     return (
@@ -470,13 +479,12 @@ Please retry your query or click one of the quick options below. Remember: Never
             <img src={msg.image} alt="Uploaded screenshot" className="w-full h-auto object-cover max-h-60" />
             <div className="p-2 bg-surface-container-high text-label-sm font-semibold flex items-center gap-1.5 text-on-surface-variant">
               <ImageIcon className="w-4 h-4 text-secondary" />
-              <span>Screenshot Sahayak Image Attached</span>
+              <span>{t(UI_TRANSLATIONS.escalation.screenshotTitle, language)}</span>
             </div>
           </div>
         )}
 
         {paragraphs.map((p, idx) => {
-          // Check if paragraph is a WhatsApp card block
           if (
             p.includes('WhatsApp Revision Card') ||
             p.includes('WhatsApp Summary') ||
@@ -491,7 +499,7 @@ Please retry your query or click one of the quick options below. Remember: Never
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <strong className="text-sm font-bold uppercase tracking-wide">
-                      📲 WhatsApp Revision Card (Save for Later)
+                      📲 WhatsApp Revision Card
                     </strong>
                   </div>
                   <button
@@ -502,12 +510,12 @@ Please retry your query or click one of the quick options below. Remember: Never
                     {copiedId === `${msg.id}-${idx}` ? (
                       <>
                         <Check className="w-3.5 h-3.5" />
-                        <span>Copied!</span>
+                        <span>{t(UI_TRANSLATIONS.draftModal.copied, language)}</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Card</span>
+                        <span>{t(UI_TRANSLATIONS.draftModal.copyText, language)}</span>
                       </>
                     )}
                   </button>
@@ -517,12 +525,10 @@ Please retry your query or click one of the quick options below. Remember: Never
             );
           }
 
-          // Format regular lines
           const lines = p.split('\n');
           return (
             <div key={idx} className="space-y-1.5">
               {lines.map((line, lIdx) => {
-                // Highlight Official Link
                 if (line.includes('OFFICIAL LINK:') || line.includes('Official Link:')) {
                   const urlMatch = line.match(/https?:\/\/[^\s)\]]+/);
                   const url = urlMatch ? urlMatch[0] : '#';
@@ -549,7 +555,6 @@ Please retry your query or click one of the quick options below. Remember: Never
                   );
                 }
 
-                // Highlight Official Fee
                 if (line.includes('OFFICIAL FEE:') || line.includes('Official Fee:')) {
                   return (
                     <div
@@ -562,10 +567,12 @@ Please retry your query or click one of the quick options below. Remember: Never
                   );
                 }
 
-                // Highlight tough terms in brackets
                 const formattedLine = line
                   .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/\|\s*TOUGH TERMS:\s*(.*?)$/i, '<span class="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800 font-medium">💡 Asaan Matlab: $1</span>');
+                  .replace(
+                    /\|\s*TOUGH TERMS:\s*(.*?)$/i,
+                    '<span class="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-800 font-medium">💡 $1</span>'
+                  );
 
                 return (
                   <p
@@ -583,32 +590,16 @@ Please retry your query or click one of the quick options below. Remember: Never
         {isBot && (
           <div className="pt-2 flex flex-wrap gap-2 border-t border-slate-200/60 dark:border-slate-700/60 mt-3">
             <button
-              onClick={() =>
-                handleSend(
-                  language === 'hi'
-                    ? 'हाँ, मेरे पास ये दस्तावेज़ तैयार हैं। स्टेप 1 बताएं।'
-                    : language === 'en'
-                    ? 'Yes, my documents are ready. Please guide me through Step 1.'
-                    : 'Haan, mere paas ye documents hain aur ready hain. Step 1 batayein.'
-                )
-              }
-              className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition shadow-2xs flex items-center gap-1.5"
+              onClick={() => handleSend(t(chatT.btnDocumentsReadyPrompt, language))}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
-              <span>{UI_TRANSLATIONS.chat.btnDocumentsReady[language]}</span>
+              <span>{t(chatT.btnDocumentsReady, language)}</span>
             </button>
             <button
-              onClick={() =>
-                handleSend(
-                  language === 'hi'
-                    ? 'मैंने यह स्टेप पूरा कर लिया है! अगला स्टेप बताएं।'
-                    : language === 'en'
-                    ? 'I have completed this step! Please explain the next step.'
-                    : 'Maine ye step pura kar liya hai! Agla step batayein.'
-                )
-              }
-              className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 transition shadow-2xs flex items-center gap-1.5"
+              onClick={() => handleSend(t(chatT.btnStepCompletePrompt, language))}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
-              <span>{UI_TRANSLATIONS.chat.btnStepComplete[language]}</span>
+              <span>{t(chatT.btnStepComplete, language)}</span>
             </button>
           </div>
         )}
@@ -616,24 +607,28 @@ Please retry your query or click one of the quick options below. Remember: Never
     );
   };
 
+  const activeLangMeta = getLanguageMeta(language);
+
   return (
     <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden w-full min-h-[580px] lg:min-h-[660px]">
       {/* CARD TOP BAR */}
       <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900">
-        <div className="flex items-center gap-2">
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">Digital Sahayak</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">
-            {UI_TRANSLATIONS.chat.groundedNotice[language]}
+        <div className="flex items-center gap-2 min-w-0">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white shrink-0">
+            {t(UI_TRANSLATIONS.header.title, language)}
+          </h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400 font-normal truncate">
+            {t(chatT.groundedNotice, language)}
           </span>
         </div>
         <button
           type="button"
           onClick={handleResetChat}
-          className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
-          title="Start new conversation"
+          className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs shrink-0 cursor-pointer"
+          title={t(chatT.newChat, language)}
         >
-          <img src={getAppIcon('refresh', theme)} alt="Refresh" className="w-3.5 h-3.5 object-contain" />
-          <span>{UI_TRANSLATIONS.chat.newChat[language]}</span>
+          <img src={getAppIcon('refresh', theme)} alt="" className="w-3.5 h-3.5 object-contain" />
+          <span>{t(chatT.newChat, language)}</span>
         </button>
       </div>
 
@@ -643,20 +638,20 @@ Please retry your query or click one of the quick options below. Remember: Never
           <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 p-0.5 flex items-center justify-center shrink-0">
             <img
               src={getAppIcon('shield', theme)}
-              alt="Shield"
+              alt=""
               className="w-full h-full object-contain"
             />
           </span>
           <p className="text-slate-700 dark:text-slate-300">
-            {UI_TRANSLATIONS.chat.scamNotice[language]}
+            {t(chatT.scamNotice, language)}
           </p>
         </div>
         <button
           type="button"
           onClick={() => onOpenScamShield?.()}
-          className="px-3.5 py-1.5 rounded-lg bg-[#c04337] hover:bg-[#ad3a2f] text-white font-medium text-xs shrink-0 transition shadow-xs active:scale-95 text-center whitespace-nowrap"
+          className="px-3.5 py-1.5 rounded-lg bg-[#c04337] hover:bg-[#ad3a2f] text-white font-medium text-xs shrink-0 transition shadow-xs active:scale-95 text-center whitespace-nowrap cursor-pointer"
         >
-          {UI_TRANSLATIONS.chat.checkLink[language]}
+          {t(chatT.checkLink, language)}
         </button>
       </div>
 
@@ -668,19 +663,20 @@ Please retry your query or click one of the quick options below. Remember: Never
           }`}
         >
           <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider shrink-0 mr-0.5 uppercase whitespace-nowrap">
-            {UI_TRANSLATIONS.chat.verifiedTasks[language]}
+            {t(chatT.verifiedTasks, language)}
           </span>
 
           {(isTasksExpanded ? SUPPORTED_TASKS : SUPPORTED_TASKS.slice(0, 4)).map((task) => {
-            const localizedTitle = PROCEDURE_TRANSLATIONS[task.id]?.[language]?.title || task.title;
+            const localizedTitle =
+              PROCEDURE_TRANSLATIONS[task.id]?.[language]?.title ||
+              PROCEDURE_TRANSLATIONS[task.id]?.en?.title ||
+              task.title;
             const localizedLevel =
-              language === 'hi'
-                ? task.level === 'Easy'
-                  ? 'सरल'
-                  : task.level === 'Medium'
-                  ? 'मध्यम'
-                  : 'कठिन'
-                : task.level;
+              task.level === 'Easy'
+                ? t(chatT.levelEasy, language)
+                : task.level === 'Medium'
+                ? t(chatT.levelMedium, language)
+                : t(chatT.levelHard, language);
 
             return (
               <button
@@ -688,9 +684,9 @@ Please retry your query or click one of the quick options below. Remember: Never
                 type="button"
                 onClick={() => {
                   onSelectProcedure?.(task.id);
-                  handleSend(task.prompt);
+                  handleSend(`${localizedTitle}: ${task.prompt}`);
                 }}
-                className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition active:scale-95 shadow-2xs whitespace-nowrap ${
+                className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer ${
                   isTasksExpanded ? 'shrink-0' : 'flex-1 min-w-0 justify-center'
                 }`}
               >
@@ -717,9 +713,9 @@ Please retry your query or click one of the quick options below. Remember: Never
           <button
             type="button"
             onClick={() => setIsTasksExpanded((prev) => !prev)}
-            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 text-xs font-semibold shrink-0 transition whitespace-nowrap"
+            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 text-xs font-semibold shrink-0 transition whitespace-nowrap cursor-pointer"
           >
-            <span>{isTasksExpanded ? (language === 'hi' ? 'कम देखें' : 'Show less') : (language === 'hi' ? 'और देखें' : 'Show more')}</span>
+            <span>{isTasksExpanded ? t(chatT.showLess, language) : t(chatT.showMore, language)}</span>
             <span>{isTasksExpanded ? '⌃' : '⌄'}</span>
           </button>
         </div>
@@ -753,8 +749,8 @@ Please retry your query or click one of the quick options below. Remember: Never
                   </div>
                 </div>
 
-                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-xs shrink-0 mt-0.5 border border-slate-300 dark:border-slate-600">
-                  You
+                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-[10px] shrink-0 mt-0.5 border border-slate-300 dark:border-slate-600">
+                  {t(chatT.youLabel, language)}
                 </div>
               </div>
             );
@@ -763,29 +759,13 @@ Please retry your query or click one of the quick options below. Remember: Never
           // Assistant / Bot message - strictly horizontal flex layout (side-by-side, top-aligned)
           const activeStateForThisMsg = isLatestBotMessage ? (isLoading ? 'idle' : botState) : 'idle';
           const statusText =
-            index === 0 && activeStateForThisMsg === 'idle'
-              ? language === 'hi'
-                ? 'नमस्ते!'
-                : 'Namaste!'
-              : activeStateForThisMsg === 'greeting'
-              ? language === 'hi'
-                ? 'नमस्ते!'
-                : 'Namaste!'
-              : activeStateForThisMsg === 'thinking'
-              ? language === 'hi'
-                ? 'सोच रहे हैं...'
-                : 'Thinking...'
+            activeStateForThisMsg === 'thinking'
+              ? t(chatT.statusThinking, language)
               : activeStateForThisMsg === 'answering'
-              ? language === 'hi'
-                ? 'उत्तर दे रहे हैं...'
-                : 'Answering...'
+              ? t(chatT.statusAnswering, language)
               : activeStateForThisMsg === 'pointing'
-              ? language === 'hi'
-                ? 'मार्गदर्शन...'
-                : 'Guiding...'
-              : language === 'hi'
-              ? 'नमस्ते!'
-              : 'Namaste!';
+              ? t(chatT.statusGuiding, language)
+              : t(chatT.statusGreeting, language);
 
           return (
             <div
@@ -820,14 +800,6 @@ Please retry your query or click one of the quick options below. Remember: Never
 
                 <div className="flex items-center gap-2 mt-1.5 px-1 text-[11px] text-slate-500 dark:text-slate-400">
                   <span>{msg.time}</span>
-                  {msg.modelUsed && (
-                    <>
-                      <span>•</span>
-                      <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                        {msg.modelUsed}
-                      </span>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
@@ -843,7 +815,7 @@ Please retry your query or click one of the quick options below. Remember: Never
               </div>
               <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 text-[11px] font-medium text-amber-700 dark:text-amber-300 shadow-2xs whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                <span>Thinking...</span>
+                <span>{t(chatT.statusThinking, language)}</span>
               </div>
             </div>
 
@@ -855,7 +827,7 @@ Please retry your query or click one of the quick options below. Remember: Never
                   <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]"></span>
                 </div>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Consulting Gemini 2.5 Flash Light & Verified Government Guides...
+                  {t(chatT.consultingAi, language)}
                 </span>
               </div>
             </div>
@@ -868,44 +840,50 @@ Please retry your query or click one of the quick options below. Remember: Never
       {/* CHAT INPUT AND ACTION CONTROLS AREA */}
       <div className="p-3.5 sm:p-4 border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
         <div className="max-w-4xl mx-auto space-y-2.5">
+          {noticeText && (
+            <div className="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-200 font-medium">
+              {noticeText}
+            </div>
+          )}
+
           {/* Quick Action Pills Row (KB Resizer, Error Screenshot AI, Draft Sahayak AI, Scam Shield) */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => onOpenResizer?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs cursor-pointer"
             >
-              <img src={getAppIcon('resize', theme)} alt="KB Resizer" className="w-3.5 h-3.5 object-contain" />
-              <span>{UI_TRANSLATIONS.chat.pills.resizer[language]}</span>
+              <img src={getAppIcon('resize', theme)} alt="" className="w-3.5 h-3.5 object-contain" />
+              <span>{t(chatT.pillResizer, language)}</span>
             </button>
 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs cursor-pointer"
             >
-              <img src={getAppIcon('camera', theme)} alt="Error screenshot" className="w-3.5 h-3.5 object-contain" />
-              <span>{UI_TRANSLATIONS.chat.pills.screenshot[language]}</span>
+              <img src={getAppIcon('camera', theme)} alt="" className="w-3.5 h-3.5 object-contain" />
+              <span>{t(chatT.pillScreenshot, language)}</span>
               <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none">AI</span>
             </button>
 
             <button
               type="button"
               onClick={() => onOpenDraftGenerator?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs cursor-pointer"
             >
-              <img src={getAppIcon('draft', theme)} alt="Draft" className="w-3.5 h-3.5 object-contain" />
-              <span>{UI_TRANSLATIONS.chat.pills.draft[language]}</span>
+              <img src={getAppIcon('draft', theme)} alt="" className="w-3.5 h-3.5 object-contain" />
+              <span>{t(chatT.pillDraft, language)}</span>
               <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none">AI</span>
             </button>
 
             <button
               type="button"
               onClick={() => onOpenScamShield?.()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition shadow-2xs cursor-pointer"
             >
-              <img src={getAppIcon('shield', theme)} alt="Scam Shield" className="w-3.5 h-3.5 object-contain" />
-              <span>{UI_TRANSLATIONS.chat.pills.shield[language]}</span>
+              <img src={getAppIcon('shield', theme)} alt="" className="w-3.5 h-3.5 object-contain" />
+              <span>{t(chatT.pillShield, language)}</span>
             </button>
           </div>
 
@@ -913,14 +891,14 @@ Please retry your query or click one of the quick options below. Remember: Never
           {attachedImage && (
             <div className="flex items-center justify-between p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs">
               <div className="flex items-center gap-2">
-                <img src={getAppIcon('camera', theme)} alt="Attached" className="w-4 h-4 object-contain" />
+                <img src={getAppIcon('camera', theme)} alt="" className="w-4 h-4 object-contain" />
                 <span className="font-medium text-purple-900 dark:text-purple-200 truncate max-w-xs">
-                  {attachedImage.name} (Screenshot Sahayak ready)
+                  {attachedImage.name}
                 </span>
               </div>
               <button
                 onClick={() => setAttachedImage(null)}
-                className="p-1 rounded-md hover:bg-purple-200/50 text-purple-700"
+                className="p-1 rounded-md hover:bg-purple-200/50 text-purple-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -929,7 +907,6 @@ Please retry your query or click one of the quick options below. Remember: Never
 
           {/* Input Capsule */}
           <div className="relative flex items-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all p-1.5 shadow-2xs">
-            {/* Hidden File Input for Screenshot Sahayak */}
             <input
               type="file"
               ref={fileInputRef}
@@ -938,21 +915,19 @@ Please retry your query or click one of the quick options below. Remember: Never
               className="hidden"
             />
 
-            {/* Attach Screenshot / File Button */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition shrink-0 flex items-center justify-center"
-              title="Attach screenshot or error image"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition shrink-0 flex items-center justify-center cursor-pointer"
+              title={t(chatT.pillScreenshot, language)}
             >
               <img
                 src={getAppIcon('attach', theme)}
-                alt="Attach"
+                alt=""
                 className="w-5 h-5 object-contain"
               />
             </button>
 
-            {/* Main Textarea */}
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -963,39 +938,37 @@ Please retry your query or click one of the quick options below. Remember: Never
                 }
               }}
               rows={1}
-              placeholder={UI_TRANSLATIONS.chat.inputPlaceholder[language]}
+              placeholder={t(chatT.inputPlaceholder, language)}
               className="flex-1 bg-transparent border-0 outline-none resize-none px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 min-h-[38px] max-h-32"
             />
 
-            {/* Voice Input Mic Button */}
             <button
               type="button"
               onClick={handleToggleVoice}
-              className={`p-2 rounded-xl transition shrink-0 flex items-center justify-center ${
+              className={`p-2 rounded-xl transition shrink-0 flex items-center justify-center cursor-pointer ${
                 isListening
                   ? 'bg-red-500 text-white animate-pulse'
                   : 'text-slate-400 hover:text-blue-600'
               }`}
-              title="Voice Search (Hindi / English)"
+              title={`${t(UI_TRANSLATIONS.search.voiceBtn, language)} (${activeLangMeta.nativeName})`}
             >
               <img
                 src={getAppIcon('mic', isListening ? 'dark' : theme)}
-                alt="Voice"
+                alt=""
                 className="w-5 h-5 object-contain"
               />
             </button>
 
-            {/* Send Button */}
             <button
               type="button"
               disabled={isLoading || (!input.trim() && !attachedImage)}
               onClick={() => handleSend()}
-              className="w-9 h-9 rounded-xl bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition shrink-0 shadow-xs flex items-center justify-center ml-1"
-              title="Send message"
+              className="w-9 h-9 rounded-xl bg-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition shrink-0 shadow-xs flex items-center justify-center ml-1 cursor-pointer"
+              title={t(UI_TRANSLATIONS.chatModal.sendBtn, language)}
             >
               <img
                 src={getAppIcon('send', 'dark')}
-                alt="Send"
+                alt=""
                 className="w-4 h-4 object-contain brightness-0 invert"
               />
             </button>
@@ -1003,8 +976,8 @@ Please retry your query or click one of the quick options below. Remember: Never
 
           {/* Subtext Grounding Guarantee */}
           <div className="flex items-center justify-between px-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
-            <span>{UI_TRANSLATIONS.chat.zeroCommission[language]}</span>
-            <span>{UI_TRANSLATIONS.chat.pressEnter[language]}</span>
+            <span>{t(chatT.zeroCommission, language)}</span>
+            <span>{t(chatT.pressEnter, language)}</span>
           </div>
         </div>
       </div>

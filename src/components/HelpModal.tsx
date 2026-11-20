@@ -1,13 +1,22 @@
 import React from 'react';
+import { Language, UI_TRANSLATIONS, t } from '../utils/translations';
 
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenChat: () => void;
+  language?: Language;
 }
 
-export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenChat }) => {
+export const HelpModal: React.FC<HelpModalProps> = ({
+  isOpen,
+  onClose,
+  onOpenChat,
+  language = 'hinglish',
+}) => {
   if (!isOpen) return null;
+
+  const h = UI_TRANSLATIONS.helpModal;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -21,9 +30,11 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
               </span>
             </div>
             <div>
-              <h3 className="text-headline-sm font-headline-sm text-on-surface">Digital Sahayak Help &amp; FAQs</h3>
+              <h3 className="text-headline-sm font-headline-sm text-on-surface">
+                {t(h.title, language)}
+              </h3>
               <p className="text-caption font-caption text-on-surface-variant">
-                Your rights as an Indian citizen on government portals
+                {t(h.subtitle, language)}
               </p>
             </div>
           </div>
@@ -45,10 +56,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
               <span className="material-symbols-outlined text-base" data-icon="shield">
                 shield
               </span>
-              1. Zero Agent Fee Guarantee kya hai?
+              {t(h.q1Title, language)}
             </h4>
             <p className="text-caption text-on-surface-variant mt-1.5 leading-relaxed">
-              Bharat sarkar ke sabhi official portals (.gov.in / .nic.in) aam nagrik ke direct use ke liye design kiye gaye hain. Cyber cafe touts aur middlemen form bharne ka ₹300 se ₹5,000 tak commission lete hain. Digital Sahayak aapko har step khud complete karne me guide karta hai jisse aapka ek bhi rupya faaltu kharch na ho.
+              {t(h.q1Body, language)}
             </p>
           </div>
 
@@ -57,10 +68,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
               <span className="material-symbols-outlined text-base" data-icon="lock">
                 lock
               </span>
-              2. OTP aur Password Safety Rules
+              {t(h.q2Title, language)}
             </h4>
             <p className="text-caption text-on-surface-variant mt-1.5 leading-relaxed">
-              Kabhi bhi kisi bhi anjaan vyakti, cyber cafe shopkeeper ya WhatsApp group ke saath apna OTP share na karein. NTA, UIDAI ya koi bhi sarkari portal phone par OTP ya UPI payment nahi maangta.
+              {t(h.q2Body, language)}
             </p>
           </div>
 
@@ -69,10 +80,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
               <span className="material-symbols-outlined text-base" data-icon="crop">
                 crop
               </span>
-              3. Photo ya Signature upload reject kyun hota hai?
+              {t(h.q3Title, language)}
             </h4>
             <p className="text-caption text-on-surface-variant mt-1.5 leading-relaxed">
-              Sarkari servers par file size limit hoti hai (jaise NEET me 10–200 KB). Phone ka camera 3 MB se 8 MB tak ki photo leta hai. Aap hamare built-in "KB Resizer" tool me photo daal kar 2 second me required size me download kar sakte hain.
+              {t(h.q3Body, language)}
             </p>
           </div>
 
@@ -81,10 +92,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
               <span className="material-symbols-outlined text-base" data-icon="gavel">
                 gavel
               </span>
-              4. Sarkari officer agar bina wajah delay kare ya rishwat maange?
+              {t(h.q4Title, language)}
             </h4>
             <p className="text-caption text-on-surface-variant mt-1.5 leading-relaxed">
-              Aap CPGRAMS (pgportal.gov.in) par direct central complaint darj kar sakte hain. Nodal officers ko 21-30 dino ke andar action report deni hoti hai. Rishwat ki shikayat CVC (helpline 1964) par identity secret rakh kar ki ja sakti hai.
+              {t(h.q4Body, language)}
             </p>
           </div>
         </div>
@@ -101,13 +112,13 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onOpenCha
             <span className="material-symbols-outlined text-base" data-icon="chat">
               chat
             </span>
-            <span>Ask AI Assistant Directly</span>
+            <span>{t(h.askAiBtn, language)}</span>
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-secondary text-on-secondary rounded-xl text-label-md font-semibold hover:bg-secondary-container transition-all cursor-pointer"
           >
-            Got It
+            {t(h.gotItBtn, language)}
           </button>
         </div>
       </div>

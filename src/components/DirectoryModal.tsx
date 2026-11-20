@@ -1,14 +1,21 @@
 import React from 'react';
+import { Language, UI_TRANSLATIONS, t } from '../utils/translations';
 
 interface DirectoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectProcedureByPortal: (portalKeyword: string) => void;
+  language?: Language;
 }
 
-const OFFICIAL_DIRECTORIES = [
+type CategoryKey = 'catIdentity' | 'catTransport' | 'catExams' | 'catGrievance';
+
+const OFFICIAL_DIRECTORIES: Array<{
+  categoryKey: CategoryKey;
+  items: Array<{ name: string; url: string; helpline: string; desc: string }>;
+}> = [
   {
-    category: 'Identity & Civic Registry',
+    categoryKey: 'catIdentity',
     items: [
       { name: 'myAadhaar (UIDAI)', url: 'https://myaadhaar.uidai.gov.in', helpline: '1947', desc: 'Aadhaar download, address update, PVC card, appointment booking' },
       { name: 'Voter Service Portal (ECI)', url: 'https://voters.eci.gov.in', helpline: '1950', desc: 'Voter ID card (EPIC) registration, shifting, correction' },
@@ -16,7 +23,7 @@ const OFFICIAL_DIRECTORIES = [
     ],
   },
   {
-    category: 'Transport & Travel',
+    categoryKey: 'catTransport',
     items: [
       { name: 'Sarathi Parivahan (MoRTH)', url: 'https://parivahan.gov.in', helpline: '0120-4925505', desc: 'Driving licence renewal, learner licence, vehicle registration (RC)' },
       { name: 'Passport Seva (MEA)', url: 'https://passportindia.gov.in', helpline: '1800-258-1800', desc: 'Normal & Tatkaal passports, police clearance certificates (PCC)' },
@@ -24,14 +31,14 @@ const OFFICIAL_DIRECTORIES = [
     ],
   },
   {
-    category: 'Examinations & Education',
+    categoryKey: 'catExams',
     items: [
       { name: 'NTA Exam Portal (exams.nta.ac.in)', url: 'https://exams.nta.ac.in', helpline: '011-40759000', desc: 'NEET UG, JEE Main, CUET UG/PG application forms and admit cards' },
       { name: 'UPSC Online', url: 'https://upsconline.nic.in', helpline: '011-23385271', desc: 'Civil Services, NDA, CDS and central government examinations' },
     ],
   },
   {
-    category: 'Grievance Redressal & Anti-Corruption',
+    categoryKey: 'catGrievance',
     items: [
       { name: 'CPGRAMS Central Grievance (DARPG)', url: 'https://pgportal.gov.in', helpline: '1800-11-4000', desc: 'Direct escalation for delayed government services across all ministries' },
       { name: 'Central Vigilance Commission (CVC)', url: 'https://cvc.gov.in', helpline: '1964', desc: 'Anti-corruption and bribery reporting with whistleblower identity protection' },
@@ -44,8 +51,11 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
   isOpen,
   onClose,
   onSelectProcedureByPortal,
+  language = 'hinglish',
 }) => {
   if (!isOpen) return null;
+
+  const d = UI_TRANSLATIONS.directoryModal;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -60,10 +70,10 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
             </div>
             <div>
               <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                Official Government Portal Directory
+                {t(d.title, language)}
               </h3>
               <p className="text-caption font-caption text-on-surface-variant">
-                100% Verified .gov.in and .nic.in official platforms — Zero middleman links
+                {t(d.subtitle, language)}
               </p>
             </div>
           </div>
@@ -84,7 +94,7 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
             <div key={idx} className="space-y-3">
               <h4 className="text-label-md font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-secondary" />
-                {cat.category}
+                {t(d[cat.categoryKey], language)}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {cat.items.map((item, itemIdx) => (
@@ -98,14 +108,17 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-secondary hover:underline flex items-center text-xs font-semibold"
+                        className="text-secondary hover:underline flex items-center text-xs font-semibold shrink-0"
                       >
-                        Visit ↗
+                        {t(d.visit, language)}
                       </a>
                     </div>
                     <p className="text-caption text-on-surface-variant mt-1">{item.desc}</p>
                     <div className="mt-3 pt-2 border-t border-outline-variant flex items-center justify-between text-label-sm">
-                      <span className="text-on-surface-variant">Helpline: <strong className="text-on-surface font-mono">{item.helpline}</strong></span>
+                      <span className="text-on-surface-variant">
+                        {t(d.helpline, language)}{' '}
+                        <strong className="text-on-surface font-mono">{item.helpline}</strong>
+                      </span>
                       <button
                         onClick={() => {
                           onClose();
@@ -113,7 +126,7 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
                         }}
                         className="text-secondary font-semibold hover:underline cursor-pointer"
                       >
-                        Guide in App →
+                        {t(d.guideInApp, language)}
                       </button>
                     </div>
                   </div>
@@ -124,15 +137,15 @@ export const DirectoryModal: React.FC<DirectoryModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 bg-surface-container-low border-t border-outline-variant flex items-center justify-between">
+        <div className="px-6 py-3 bg-surface-container-low border-t border-outline-variant flex items-center justify-between gap-3">
           <span className="text-label-sm text-on-tertiary-container font-semibold">
-            ✓ Protected by National Informatics Centre (NIC) security guidelines
+            {t(d.nicBadge, language)}
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-secondary text-on-secondary rounded-xl text-label-md font-semibold hover:bg-secondary-container transition-all cursor-pointer"
+            className="px-4 py-2 bg-secondary text-on-secondary rounded-xl text-label-md font-semibold hover:bg-secondary-container transition-all cursor-pointer shrink-0"
           >
-            Close Directory
+            {t(d.closeBtn, language)}
           </button>
         </div>
       </div>

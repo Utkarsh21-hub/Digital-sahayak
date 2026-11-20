@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Icon } from './Icon';
+import { Language, getSpeechLocale } from '../utils/translations';
 
 interface ScamShieldViewProps {
-  language?: 'hinglish' | 'hi' | 'en';
+  language?: Language;
 }
 
 interface AnalysisResult {
@@ -45,17 +46,19 @@ export const ScamShieldView: React.FC<ScamShieldViewProps> = ({ language = 'hing
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload.analysis || payload;
         setResult(data);
         // Play voice warning if malicious and speech synthesis is available
         if (!data.isSafe && typeof window !== 'undefined' && 'speechSynthesis' in window) {
           window.speechSynthesis.cancel();
           const warningText =
-            language === 'hi'
+            data.voiceWarning ||
+            (language === 'hi'
               ? 'सावधान! यह एक फर्जी और खतरनाक लिंक है। सरकार व्हाट्सएप पर पैसे कभी नहीं मांगती। इस लिंक पर क्लिक न करें।'
-              : 'Dhyan dein! Yeh ek fake link hai. Bharat sarkar kabhi bhi WhatsApp par personal details ya fees nahi maangti. Is link par bilkul click na karein.';
+              : 'Dhyan dein! Yeh ek fake link hai. Bharat sarkar kabhi bhi WhatsApp par personal details ya fees nahi maangti. Is link par bilkul click na karein.');
           const utter = new SpeechSynthesisUtterance(warningText);
-          utter.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+          utter.lang = getSpeechLocale(language);
           window.speechSynthesis.speak(utter);
         }
       } else {

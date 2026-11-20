@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
+import { Language, UI_TRANSLATIONS, t } from '../utils/translations';
 
 interface ScreenshotModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenResizer: () => void;
   taskTitle: string;
-  language: 'hinglish' | 'hi' | 'en';
+  language: Language;
 }
 
 const SAMPLE_ERRORS = [
@@ -15,9 +16,9 @@ const SAMPLE_ERRORS = [
     code: 'HTTP 502 / Upload Error',
     message: '"Error Code 502: Document dimension mismatch or file exceeds 200KB limit during multipart upload session."',
     defaultAnalysis: {
-      section1: 'Aapka photo size 200 KB se bada hai ya image ka format galat hai. Server ne upload reject kar diya hai.',
-      section2: 'Portal par photo ka size maximum 200 KB allowed hai, lekin aapka phone camera se liya gaya file 1.8 MB ka hai.',
-      section3: 'Digital Sahayak ke "KB Resizer" tool me photo daalein aur 85 KB wala file download karke wapas upload karein.',
+      section1: 'Photo size exceeds the 200 KB limit or image format is invalid. The server rejected the upload.',
+      section2: 'The portal allows a maximum photo size of 200 KB, whereas phone camera photos are typically 2–5 MB.',
+      section3: 'Upload your photo to the built-in KB Resizer tool, download the 85 KB file, and re-upload it.',
     },
   },
   {
@@ -26,9 +27,9 @@ const SAMPLE_ERRORS = [
     code: 'HTTP 401 / Session Expired',
     message: '"Session timed out due to inactivity for more than 15 minutes. Token invalidated."',
     defaultAnalysis: {
-      section1: 'Portal session expire ho gaya hai aur server ne security ke liye aapko log out kar diya hai.',
-      section2: 'Form bharne me 15 minute se zyada der tak page bina click kiye khula raha.',
-      section3: 'Browser ko Incognito/Private window me kholen, Parivahan par dobara login karein aur form jaldi submit karein.',
+      section1: 'Your portal session expired and the server logged you out for security.',
+      section2: 'The form page stayed idle for more than 15 minutes without submission.',
+      section3: 'Open the portal in a fresh Incognito/Private tab, log in again, and complete submission promptly.',
     },
   },
   {
@@ -37,9 +38,9 @@ const SAMPLE_ERRORS = [
     code: 'Error 300 / Biometric Mismatch',
     message: '"Error 300: Biometric authentication failed with UIDAI central database."',
     defaultAnalysis: {
-      section1: 'Aadhaar server aapke fingerprint ya iris ko pehchan nahi paaya hai.',
-      section2: 'Ungli par dhool ya heena (mehendi) thi ya sensor par theek se press nahi hua.',
-      section3: 'Ungli ko saaf karein aur operator se doosri ungli scan karne ko bolein, ya Iris (aankh) scan use karein.',
+      section1: 'The Aadhaar server could not match your fingerprint or iris scan.',
+      section2: 'Moisture, dust, or incomplete placement on the biometric scanner caused a mismatch.',
+      section3: 'Clean and dry your fingers, try another finger, or ask the operator to use Iris scan verification.',
     },
   },
   {
@@ -48,9 +49,9 @@ const SAMPLE_ERRORS = [
     code: 'Payment Status: PENDING / DOUBLE DEDUCTION',
     message: '"Transaction status pending from bank. Do not initiate double payment for 24 hours."',
     defaultAnalysis: {
-      section1: 'Bank se paise kat gaye hain lekin sarkari portal ko confirmation signal abhi nahi mila hai.',
-      section2: 'Bank server aur government portal gateway ke beech network delay hai.',
-      section3: 'Galti se dobara payment MAT karein. 24 ghante intezaar karein, status automatically update ya refund ho jayega.',
+      section1: 'Amount was debited from your bank, but the government portal has not received confirmation yet.',
+      section2: 'There is a temporary network delay between your bank server and the government payment gateway.',
+      section3: 'Do NOT pay again immediately. Wait 24 hours for automatic reconciliation or refund.',
     },
   },
 ];
@@ -62,6 +63,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
   taskTitle,
   language,
 }) => {
+  const sm = UI_TRANSLATIONS.screenshotModal;
   const [selectedSampleIndex, setSelectedSampleIndex] = useState(0);
   const [customImage, setCustomImage] = useState<string | null>(null);
   const [customImageName, setCustomImageName] = useState<string>('');
@@ -93,7 +95,6 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
       reader.onload = (event) => {
         const base64 = event.target?.result as string;
         setCustomImage(base64);
-        // Automatically analyze the uploaded screenshot with Gemini
         analyzeWithGemini(base64, file.name);
       };
       reader.readAsDataURL(file);
@@ -129,7 +130,6 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
       }
     } catch (err) {
       console.error(err);
-      // Fallback gracefully to default helpful analysis
       setAnalysisResult(currentSample.defaultAnalysis);
     } finally {
       setIsLoading(false);
@@ -142,22 +142,22 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container-lowest">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
               <span className="material-symbols-outlined text-xl" data-icon="psychology">
                 psychology
               </span>
             </div>
             <div>
               <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                Screenshot Sahayak — Visual Error Decoder
+                {t(sm.title, language)}
               </h3>
               <p className="text-caption font-caption text-on-surface-variant">
-                Plain Hinglish analysis of confusing government server errors
+                {t(sm.subtitle, language)}
               </p>
             </div>
           </div>
           <button
-            className="w-10 h-10 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-xl hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors cursor-pointer shrink-0"
             onClick={onClose}
             type="button"
           >
@@ -171,9 +171,9 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-5">
           {/* Preset Error Selector or Custom Upload */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <label className="text-label-sm font-label-sm text-on-surface-variant font-bold uppercase">
-                Choose Sample Error or Upload Your Own:
+                {t(sm.chooseSample, language)}
               </label>
               <input
                 type="file"
@@ -190,7 +190,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
                 <span className="material-symbols-outlined text-sm" data-icon="upload_file">
                   upload_file
                 </span>
-                <span>Upload My Screenshot</span>
+                <span>{t(sm.uploadBtn, language)}</span>
               </button>
             </div>
 
@@ -217,12 +217,10 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
           <div className="bg-surface-container rounded-xl p-4 border border-outline-variant">
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-outline-variant text-label-sm font-label-sm text-on-surface-variant">
               <span>
-                {customImage
-                  ? `Uploaded User Screenshot (${customImageName})`
-                  : `Captured Portal Window (${currentSample.portal})`}
+                {customImage ? customImageName : currentSample.portal}
               </span>
               <span className="text-error font-mono font-bold">
-                {customImage ? 'Custom Screenshot' : currentSample.code}
+                {customImage ? 'Screenshot' : currentSample.code}
               </span>
             </div>
 
@@ -234,9 +232,8 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
                   className="max-h-36 rounded-lg border border-outline-variant object-contain bg-white"
                 />
                 <div className="flex-1 text-caption text-on-surface">
-                  <p className="font-semibold">Analyzed via gemini-3.5-flash-lite / flash-lite model.</p>
                   <p className="text-on-surface-variant text-xs mt-1">
-                    Decoded server error text directly from your uploaded image.
+                    {t(sm.subtitle, language)}
                   </p>
                 </div>
               </div>
@@ -263,7 +260,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
               <span className="material-symbols-outlined text-base" data-icon="auto_awesome">
                 auto_awesome
               </span>
-              <span>{isLoading ? 'Decoding with Gemini...' : 'Re-Analyze with Gemini AI'}</span>
+              <span>{isLoading ? t(sm.decoding, language) : t(sm.reanalyze, language)}</span>
             </button>
           </div>
 
@@ -275,7 +272,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
                 <span className="material-symbols-outlined text-base" data-icon="visibility">
                   visibility
                 </span>
-                <span>1. Screen Par Kya Likha Hai</span>
+                <span>{t(sm.sec1, language)}</span>
               </div>
               <p className="text-caption font-caption text-on-surface leading-relaxed">
                 {analysisResult.section1}
@@ -288,7 +285,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
                 <span className="material-symbols-outlined text-base" data-icon="help_center">
                   help_center
                 </span>
-                <span>2. Galti Kyun Hui</span>
+                <span>{t(sm.sec2, language)}</span>
               </div>
               <p className="text-caption font-caption text-on-surface leading-relaxed">
                 {analysisResult.section2}
@@ -301,7 +298,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
                 <span className="material-symbols-outlined text-base" data-icon="arrow_circle_right">
                   arrow_circle_right
                 </span>
-                <span>3. Abhi Kya Karein</span>
+                <span>{t(sm.sec3, language)}</span>
               </div>
               <p className="text-caption font-caption text-on-surface leading-relaxed">
                 {analysisResult.section3}
@@ -311,9 +308,9 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-surface-container-low border-t border-outline-variant flex items-center justify-between">
+        <div className="px-6 py-4 bg-surface-container-low border-t border-outline-variant flex items-center justify-between gap-2 flex-wrap">
           <span className="text-label-sm font-label-sm text-on-surface-variant">
-            Zero fee self-resolution guidance
+            {t(UI_TRANSLATIONS.header.zeroAgentFee, language)}
           </span>
           <div className="flex items-center gap-3">
             <button
@@ -321,7 +318,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
               onClick={onClose}
               type="button"
             >
-              Close
+              {t(sm.close, language)}
             </button>
             <button
               className="px-4 py-2.5 rounded-xl bg-secondary text-on-secondary text-label-md font-label-md font-semibold hover:bg-secondary-container transition-all cursor-pointer"
@@ -331,7 +328,7 @@ export const ScreenshotModal: React.FC<ScreenshotModalProps> = ({
               }}
               type="button"
             >
-              Open KB Resizer Now
+              {t(sm.openResizer, language)}
             </button>
           </div>
         </div>

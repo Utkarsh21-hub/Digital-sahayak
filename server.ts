@@ -31,14 +31,14 @@ You are "Digital Sahayak", a friendly AI assistant helping rural and semi-urban 
 
 CORE RULES:
 1. STRICT GROUNDING: Answer ONLY using the VERIFIED GUIDES provided below. If a user asks for a task not in the guides, politely tell them which tasks you currently support (the 15 Central, Delhi, and UP services listed below). Never invent portal steps, fees, or URLs.
-2. LANGUAGE FIRST: If the user hasn't chosen a language yet or this is the start of a conversation, start by asking the user which language they prefer: Simple Hindi, Hinglish, or Simple English.
-3. CAPTURE (CHECKLIST FIRST): Before giving Step 1, show the OFFICIAL LINK, OFFICIAL FEE, and REQUIRED DOCUMENTS & SPECS (including exact KB/MB file sizes). Ask: "Do you have these ready?"
-4. APPLY (ONE STEP AT A TIME): Never show all steps at once. Give ONLY ONE step at a time. Explain any tough portal words in brackets using everyday language. End every message by asking: "Did you complete this step, or are you facing any error?"
+2. LANGUAGE FIRST: Always strictly respond in the citizen's selected language (English, Hindi/हिन्दी, Hinglish, Bengali/বাংলা, Marathi/मराठी, Telugu/తెలుగు, Tamil/தமிழ், Gujarati/ગુજરાતી, or Kannada/ಕನ್ನಡ). Keep portal URLs, button names, and official terms accurate while explaining everything in simple, natural everyday language in the user's chosen script.
+3. CAPTURE (CHECKLIST FIRST): Before giving Step 1, show the OFFICIAL LINK, OFFICIAL FEE, and REQUIRED DOCUMENTS & SPECS (including exact KB/MB file sizes). Ask: "Do you have these ready?" (in the user's selected language).
+4. APPLY (ONE STEP AT A TIME): Never show all steps at once. Give ONLY ONE step at a time. Explain any tough portal words in brackets using everyday language in the user's chosen language. End every message by asking whether they completed the step or are facing any error.
 5. SCREENSHOT SAHAYAK (WOW FEATURE): If the user uploads a screenshot of a form or an error message:
    - Read the visible form fields or error text.
-   - Explain what each field means or why the error happened in simple Hindi/Hinglish.
+   - Explain what each field means or why the error happened in the user's selected language.
    - Tell them the exact action to take next (such as resizing a file or filling a specific box).
-6. REVISE (SAVE FOR LATER): Once the final step is completed, generate a short, copyable "WhatsApp Revision Card" listing the key steps they completed, the official portal link, and how to track their application status next time.
+6. REVISE (SAVE FOR LATER): Once the final step is completed, generate a short, copyable "WhatsApp Revision Card" in the user's selected language listing the key steps they completed, the official portal link, and how to track their application status next time.
 
 === VERIFIED GUIDES ===
 
@@ -655,6 +655,116 @@ async function callGeminiModel(params: {
   throw lastError;
 }
 
+// Shared multilingual configuration for all 9 supported Indian languages
+interface ServerLanguageConfig {
+  code: string;
+  name: string;
+  chatInstruction: string;
+  explainLabel: string;
+  screenshotInstruction: string;
+  draftLabel: string;
+  scamWarning: string;
+  safeWarning: string;
+}
+
+const SERVER_LANGUAGE_MAP: Record<string, ServerLanguageConfig> = {
+  en: {
+    code: 'en',
+    name: 'English',
+    chatInstruction: 'Reply strictly in clear, simple English.',
+    explainLabel: 'simple, everyday English',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, accessible English.',
+    draftLabel: 'English (Formal Statutory Court/Portal English)',
+    scamWarning: 'STOP! This is a dangerous phishing scam. The Indian government never issues loans or asks for money on WhatsApp. Do not click this link!',
+    safeWarning: 'This is a verified, authentic government portal link. It is safe to use.',
+  },
+  hi: {
+    code: 'hi',
+    name: 'Hindi (हिन्दी)',
+    chatInstruction: 'Reply strictly in clear, simple Hindi using Devanagari script (हिन्दी).',
+    explainLabel: 'clear, simple Hindi (हिन्दी - Devanagari script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in pure, simple Hindi (Devanagari script).',
+    draftLabel: 'Hindi (हिन्दी - Formal Statutory Devanagari Hindi)',
+    scamWarning: 'रुकिए! यह एक फर्जी और धोखाधड़ी वाला लिंक है। सरकार व्हाट्सएप पर कभी पैसे या लोन नहीं देती। इस लिंक पर बिल्कुल क्लिक न करें!',
+    safeWarning: 'यह एक सुरक्षित और प्रामाणिक सरकारी पोर्टल लिंक है। आप इस पर सुरक्षित रूप से आगे बढ़ सकते हैं।',
+  },
+  hinglish: {
+    code: 'hinglish',
+    name: 'Hinglish',
+    chatInstruction: 'Reply in natural, easy-to-understand Hinglish (Hindi written in Roman script mixed with simple English).',
+    explainLabel: 'friendly Hinglish (Hindi written in Roman script)',
+    screenshotInstruction: 'Provide all 3 sections and summary in natural, friendly Hinglish (Hindi written in English alphabet).',
+    draftLabel: 'English (Formal Statutory Court/Portal English)',
+    scamWarning: 'STOP! Yeh ek fake aur fraud phishing scam hai. Sarkar WhatsApp par kabhi direct loan ya paise nahi deti. Is link par bilkul click mat karein!',
+    safeWarning: 'Yeh ek verified aur surakshit official government portal hai. Aap bina kisi dar ke proceed kar sakte hain.',
+  },
+  bn: {
+    code: 'bn',
+    name: 'Bengali (বাংলা)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Bengali using Bengali script (বাংলা). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Bengali (বাংলা script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Bengali (বাংলা script).',
+    draftLabel: 'Bengali (বাংলা - Formal Statutory Bengali)',
+    scamWarning: 'থামুন! এটি একটি ভুয়া ও প্রতারণামূলক ফিশিং লিংক। ভারত সরকার কখনো হোয়াটসঅ্যাপে ঋণ বা টাকা দেয় না। এই লিংকে ক্লিক করবেন না!',
+    safeWarning: 'এটি একটি যাচাইকৃত ও নিরাপদ সরকারি পোর্টাল লিংক। আপনি নিশ্চিন্তে এটি ব্যবহার করতে পারেন।',
+  },
+  mr: {
+    code: 'mr',
+    name: 'Marathi (मराठी)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Marathi using Devanagari script (मराठी). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Marathi (मराठी script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Marathi (मराठी script).',
+    draftLabel: 'Marathi (मराठी - Formal Statutory Marathi)',
+    scamWarning: 'थांबा! ही एक बनावट आणि फसवणूक करणारी फिशिंग लिंक आहे. सरकार व्हॉट्सअॅपवर कधीही कर्ज किंवा पैसे देत नाही. या लिंकवर क्लिक करू नका!',
+    safeWarning: 'ही एक सत्यापित आणि सुरक्षित अधिकृत सरकारी पोर्टल लिंक आहे. तुम्ही निर्धास्तपणे पुढे जाऊ शकता.',
+  },
+  te: {
+    code: 'te',
+    name: 'Telugu (తెలుగు)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Telugu using Telugu script (తెలుగు). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Telugu (తెలుగు script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Telugu (తెలుగు script).',
+    draftLabel: 'Telugu (తెలుగు - Formal Statutory Telugu)',
+    scamWarning: 'ఆగండి! ఇది నకిలీ మరియు మోసపూరిత ఫిషింగ్ లింక్. ప్రభుత్వం ఎప్పుడూ వాట్సాప్‌లో లోన్లు లేదా డబ్బు ఇవ్వదు. ఈ లింక్‌పై క్లిక్ చేయకండి!',
+    safeWarning: 'ఇది ధృవీకరించబడిన మరియు సురక్షితమైన అధికారిక ప్రభుత్వ పోర్టల్ లింక్. మీరు సురక్షితంగా కొనసాగవచ్చు.',
+  },
+  ta: {
+    code: 'ta',
+    name: 'Tamil (தமிழ்)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Tamil using Tamil script (தமிழ்). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Tamil (தமிழ் script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Tamil (தமிழ் script).',
+    draftLabel: 'Tamil (தமிழ் - Formal Statutory Tamil)',
+    scamWarning: 'நிறுத்துங்கள்! இது ஒரு போலி மற்றும் மோசடி இணைப்பு. இந்திய அரசு ஒருபோதும் வாட்ஸ்அப்பில் கடன் அல்லது பணம் தருவதில்லை. இந்த இணைப்பை கிளிக் செய்யாதீர்கள்!',
+    safeWarning: 'இது சரிபார்க்கப்பட்ட, பாதுகாப்பான அதிகாரப்பூர்வ அரசு இணையதள இணைப்பு. நீங்கள் பாதுகாப்பாகப் பயன்படுத்தலாம்.',
+  },
+  gu: {
+    code: 'gu',
+    name: 'Gujarati (ગુજરાતી)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Gujarati using Gujarati script (ગુજરાતી). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Gujarati (ગુજરાતી script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Gujarati (ગુજરાતી script).',
+    draftLabel: 'Gujarati (ગુજરાતી - Formal Statutory Gujarati)',
+    scamWarning: 'રોકાઓ! આ એક નકલી અને છેતરપિંડી કરતી ફિશિંગ લિંક છે. સરકાર ક્યારેય વોટ્સએપ પર લોન કે પૈસા આપતી નથી. આ લિંક પર ક્લિક કરશો નહીં!',
+    safeWarning: 'આ એક ચકાસાયેલ અને સુરક્ષિત અધિકૃત સરકારી પોર્ટલ લિંક છે. તમે સુરક્ષિત રીતે આગળ વધી શકો છો.',
+  },
+  kn: {
+    code: 'kn',
+    name: 'Kannada (ಕನ್ನಡ)',
+    chatInstruction: 'Reply strictly in clear, natural, everyday Kannada using Kannada script (ಕನ್ನಡ). Keep official portal URLs and government button names accurate.',
+    explainLabel: 'clear, everyday Kannada (ಕನ್ನಡ script)',
+    screenshotInstruction: 'Provide all 3 sections and summary strictly in clear, simple Kannada (ಕನ್ನಡ script).',
+    draftLabel: 'Kannada (ಕನ್ನಡ - Formal Statutory Kannada)',
+    scamWarning: 'ನಿಲ್ಲಿಸಿ! ಇದು ನಕಲಿ ಮತ್ತು ವಂಚನೆಯ ಫಿಶಿಂಗ್ ಲಿಂಕ್ ಆಗಿದೆ. ಸರ್ಕಾರವು ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಎಂದಿಗೂ ಸಾಲ ಅಥವಾ ಹಣ ನೀಡುವುದಿಲ್ಲ. ಈ ಲಿಂಕ್ ಅನ್ನು ಕ್ಲಿಕ್ ಮಾಡಬೇಡಿ!',
+    safeWarning: 'ಇದು ಪರಿಶೀಲಿಸಿದ ಮತ್ತು ಸುರಕ್ಷಿತ ಅಧಿಕೃತ ಸರ್ಕಾರಿ ಪೋರ್ಟಲ್ ಲಿಂಕ್ ಆಗಿದೆ. ನೀವು ಸುರಕ್ಷಿತವಾಗಿ ಮುಂದುವರಿಯಬಹುದು.',
+  },
+};
+
+function getServerLanguageConfig(language?: string): ServerLanguageConfig {
+  if (!language) return SERVER_LANGUAGE_MAP.hinglish;
+  return SERVER_LANGUAGE_MAP[language] || SERVER_LANGUAGE_MAP.en;
+}
+
 // API Routes
 app.post('/api/chat', async (req: Request, res: Response) => {
   try {
@@ -663,17 +773,12 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Message or image is required' });
     }
 
-    const langInstruction =
-      language === 'hi'
-        ? 'Reply strictly in clear, simple Hindi (Devanagari script).'
-        : language === 'en'
-        ? 'Reply in clear, simple English.'
-        : 'Reply in natural, easy-to-understand Hinglish (Hindi written in Roman script mixed with simple English).';
+    const langCfg = getServerLanguageConfig(language);
 
     const fullInstruction = `${SYSTEM_INSTRUCTIONS_DIGITAL_SAHAYAK}
-Current user language preference: ${langInstruction}
+Current user language preference (${langCfg.name}): ${langCfg.chatInstruction}
 Current active service context: ${context ? JSON.stringify(context) : 'General Citizen Inquiry'}
-CRITICAL: Maintain strict grounding in the 15 verified central and state guides (Central Public Services, Delhi NCT Services, and Uttar Pradesh Services). Use temperature 0.2 grounding. Follow: 1. Strict Grounding, 2. Language First, 3. Capture (Checklist First), 4. Apply (One Step at a Time), 5. Screenshot Sahayak, 6. Revise (WhatsApp Card upon final step completion).`;
+CRITICAL: Maintain strict grounding in the 15 verified central and state guides (Central Public Services, Delhi NCT Services, and Uttar Pradesh Services). Use temperature 0.2 grounding. Follow: 1. Strict Grounding, 2. Language First (strictly reply in ${langCfg.name}), 3. Capture (Checklist First), 4. Apply (One Step at a Time), 5. Screenshot Sahayak, 6. Revise (WhatsApp Card upon final step completion).`;
 
     let contentsPayload: any;
     const conversationHistoryText =
@@ -726,23 +831,18 @@ app.post('/api/explain-step', async (req: Request, res: Response) => {
   try {
     const { taskTitle, stepNumber, stepTitle, actionInstruction, detailInstruction, toughTerms, language } = req.body;
 
-    const langText =
-      language === 'hi'
-        ? 'Hindi (हिंदी)'
-        : language === 'en'
-        ? 'English'
-        : 'Hinglish (Hindi written in Roman script)';
+    const langCfg = getServerLanguageConfig(language);
 
     const prompt = `The citizen is currently on Step ${stepNumber}: "${stepTitle}" for "${taskTitle}".
 Action instruction: "${actionInstruction}"
 Detail: "${detailInstruction}"
 Tough terms to explain: ${JSON.stringify(toughTerms || [])}
 
-Please explain this step in super clear, encouraging ${langText}.
+Please explain this step strictly in super clear, encouraging ${langCfg.explainLabel}.
 Highlight:
 1. Exactly what button or link they should click.
 2. Common mistakes people make on this step (and how to avoid them).
-3. "Asaan Matlab" of any confusing words.
+3. Simple everyday meaning of any confusing portal words.
 4. Reminder that they do NOT need to pay any cyber cafe agent for this step.`;
 
     const fallbackExplanation = `Step ${stepNumber} Guidance (${stepTitle}):\n\n` +
@@ -774,29 +874,24 @@ app.post('/api/analyze-screenshot', async (req: Request, res: Response) => {
   try {
     const { imageBase64, mimeType = 'image/jpeg', errorText, taskContext, language } = req.body;
 
-    const langNote =
-      language === 'hi'
-        ? 'Provide the 3 sections in pure, helpful Hindi.'
-        : language === 'en'
-        ? 'Provide the 3 sections in accessible English.'
-        : 'Provide the 3 sections in natural, friendly Hinglish (Hindi written in English alphabet).';
+    const langCfg = getServerLanguageConfig(language);
 
     const systemPrompt = `${SYSTEM_INSTRUCTIONS_DIGITAL_SAHAYAK}
 You are functioning as the "Screenshot Sahayak" Visual Error Decoder.
 Citizens upload confusing government server errors, HTTP status codes (502, 404, 500, Session Expired, Gateway Timeout, Document upload failed, Aadhaar verification error, etc.).
 You MUST break down the issue into EXACTLY THREE DISTINCT SECTIONS:
-1. Screen Par Kya Likha Hai (Screen breakdown: What is the text/error message actually saying in plain words)
-2. Galti Kyun Hui (Root cause: Why did this failure happen in plain, relatable language - file size, wrong format, server peak hours, timeout)
-3. Abhi Kya Karein (Actionable direct solution: Step-by-step immediate fix, such as using the built-in KB Resizer, clearing cache/incognito, checking Class 10 certificate spelling, or timing)
+1. What is shown on screen (Screen breakdown: What is the text/error message actually saying in plain words)
+2. Why this error happened (Root cause: Why did this failure happen in plain, relatable language - file size, wrong format, server peak hours, timeout)
+3. What to do right now (Actionable direct solution: Step-by-step immediate fix, such as using the built-in KB Resizer, clearing cache/incognito, checking Class 10 certificate spelling, or timing)
 
 Format your output in a JSON object with keys:
 {
-  "section1": "text for Screen Par Kya Likha Hai",
-  "section2": "text for Galti Kyun Hui",
-  "section3": "text for Abhi Kya Karein",
+  "section1": "text for section 1",
+  "section2": "text for section 2",
+  "section3": "text for section 3",
   "summary": "one short summary sentence"
 }
-Language requirement: ${langNote}`;
+Language requirement (${langCfg.name}): ${langCfg.screenshotInstruction}`;
 
     let contents: any;
     if (imageBase64) {
@@ -896,6 +991,8 @@ const handleScamVerification = async (req: Request, res: Response) => {
       lower.includes('free recharge') ||
       (lower.includes('mudra') && lower.includes('.in') && !lower.includes('mudra.org.in'));
 
+    const langCfg = getServerLanguageConfig(language);
+
     const systemPrompt = `You are "Scam Shield (स्कैम कवच)", the cybersecurity watchdog of Digital Sahayak.
 Your job is to protect rural and semi-urban Indian citizens from phishing links, fake WhatsApp PM scheme messages, and fake bank/electricity KYC traps that drain bank accounts.
 
@@ -903,6 +1000,9 @@ Key Indian Government Security Rules:
 1. All genuine Central and State government portals strictly end in '.gov.in' or '.nic.in' (e.g. neet.nta.nic.in, pgportal.gov.in, uidai.gov.in, parivahan.gov.in). The only statutory exception for MUDRA is 'mudra.org.in'.
 2. The Government of India NEVER sends WhatsApp or SMS messages approving instant loans (like Mudra loans), offering free mobile recharge/lotteries, or threatening power cut / bank account block with non-gov links.
 3. Private domains like '.in', '.online', '.site', '.xyz', or URL shorteners (bit.ly) claiming to be government schemes (e.g., 'pm-mudra-loan-apply.in' or 'pm-surya-yojana.online') are 100% FRAUDULENT PHISHING SCAMS.
+
+Citizen's chosen language: ${langCfg.name}. ${langCfg.chatInstruction}
+Write "voiceWarning", "redFlags", "explanation", and "actionAdvice" strictly in ${langCfg.name}.
 
 You MUST analyze the input message/URL and return ONLY a valid JSON object matching this schema:
 {
@@ -914,6 +1014,7 @@ You MUST analyze the input message/URL and return ONLY a valid JSON object match
   "impersonatedAgency": string,
   "officialPortalUrl": string,
   "officialPortalName": string,
+  "voiceWarning": string,
   "voiceWarningHindi": string,
   "voiceWarningHinglish": string,
   "voiceWarningEnglish": string,
@@ -924,7 +1025,7 @@ You MUST analyze the input message/URL and return ONLY a valid JSON object match
 
     const promptText = `Analyze this message/link received by an Indian citizen:
 "${message}"
-Extract the domain, identify red flags, check if it is an impersonation scam, provide the genuine government portal URL, and generate a strong voice warning in Hindi/Hinglish. Return the JSON object.`;
+Extract the domain, identify red flags, check if it is an impersonation scam, provide the genuine government portal URL, and generate a strong voice warning in ${langCfg.name} ("voiceWarning") as well as Hindi/Hinglish/English. Return the JSON object.`;
 
     try {
       const result = await callGeminiModel({
@@ -986,9 +1087,10 @@ Extract the domain, identify red flags, check if it is an impersonation scam, pr
           impersonatedAgency: impersonated,
           officialPortalUrl: officialUrl,
           officialPortalName: officialName,
-          voiceWarningHindi: 'रुकिए! यह एक फर्जी और धोखाधड़ी वाला लिंक है। सरकार व्हाट्सएप पर कभी पैसे या लोन नहीं देती। इस लिंक पर बिल्कुल क्लिक न करें!',
-          voiceWarningHinglish: 'STOP! Yeh ek fake aur fraud phishing scam hai. Sarkar WhatsApp par kabhi direct loan ya paise nahi deti. Is link par bilkul click mat karein!',
-          voiceWarningEnglish: 'STOP! This is a dangerous phishing scam. The Indian government never issues loans or asks for money on WhatsApp. Do not click this link!',
+          voiceWarning: langCfg.scamWarning,
+          voiceWarningHindi: SERVER_LANGUAGE_MAP.hi.scamWarning,
+          voiceWarningHinglish: SERVER_LANGUAGE_MAP.hinglish.scamWarning,
+          voiceWarningEnglish: SERVER_LANGUAGE_MAP.en.scamWarning,
           redFlags: [
             `Fake Private Domain: Uses unverified domain instead of official '.gov.in' or '${officialUrl.replace('https://', '')}'`,
             'False Urgency Trap: Claims instant cash approval or imminent service block to trigger panic',
@@ -1012,9 +1114,10 @@ Extract the domain, identify red flags, check if it is an impersonation scam, pr
         impersonatedAgency: 'Verified Government Portal',
         officialPortalUrl: message.startsWith('http') ? message : `https://${message}`,
         officialPortalName: 'Authentic Indian Government Infrastructure',
-        voiceWarningHindi: 'यह एक सुरक्षित और प्रामाणिक सरकारी पोर्टल लिंक है। आप इस पर सुरक्षित रूप से आगे बढ़ सकते हैं।',
-        voiceWarningHinglish: 'Yeh ek verified aur surakshit official government portal hai. Aap bina kisi dar ke proceed kar sakte hain.',
-        voiceWarningEnglish: 'This is a verified, authentic government portal link. It is safe to use.',
+        voiceWarning: langCfg.safeWarning,
+        voiceWarningHindi: SERVER_LANGUAGE_MAP.hi.safeWarning,
+        voiceWarningHinglish: SERVER_LANGUAGE_MAP.hinglish.safeWarning,
+        voiceWarningEnglish: SERVER_LANGUAGE_MAP.en.safeWarning,
         redFlags: [],
         explanation: 'The link belongs to an authorized Indian government domain (.gov.in / .nic.in). No phishing signatures detected.',
         actionAdvice: 'Safe to open in your browser. Remember: Never share your Aadhaar or Banking OTP with anyone.',
@@ -1036,7 +1139,8 @@ app.post('/api/generate-draft', async (req: Request, res: Response) => {
   try {
     const { templateType = 'gazette-name-change', prompt = '', language = 'en' } = req.body;
 
-    const langName = language === 'hi' ? 'Hindi (हिंदी)' : 'English (Formal Statutory Court/Portal English)';
+    const langCfg = getServerLanguageConfig(language);
+    const langName = langCfg.draftLabel;
 
     const systemPrompt = `You are the "Official Legal Draft & Affidavit Architect (प्रारूप सहायक)" of Digital Sahayak.
 Your mission is to generate legally binding, court-ready, and portal-compliant official drafts for Indian citizens who cannot afford typist commissions or struggle with bureaucratic legal jargon.

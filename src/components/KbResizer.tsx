@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getAppIcon } from '../utils/appIcons';
-import { Language } from '../utils/translations';
+import { Language, UI_TRANSLATIONS, t } from '../utils/translations';
 
 interface Preset {
   id: string;
@@ -57,6 +57,7 @@ export const KbResizer: React.FC<KbResizerProps> = ({
   language = 'hinglish',
   theme = 'light',
 }) => {
+  const r = UI_TRANSLATIONS.resizer;
   const [selectedPreset, setSelectedPreset] = useState<Preset>(PRESETS[0]);
   const [file, setFile] = useState<{
     name: string;
@@ -152,7 +153,6 @@ export const KbResizer: React.FC<KbResizerProps> = ({
       a.click();
       document.body.removeChild(a);
     } else {
-      // Create a dummy download if demo image
       const canvas = document.createElement('canvas');
       canvas.width = 350;
       canvas.height = 450;
@@ -173,7 +173,7 @@ export const KbResizer: React.FC<KbResizerProps> = ({
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4" id="resizer">
-      {/* Resizer Header matching Screenshot */}
+      {/* Resizer Header */}
       <div>
         <div className="flex items-center gap-2">
           <img
@@ -182,30 +182,28 @@ export const KbResizer: React.FC<KbResizerProps> = ({
             className="w-5 h-5 object-contain"
           />
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-            {language === 'hi' ? 'केबी (KB) रीसाइज़र' : 'KB Resizer'}
+            {t(r.title, language)}
           </h3>
         </div>
         <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
-          {language === 'hi' ? 'फ़ाइलें कभी आपके फ़ोन/ब्राउज़र से बाहर नहीं जातीं' : 'Files never leave your browser'}
+          {t(r.privacy, language)}
         </p>
       </div>
 
       {/* Preset specifications tabs */}
       <div>
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
-          {language === 'hi' ? 'प्रीसेट साइज़ निर्देश' : 'PRESET SPECIFICATIONS'}
+          {t(r.presetSpecs, language)}
         </span>
         <div className="space-y-1.5">
           {PRESETS.map((p) => {
             const isSelected = p.id === selectedPreset.id;
             const localizedLabel =
-              p.id === 'neet-photo' && language === 'hi'
-                ? 'नीट फोटो (NEET Photo)'
-                : p.id === 'signature' && language === 'hi'
-                ? 'हस्ताक्षर (Signature)'
-                : p.id === 'document' && language === 'hi'
-                ? 'दस्तावेज़ (Document)'
-                : p.label;
+              p.id === 'neet-photo'
+                ? t(r.presetPhoto, language)
+                : p.id === 'signature'
+                ? t(r.presetSignature, language)
+                : t(r.presetDocument, language);
 
             return (
               <button
@@ -228,7 +226,7 @@ export const KbResizer: React.FC<KbResizerProps> = ({
         </div>
       </div>
 
-      {/* File status container matching Screenshot */}
+      {/* File status container */}
       <div className="bg-slate-50/70 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shrink-0">
           <img
@@ -247,9 +245,9 @@ export const KbResizer: React.FC<KbResizerProps> = ({
               : `${file.origSizeKb} KB`}{' '}
             →{' '}
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-              {file.resizedSizeKb} KB {language === 'hi' ? 'तैयार' : 'ready'}
+              {file.resizedSizeKb} KB {t(r.ready, language)}
             </span>{' '}
-            • {language === 'hi' ? 'गुणवत्ता' : 'quality'} {file.quality}%
+            • {t(r.quality, language)} {file.quality}%
           </div>
         </div>
       </div>
@@ -262,14 +260,14 @@ export const KbResizer: React.FC<KbResizerProps> = ({
         className="hidden"
       />
 
-      {/* Action Buttons matching Screenshot */}
+      {/* Action Buttons */}
       <div className="space-y-2">
         <button
           onClick={() => fileInputRef.current?.click()}
           className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs py-2 px-3 rounded-xl transition cursor-pointer"
           type="button"
         >
-          {language === 'hi' ? 'दूसरी फ़ोटो अपलोड करें' : 'Upload another image'}
+          {t(r.uploadAnother, language)}
         </button>
 
         <button
@@ -277,9 +275,7 @@ export const KbResizer: React.FC<KbResizerProps> = ({
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-xs transition active:scale-[0.99] cursor-pointer"
           type="button"
         >
-          {language === 'hi'
-            ? `रीसाइज़ फ़ाइल डाउनलोड करें (${file.resizedSizeKb} KB)`
-            : `Download resized file (${file.resizedSizeKb} KB)`}
+          {`${t(r.downloadResized, language)} (${file.resizedSizeKb} KB)`}
         </button>
       </div>
     </div>

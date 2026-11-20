@@ -21,7 +21,15 @@ import { GeminiChatView } from './components/GeminiChatView';
 import { ScamShieldModal } from './components/ScamShieldModal';
 import { DraftGeneratorModal, DraftTemplateType } from './components/DraftGeneratorModal';
 import { getAppIcon } from './utils/appIcons';
-import { getLocalizedProcedure } from './utils/translations';
+import {
+  Language,
+  UI_TRANSLATIONS,
+  getLocalizedProcedure,
+  getLanguageMeta,
+  getSavedLanguage,
+  saveLanguage,
+  t,
+} from './utils/translations';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'chat' | 'dashboard'>('dashboard');
@@ -29,7 +37,14 @@ export default function App() {
   const [isScamShieldOpen, setIsScamShieldOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
-  const [language, setLanguage] = useState<'hinglish' | 'hi' | 'en'>('hinglish');
+  const [language, setLanguage] = useState<Language>(() => getSavedLanguage());
+
+  useEffect(() => {
+    saveLanguage(language);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = getLanguageMeta(language).htmlLang;
+    }
+  }, [language]);
 
   // Light / Dark mode state: default to 'light', load saved only if explicitly set
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -252,14 +267,10 @@ export default function App() {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                    {language === 'hi' ? 'डिजिटल सहायक जेमिनी चैट' : 'Digital Sahayak Gemini Chat'}
+                    {t(UI_TRANSLATIONS.search.chatCalloutTitle, language)}
                   </h4>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
-                    {language === 'hi'
-                      ? 'सवाल पूछें, फ़ाइल साइज़ चेक करें, या एरर स्क्रीनशॉट को सरल हिंदी में समझें।'
-                      : language === 'en'
-                      ? 'Ask questions, verify file sizes, or decode error screenshots in simple Hindi, Hinglish, or English.'
-                      : 'Ask questions, verify file sizes, or decode error screenshots in conversational Hinglish, Hindi, or English.'}
+                    {t(UI_TRANSLATIONS.search.chatCalloutDesc, language)}
                   </p>
                 </div>
               </div>
@@ -273,7 +284,7 @@ export default function App() {
                     alt="Scam Shield"
                     className="w-4 h-4 object-contain"
                   />
-                  <span>{language === 'hi' ? 'स्कैम कवच' : 'Scam Shield (कवच)'}</span>
+                  <span>{t(UI_TRANSLATIONS.search.scamKavachBtn, language)}</span>
                 </button>
                 <button
                   onClick={() => setViewMode('chat')}
@@ -284,7 +295,7 @@ export default function App() {
                     alt="Chat"
                     className="w-4 h-4 object-contain"
                   />
-                  <span>{language === 'hi' ? 'जेमिनी चैट खोलें' : 'Open Gemini Chat'}</span>
+                  <span>{t(UI_TRANSLATIONS.search.openChatBtn, language)}</span>
                 </button>
               </div>
             </div>
@@ -374,6 +385,7 @@ export default function App() {
         isOpen={isDirectoryModalOpen}
         onClose={() => setIsDirectoryModalOpen(false)}
         onSelectProcedureByPortal={handleSelectProcedureByPortal}
+        language={language}
       />
 
       {/* Help & Anti-Fraud Modal */}
@@ -381,6 +393,7 @@ export default function App() {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
         onOpenChat={() => setIsChatModalOpen(true)}
+        language={language}
       />
 
       {/* Scam Shield (Kavach) Phishing Link Modal */}
@@ -395,6 +408,7 @@ export default function App() {
         isOpen={isDraftModalOpen}
         onClose={() => setIsDraftModalOpen(false)}
         initialTemplate={draftModalTemplate}
+        appLanguage={language}
         stepContext={{
           taskTitle: currentProcedure.title,
           stepTitle: currentProcedure.steps[currentStepIndex]?.title || '',

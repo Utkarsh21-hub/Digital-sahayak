@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getAppIcon } from '../utils/appIcons';
-import { Language, UI_TRANSLATIONS } from '../utils/translations';
+import { Language, UI_TRANSLATIONS, getSpeechLocale, t } from '../utils/translations';
 
 interface SearchFilterBarProps {
   searchQuery: string;
@@ -18,23 +18,23 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   categoryFilter,
   onCategoryChange,
   counts,
-  language = 'hinglish',
+  language = 'en',
   theme = 'light',
 }) => {
   const [isListening, setIsListening] = useState(false);
+  const s = UI_TRANSLATIONS.search;
 
   const startVoiceSearch = () => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Speech recognition is not supported in this browser. Please type your query directly.');
       return;
     }
 
     try {
       const recognition = new SpeechRecognition();
-      recognition.lang = 'hi-IN';
+      recognition.lang = getSpeechLocale(language);
       recognition.interimResults = false;
 
       recognition.onstart = () => {
@@ -76,13 +76,8 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           </div>
           <input
             className="w-full min-h-[44px] pl-10 pr-24 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all outline-none shadow-2xs"
-            placeholder={
-              language === 'hi'
-                ? 'प्रक्रिया, फॉर्म या एरर कोड से खोजें...'
-                : language === 'en'
-                ? 'Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar'
-                : 'Search a procedure or grievance, e.g. Driving Licence, NEET, Aadhaar'
-            }
+            placeholder={t(s.placeholder, language)}
+            aria-label={t(s.placeholder, language)}
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -94,7 +89,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
                 ? 'bg-red-100 text-red-700 animate-pulse border border-red-300'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
-            title="Voice Search (Bol kar)"
+            title={t(s.voiceBtn, language)}
             type="button"
           >
             <img
@@ -102,23 +97,11 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
               alt=""
               className="w-3.5 h-3.5 object-contain"
             />
-            <span>
-              {isListening
-                ? language === 'hi'
-                  ? 'सुन रहे हैं...'
-                  : language === 'en'
-                  ? 'Listening...'
-                  : 'Sun rahe...'
-                : language === 'hi'
-                ? 'बोलकर'
-                : language === 'en'
-                ? 'Voice'
-                : 'Bol kar'}
-            </span>
+            <span>{isListening ? t(s.listening, language) : t(s.voiceBtn, language)}</span>
           </button>
         </div>
 
-        {/* Category Filter Pills Matching Screenshot */}
+        {/* Category Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0" role="tablist">
           <button
             onClick={() => onCategoryChange('all')}
@@ -129,7 +112,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            {language === 'hi' ? 'सभी ' : 'All '}{counts.all}
+            {t(s.all, language)} {counts.all}
           </button>
           <button
             onClick={() => onCategoryChange('easy')}
@@ -140,7 +123,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            {language === 'hi' ? 'सरल • ऑनलाइन ' : 'Easy • online '}{counts.easy}
+            {t(s.easy, language)} {counts.easy}
           </button>
           <button
             onClick={() => onCategoryChange('medium')}
@@ -151,7 +134,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            {language === 'hi' ? 'मध्यम • बहु-चरणीय ' : 'Medium • multi-step '}{counts.medium}
+            {t(s.medium, language)} {counts.medium}
           </button>
           <button
             onClick={() => onCategoryChange('hard')}
@@ -162,7 +145,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             }`}
             type="button"
           >
-            {language === 'hi' ? 'कठिन • शिकायत ' : 'Hard • grievance '}{counts.hard}
+            {t(s.hard, language)} {counts.hard}
           </button>
         </div>
       </div>

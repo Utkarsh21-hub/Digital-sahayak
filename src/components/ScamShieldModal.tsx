@@ -17,6 +17,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+import { Language, UI_TRANSLATIONS, t, getSpeechLocale } from '../utils/translations';
+
 interface ScamAnalysis {
   verdict: 'SCAM' | 'SAFE' | 'SUSPICIOUS';
   isSafe: boolean;
@@ -26,6 +28,7 @@ interface ScamAnalysis {
   impersonatedAgency: string;
   officialPortalUrl: string;
   officialPortalName: string;
+  voiceWarning?: string;
   voiceWarningHindi: string;
   voiceWarningHinglish: string;
   voiceWarningEnglish: string;
@@ -37,13 +40,13 @@ interface ScamAnalysis {
 interface ScamShieldModalProps {
   isOpen: boolean;
   onClose: () => void;
-  language?: 'hinglish' | 'hi' | 'en';
+  language?: Language;
 }
 
 const DEMO_PRESETS = [
   {
-    label: 'PM Mudra Loan Scam (Stage WOW)',
-    badge: 'Stage Demo',
+    label: 'PM Mudra Loan Scam',
+    badge: 'Demo',
     color: 'red',
     text: 'Congratulations! You are selected for ₹50,000 instant loan under PM Mudra Yojana with 0% interest. Click here to verify bank account: www.pm-mudra-loan-apply.in',
   },
@@ -80,6 +83,8 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  const s = UI_TRANSLATIONS.scamShield;
+
   // Stop speech when modal closes
   useEffect(() => {
     if (!isOpen && typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -90,6 +95,14 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
 
   if (!isOpen) return null;
 
+  const getActiveVoiceWarning = (analysis: ScamAnalysis): string => {
+    if (analysis.voiceWarning) return analysis.voiceWarning;
+    if (language === 'hi') return analysis.voiceWarningHindi;
+    if (language === 'en') return analysis.voiceWarningEnglish;
+    if (language === 'hinglish') return analysis.voiceWarningHinglish;
+    return analysis.voiceWarningEnglish || analysis.voiceWarningHindi;
+  };
+
   const triggerVoiceAlarm = (analysis: ScamAnalysis) => {
     if (isAudioMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) {
       return;
@@ -98,18 +111,12 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
     try {
       window.speechSynthesis.cancel();
 
-      const textToSpeak =
-        language === 'hi'
-          ? analysis.voiceWarningHindi
-          : language === 'en'
-          ? analysis.voiceWarningEnglish
-          : analysis.voiceWarningHinglish;
-
+      const textToSpeak = getActiveVoiceWarning(analysis);
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       speechSynthRef.current = utterance;
       utterance.rate = 0.95;
       utterance.pitch = 1.05;
-      utterance.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+      utterance.lang = getSpeechLocale(language);
 
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
@@ -147,22 +154,22 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
       const analysis: ScamAnalysis = data.analysis;
       setResult(analysis);
 
-      // Trigger automatic audio voice warning if it's a SCAM!
       if (analysis.verdict === 'SCAM') {
         triggerVoiceAlarm(analysis);
       }
     } catch (err) {
       console.error(err);
-      // Client-side fallback guardrail
+      const isOfficial = textToScan.includes('.gov.in') || textToScan.includes('.nic.in');
       const fallbackAnalysis: ScamAnalysis = {
-        verdict: textToScan.includes('.gov.in') || textToScan.includes('.nic.in') ? 'SAFE' : 'SCAM',
-        isSafe: textToScan.includes('.gov.in') || textToScan.includes('.nic.in'),
+        verdict: isOfficial ? 'SAFE' : 'SCAM',
+        isSafe: isOfficial,
         confidence: 98,
-        riskScore: textToScan.includes('.gov.in') ? 5 : 95,
-        detectedDomain: 'pm-mudra-loan-apply.in / Unverified Domain',
-        impersonatedAgency: 'Pradhan Mantri MUDRA Yojana',
-        officialPortalUrl: 'https://www.mudra.org.in',
-        officialPortalName: 'Official MUDRA Portal (mudra.org.in)',
+        riskScore: isOfficial ? 5 : 95,
+        detectedDomain: isOfficial ? 'Official .gov.in / .nic.in' : 'Unverified Domain',
+        impersonatedAgency: 'Government Scheme / Portal',
+        officialPortalUrl: 'https://www.india.gov.in',
+        officialPortalName: 'National Portal of India (india.gov.in)',
+        voiceWarning: isOfficial ? t(s.safeHeadline, language) : t(s.scamHeadline, language),
         voiceWarningHindi: 'रुकिए! यह एक फर्जी और धोखाधड़ी वाला लिंक है। सरकार व्हाट्सएप पर कभी लोन नहीं देती।',
         voiceWarningHinglish: 'STOP! Yeh ek fake aur fraud phishing link hai. Sarkar WhatsApp par kabhi direct loan ya paise nahi deti. Is link par bilkul click mat karein!',
         voiceWarningEnglish: 'STOP! This is a dangerous phishing scam. Do not click this link!',
@@ -171,7 +178,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
           'Urgency Trap: Promises direct cash transfer to steal banking OTPs',
           'Not Verified by National Informatics Centre (NIC)',
         ],
-        explanation: 'This link does not originate from an authorized Indian government server. It is designed to drain victim bank accounts.',
+        explanation: 'This link does not originate from an authorized Indian government server.',
         actionAdvice: 'Delete this message immediately and never share your Aadhaar or Banking OTP.',
       };
       setResult(fallbackAnalysis);
@@ -185,13 +192,13 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
 
   const handleCopyWarning = () => {
     if (!result) return;
-    const warningMessage = `🚨 *CYBER FRAUD ALERT (स्कैम अलर्ट)* 🚨\n\n` +
-      `⚠️ *Scam Link Detected:* ${result.detectedDomain}\n` +
+    const warningMessage =
+      `🚨 *CYBER FRAUD ALERT* 🚨\n\n` +
+      `⚠️ *Domain:* ${result.detectedDomain}\n` +
       `❌ *Impersonating:* ${result.impersonatedAgency}\n` +
-      `🛑 *Digital Sahayak Verdict:* FAKE PHISHING LINK (धोखाधड़ी)\n\n` +
-      `💡 *Asli Sarkari Portal:* ${result.officialPortalUrl}\n` +
-      `📞 *National Cyber Crime Helpline:* 1930\n\n` +
-      `⚠️ *Savdhani:* Bharat sarkar kabhi WhatsApp par loan ya paise nahi deti. Kabhi OTP share mat karein!`;
+      `🛑 *Verdict:* ${t(s.verdictScam, language)}\n\n` +
+      `💡 *Official Portal:* ${result.officialPortalUrl}\n` +
+      `📞 *National Cyber Crime Helpline:* 1930`;
 
     navigator.clipboard.writeText(warningMessage).then(() => {
       setIsCopied(true);
@@ -220,7 +227,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
               : 'bg-gradient-to-r from-red-600 via-rose-700 to-indigo-900 text-white border-red-700 dark:border-slate-800'
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shrink-0 shadow-inner">
               {result?.verdict === 'SAFE' ? (
                 <ShieldCheck className="w-6 h-6 text-white" />
@@ -228,23 +235,22 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                 <ShieldAlert className="w-6 h-6 text-white animate-pulse" />
               )}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lg sm:text-xl font-bold tracking-tight">
-                  Scam Shield (स्कैम कवच)
+                  {t(s.title, language)}
                 </h3>
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/20 uppercase tracking-wider">
-                  Live Phishing Guard
+                  {t(s.badge, language)}
                 </span>
               </div>
               <p className="text-xs text-white/90 line-clamp-1">
-                Zero-Trust WhatsApp &amp; SMS Scam Detector • Real-time Financial Bodyguard
+                {t(s.subtitle, language)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Audio Toggle */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => {
                 if (isSpeaking) {
@@ -253,17 +259,16 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                 }
                 setIsAudioMuted(!isAudioMuted);
               }}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
               title={isAudioMuted ? 'Unmute voice warnings' : 'Mute voice warnings'}
             >
               {isAudioMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
 
-            {/* Close */}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition"
-              title="Close Scam Shield"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              title={t(s.close, language)}
             >
               <X className="w-5 h-5" />
             </button>
@@ -277,23 +282,21 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping shrink-0"></span>
               <span className="text-slate-800 dark:text-slate-200">
-                <strong>Market Reality:</strong> In 2023, Indians lost over{' '}
-                <strong className="text-red-600 dark:text-red-400 font-bold">₹7,488 Crore</strong> to WhatsApp/SMS phishing links.
+                <strong>₹7,488 Crore+</strong> — {t(UI_TRANSLATIONS.hero.neverShareOtp, language)}
               </span>
             </div>
             <span className="text-slate-500 dark:text-slate-400 shrink-0 font-medium">
-              Verified against National Cyber Crime DB
+              cybercrime.gov.in • 1930
             </span>
           </div>
 
-          {/* STAGE DEMO PRESET BUTTONS (WOW MOMENT) */}
+          {/* DEMO PRESET BUTTONS */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-amber-500" />
-                <span>1-Click Hackathon Stage Demo Samples:</span>
+                <span>{t(s.samplesHeading, language)}</span>
               </label>
-              <span className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Test on Stage Live</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -304,7 +307,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                     setInputText(preset.text);
                     handleScan(preset.text);
                   }}
-                  className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 group hover:scale-[1.01] active:scale-[0.99] ${
+                  className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 group hover:scale-[1.01] active:scale-[0.99] cursor-pointer ${
                     preset.color === 'red'
                       ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-950 dark:text-red-100 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : preset.color === 'orange'
@@ -336,23 +339,23 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={3}
-                placeholder="WhatsApp ya SMS me aaya koi bhi sandesh ya link yahan paste karein (e.g. 'PM Mudra loan ke liye click karein www.pm-mudra-loan-apply.in')..."
-                className="w-full p-3.5 pr-28 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-slate-200 dark:border-slate-700 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition"
+                placeholder={t(s.placeholder, language)}
+                className="w-full p-3.5 pr-32 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-slate-200 dark:border-slate-700 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition"
               />
               <button
                 onClick={() => handleScan()}
                 disabled={isLoading || !inputText.trim()}
-                className="absolute right-2.5 bottom-3.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-red-500/30 transition active:scale-95"
+                className="absolute right-2.5 bottom-3.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-red-500/30 transition active:scale-95 cursor-pointer"
               >
                 {isLoading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Scanning...</span>
+                    <span>{t(s.scanning, language)}</span>
                   </>
                 ) : (
                   <>
                     <Search className="w-4 h-4" />
-                    <span>Check Link</span>
+                    <span>{t(s.checkBtn, language)}</span>
                   </>
                 )}
               </button>
@@ -383,7 +386,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                     )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-xs font-black tracking-wide uppercase ${
                           result.verdict === 'SCAM'
@@ -391,16 +394,14 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                             : 'bg-emerald-600 text-white'
                         }`}
                       >
-                        {result.verdict === 'SCAM' ? '🛑 DANGEROUS SCAM / फर्जी लिंक' : '✅ 100% VERIFIED SAFE'}
+                        {result.verdict === 'SCAM' ? t(s.verdictScam, language) : t(s.verdictSafe, language)}
                       </span>
                       <span className="text-xs font-bold opacity-80">
-                        Confidence: {result.confidence}%
+                        {result.confidence}%
                       </span>
                     </div>
                     <h4 className="text-lg sm:text-xl font-black mt-0.5">
-                      {result.verdict === 'SCAM'
-                        ? 'STOP! Do Not Click or Fill Any Details'
-                        : 'Authentic Official Government Link'}
+                      {result.verdict === 'SCAM' ? t(s.scamHeadline, language) : t(s.safeHeadline, language)}
                     </h4>
                   </div>
                 </div>
@@ -409,16 +410,16 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                 {result.verdict === 'SCAM' && (
                   <button
                     onClick={() => triggerVoiceAlarm(result)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition shrink-0"
-                    title="Play voice warning out loud"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition shrink-0 cursor-pointer"
+                    title={t(s.replayVoice, language)}
                   >
                     <Volume2 className={`w-4 h-4 ${isSpeaking ? 'animate-ping' : ''}`} />
-                    <span>{isSpeaking ? 'Voice Playing...' : 'Replay Voice Warning'}</span>
+                    <span>{t(s.replayVoice, language)}</span>
                   </button>
                 )}
               </div>
 
-              {/* VOICE WARNING BANNER (LOUD TEXT SCRIPT) */}
+              {/* VOICE WARNING BANNER */}
               {result.verdict === 'SCAM' && (
                 <div className="p-3.5 rounded-xl bg-red-600/10 border border-red-500/30 flex items-start gap-3">
                   <div className="p-1 rounded bg-red-600 text-white shrink-0 mt-0.5">
@@ -426,10 +427,10 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                   </div>
                   <div className="text-xs sm:text-sm leading-relaxed">
                     <strong className="block text-red-700 dark:text-red-300 font-bold uppercase tracking-wider mb-0.5">
-                      📢 Loud Regional Voice Warning:
+                      {t(s.voiceWarningLabel, language)}
                     </strong>
                     <p className="font-semibold italic">
-                      "{language === 'hi' ? result.voiceWarningHindi : result.voiceWarningHinglish}"
+                      "{getActiveVoiceWarning(result)}"
                     </p>
                   </div>
                 </div>
@@ -439,28 +440,26 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                   <span className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
-                    Detected Impersonator Domain:
+                    Domain:
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800">
                       {result.detectedDomain}
                     </span>
-                    <span className="text-xs text-red-600 dark:text-red-400 font-bold">❌ Non-Gov Domain</span>
                   </div>
                   <span className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 block">
-                    Claiming to be: <strong className="text-slate-900 dark:text-white">{result.impersonatedAgency}</strong>
+                    <strong className="text-slate-900 dark:text-white">{result.impersonatedAgency}</strong>
                   </span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                   <span className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
-                    Genuine Official Government Portal:
+                    {t(UI_TRANSLATIONS.header.onlyGovPortals, language)}:
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                       {result.officialPortalName}
                     </span>
-                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">✅ Authorized</span>
                   </div>
                   <a
                     href={result.officialPortalUrl}
@@ -468,7 +467,7 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                     rel="noopener noreferrer"
                     className="text-xs text-blue-600 dark:text-blue-400 font-bold underline mt-1 flex items-center gap-1 hover:opacity-80"
                   >
-                    <span>Open Official: {result.officialPortalUrl}</span>
+                    <span>{result.officialPortalUrl}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -477,9 +476,6 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
               {/* RED FLAGS LIST */}
               {result.redFlags && result.redFlags.length > 0 && (
                 <div className="space-y-1.5">
-                  <strong className="text-xs font-bold uppercase tracking-wider block">
-                    ⚠️ Detected Red Flags (धोखे के संकेत):
-                  </strong>
                   <ul className="space-y-1">
                     {result.redFlags.map((flag, fIdx) => (
                       <li key={fIdx} className="text-xs sm:text-sm flex items-start gap-2">
@@ -494,16 +490,14 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
               {/* ACTION ADVICE & EMERGENCY ACTIONS */}
               <div className="pt-3 border-t border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  {/* National Cyber Crime 1930 */}
                   <a
                     href="tel:1930"
                     className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
                   >
                     <PhoneCall className="w-4 h-4" />
-                    <span>Dial Cyber Crime 1930 (Free)</span>
+                    <span>{t(s.dial1930, language)}</span>
                   </a>
 
-                  {/* Portal Report */}
                   <a
                     href="https://cybercrime.gov.in"
                     target="_blank"
@@ -515,13 +509,12 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
                   </a>
                 </div>
 
-                {/* Share Warning on WhatsApp Family Group */}
                 <button
                   onClick={handleCopyWarning}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow transition cursor-pointer"
                 >
                   {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  <span>{isCopied ? 'Copied to Clipboard!' : 'Copy Family Alert Card'}</span>
+                  <span>{isCopied ? t(UI_TRANSLATIONS.draftModal.copied, language) : t(s.copyAlert, language)}</span>
                 </button>
               </div>
             </div>
@@ -532,13 +525,13 @@ export const ScamShieldModal: React.FC<ScamShieldModalProps> = ({
         <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Digital Sahayak Anti-Phishing Guard • Powered by Gemini 2.5 Flash Lite</span>
+            <span>{t(UI_TRANSLATIONS.header.title, language)} • {t(s.badge, language)}</span>
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold transition"
+            className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold transition cursor-pointer"
           >
-            Close
+            {t(s.close, language)}
           </button>
         </div>
       </div>
