@@ -136,6 +136,10 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
   const [reviewActionId, setReviewActionId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false);
+      return;
+    }
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
@@ -148,7 +152,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
         );
         if (bootstrapped) {
           setIsAdmin(true);
-        } else {
+        } else if (db) {
           try {
             const adminSnap = await getDoc(doc(db, 'admins', currentUser.uid));
             setIsAdmin(adminSnap.exists());
@@ -165,7 +169,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
 
   // Subscribe to My Listings when signed in and modal open
   useEffect(() => {
-    if (!isOpen || !user) {
+    if (!isOpen || !user || !db) {
       setMyListings([]);
       return;
     }
@@ -197,7 +201,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
 
   // Subscribe to Admin Verification Queue for bootstrapped admin
   useEffect(() => {
-    if (!isOpen || !user || !isAdmin) {
+    if (!isOpen || !user || !isAdmin || !db) {
       setAdminQueue([]);
       return;
     }
@@ -254,6 +258,10 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
 
   const handleSignIn = async () => {
     setFormError('');
+    if (!auth) {
+      setFormError('Firebase is not configured for this deployment environment.');
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: any) {
@@ -262,7 +270,9 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
   };
 
   const handleSignOut = async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
     setActiveTab('register');
   };
 
@@ -311,7 +321,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
 
   const handleSubmitRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !db) return;
     setFormError('');
     setFormSuccess('');
 
@@ -432,6 +442,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
   };
 
   const handleDeleteListing = async (officerId: string) => {
+    if (!db) return;
     try {
       const batch = writeBatch(db);
       batch.delete(doc(db, 'officers', officerId, 'private', 'credentials'));
@@ -447,7 +458,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
   };
 
   const handleLoadAdminCreds = async (officerId: string) => {
-    if (officerId in adminCredsMap) return;
+    if (!db || officerId in adminCredsMap) return;
     try {
       const snap = await getDoc(
         doc(db, 'officers', officerId, 'private', 'credentials')
@@ -475,7 +486,7 @@ export const OfficerOnboardingModal: React.FC<OfficerOnboardingModalProps> = ({
     officerId: string,
     nextStatus: 'verified' | 'rejected'
   ) => {
-    if (!user || !isAdmin) return;
+    if (!user || !isAdmin || !db) return;
     setReviewActionId(officerId);
     try {
       await updateDoc(doc(db, 'officers', officerId), {

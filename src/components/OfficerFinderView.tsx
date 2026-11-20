@@ -152,6 +152,7 @@ const OfficerFinderContent: React.FC<OfficerFinderViewProps> = ({ language }) =>
 
   // Real-time Firestore listener for verified onboarded officers
   useEffect(() => {
+    if (!db) return;
     const q = query(
       collection(db, 'officers'),
       where('verificationStatus', '==', 'verified')

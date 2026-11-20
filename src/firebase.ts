@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
   doc,
@@ -10,17 +10,59 @@ import {
   GoogleAuthProvider,
   Auth,
 } from 'firebase/auth';
-import firebaseConfig from '../firebase-applet-config.json';
 
 export const BOOTSTRAPPED_ADMIN_EMAIL = 'utkarsh.tech21@gmail.com';
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+interface FirebaseAppletConfig {
+  projectId: string;
+  appId: string;
+  apiKey: string;
+  authDomain: string;
+  firestoreDatabaseId?: string;
+  storageBucket?: string;
+  messagingSenderId?: string;
+  measurementId?: string;
+}
 
-export const db: Firestore = getFirestore(
-  app,
-  firebaseConfig.firestoreDatabaseId
+// Optional eager glob: bundles ../firebase-applet-config.json when present
+// without failing production builds (e.g., Vercel) if the file is absent from Git.
+const configModules = import.meta.glob<FirebaseAppletConfig>(
+  '../firebase-applet-config.json',
+  { eager: true, import: 'default' }
 );
-export const auth: Auth = getAuth(app);
+const fileConfig = configModules['../firebase-applet-config.json'];
+
+const envConfig: Partial<FirebaseAppletConfig> = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string | undefined,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID as string | undefined,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID as string | undefined,
+};
+
+const firebaseConfig: Partial<FirebaseAppletConfig> =
+  fileConfig?.apiKey && fileConfig?.projectId ? fileConfig : envConfig;
+
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.projectId
+);
+
+let app: FirebaseApp | null = null;
+let firestoreInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
+
+if (isFirebaseConfigured) {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  firestoreInstance = firebaseConfig.firestoreDatabaseId
+    ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
+    : getFirestore(app);
+  authInstance = getAuth(app);
+}
+
+export const db: Firestore | null = firestoreInstance;
+export const auth: Auth | null = authInstance;
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -60,13 +102,13 @@ export function handleFirestoreError(
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
       providerInfo:
-        auth.currentUser?.providerData.map((provider) => ({
+        auth?.currentUser?.providerData.map((provider) => ({
           providerId: provider.providerId,
           displayName: provider.displayName,
           email: provider.email,
@@ -94,7 +136,7 @@ export function isBootstrappedAdminUser(
 let connectionTested = false;
 
 export async function testFirestoreConnection(): Promise<void> {
-  if (connectionTested) return;
+  if (connectionTested || !db) return;
   connectionTested = true;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
@@ -111,6 +153,6 @@ export async function testFirestoreConnection(): Promise<void> {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && isFirebaseConfigured) {
   void testFirestoreConnection();
 }
