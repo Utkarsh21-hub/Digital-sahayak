@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
+  initializeFirestore,
   doc,
   getDocFromServer,
   Firestore,
@@ -33,13 +34,13 @@ const configModules = import.meta.glob<FirebaseAppletConfig>(
 const fileConfig = configModules['../firebase-applet-config.json'];
 
 const envConfig: Partial<FirebaseAppletConfig> = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string | undefined,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID as string | undefined,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID as string | undefined,
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string | undefined)?.trim(),
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined)?.trim(),
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined)?.trim(),
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined)?.trim(),
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined)?.trim(),
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string | undefined)?.trim(),
+  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_DATABASE_ID as string | undefined)?.trim(),
 };
 
 const firebaseConfig: Partial<FirebaseAppletConfig> =
@@ -55,9 +56,16 @@ let authInstance: Auth | null = null;
 
 if (isFirebaseConfigured) {
   app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  firestoreInstance = firebaseConfig.firestoreDatabaseId
-    ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-    : getFirestore(app);
+  const databaseId = firebaseConfig.firestoreDatabaseId?.trim() || undefined;
+  try {
+    firestoreInstance = databaseId
+      ? initializeFirestore(app, { experimentalAutoDetectLongPolling: true }, databaseId)
+      : initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+  } catch {
+    firestoreInstance = databaseId
+      ? getFirestore(app, databaseId)
+      : getFirestore(app);
+  }
   authInstance = getAuth(app);
 }
 
@@ -138,16 +146,33 @@ let connectionTested = false;
 export async function testFirestoreConnection(): Promise<void> {
   if (connectionTested || !db) return;
   connectionTested = true;
-  try {
+
+  const attemptCheck = async (): Promise<void> => {
+    if (!db) return;
     await getDocFromServer(doc(db, 'test', 'connection'));
+  };
+
+  try {
+    await attemptCheck();
   } catch (error) {
     if (
       error instanceof Error &&
       error.message.includes('the client is offline')
     ) {
-      console.error(
-        'Please check your Firebase configuration. Firestore client is offline.'
-      );
+      // Allow Firestore long-polling auto-detection to settle before reporting offline
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      try {
+        await attemptCheck();
+      } catch (retryError) {
+        if (
+          retryError instanceof Error &&
+          retryError.message.includes('the client is offline')
+        ) {
+          console.error(
+            'Please check your Firebase configuration. Firestore client is offline.'
+          );
+        }
+      }
     }
     // Permission errors on test/connection are expected due to default-deny rules.
   }
