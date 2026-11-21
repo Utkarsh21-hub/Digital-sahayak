@@ -50,23 +50,6 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
       </footer>
 
-      {/* Floating AI Chat Trigger on Desktop */}
-      <div className="hidden md:block fixed bottom-6 right-6 z-40">
-        <button
-          onClick={onOpenChat}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 font-bold transition-all active:scale-95 cursor-pointer ring-2 ring-white/50 text-xs"
-          type="button"
-          title={t(f.askSahayakAi, language)}
-        >
-          <img
-            src={getAppIcon('ai-chat', 'dark')}
-            alt=""
-            className="w-5 h-5 object-contain brightness-0 invert"
-          />
-          <span>{t(f.askSahayakAi, language)}</span>
-        </button>
-      </div>
-
       {/* MOBILE BOTTOM NAVIGATION TRAY */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-lg">
         <button

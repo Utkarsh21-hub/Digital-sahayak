@@ -608,11 +608,20 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
   };
 
   const activeLangMeta = getLanguageMeta(language);
+  const activeBotState: BotState = isLoading ? 'thinking' : botState;
+  const activeStatusText =
+    activeBotState === 'thinking'
+      ? t(chatT.statusThinking, language)
+      : activeBotState === 'answering'
+      ? t(chatT.statusAnswering, language)
+      : activeBotState === 'pointing'
+      ? t(chatT.statusGuiding, language)
+      : t(chatT.statusGreeting, language);
 
   return (
-    <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden w-full min-h-[580px] lg:min-h-[660px]">
+    <div className="flex flex-col flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden w-full h-[calc(100vh-8.5rem)] min-h-[580px]">
       {/* CARD TOP BAR */}
-      <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900">
+      <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <h2 className="text-base font-bold text-slate-900 dark:text-white shrink-0">
             {t(UI_TRANSLATIONS.header.title, language)}
@@ -633,7 +642,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       </div>
 
       {/* SCAM SHIELD ACTIVE ALERT */}
-      <div className="mx-4 sm:mx-6 mt-2 mb-1 p-2.5 sm:p-3 rounded-xl bg-[#fdf2f1] dark:bg-rose-950/30 border border-rose-200/90 dark:border-rose-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+      <div className="mx-4 sm:mx-6 mt-2 mb-1 p-2.5 sm:p-3 rounded-xl bg-[#fdf2f1] dark:bg-rose-950/30 border border-rose-200/90 dark:border-rose-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 p-0.5 flex items-center justify-center shrink-0">
             <img
@@ -656,7 +665,7 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       </div>
 
       {/* VERIFIED TASKS WRAPPING ROW WITH EXPAND/COLLAPSE */}
-      <div className="px-3 sm:px-5 lg:px-6 pt-1.5 pb-1">
+      <div className="px-3 sm:px-5 lg:px-6 pt-1.5 pb-1 shrink-0">
         <div
           className={`flex items-center gap-1 sm:gap-1.5 lg:gap-2 ${
             isTasksExpanded ? 'flex-wrap' : 'flex-nowrap w-full'
@@ -722,119 +731,111 @@ export const GeminiChatView: React.FC<GeminiChatViewProps> = ({
       </div>
 
       {/* DIVIDER */}
-      <div className="border-b border-slate-200/80 dark:border-slate-800 my-1"></div>
+      <div className="border-b border-slate-200/80 dark:border-slate-800 my-1 shrink-0"></div>
 
-      {/* CHAT MESSAGES SCROLL AREA */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 bg-slate-50/40 dark:bg-slate-950/30 min-h-[380px] lg:min-h-[460px]">
-        {messages.map((msg, index) => {
-          const isUser = msg.sender === 'user';
-          const isLatestBotMessage =
-            !isUser &&
-            (index === messages.length - 1 ||
-              (index === messages.length - 2 && messages[messages.length - 1].sender === 'user'));
+      {/* CHAT STAGE: FIXED BOTTOM-LEFT CHARACTER + SCROLLABLE MESSAGES */}
+      <div className="relative flex-1 min-h-0 flex bg-slate-50/40 dark:bg-slate-950/30">
+        {/* Fixed Bottom-Left Animated Character Dock (anchored right above the chat footer) */}
+        <div className="pointer-events-none select-none z-20 absolute bottom-2.5 left-2.5 sm:static sm:flex sm:flex-col sm:justify-end sm:shrink-0 sm:w-36 md:w-44 sm:pl-3 md:pl-4 sm:pb-3">
+          <div className="flex flex-col items-center">
+            <div className="w-[84px] h-[104px] sm:w-[120px] sm:h-[144px] md:w-[132px] md:h-[158px] flex items-center justify-center overflow-hidden drop-shadow-sm">
+              <AvatarAnimator
+                botState={activeBotState}
+                className="w-full h-full"
+                onAnimationComplete={() => {
+                  if (!isLoading) {
+                    setBotState('idle');
+                  }
+                }}
+              />
+            </div>
+            <div
+              className={`mt-1 sm:mt-1.5 inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 rounded-full border text-[10px] sm:text-[11px] font-medium shadow-2xs whitespace-nowrap transition-colors duration-300 ${
+                activeBotState === 'thinking'
+                  ? 'border-amber-300 dark:border-amber-700 bg-amber-50/95 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300'
+                  : 'border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  activeBotState === 'thinking'
+                    ? 'bg-amber-500 animate-ping'
+                    : 'bg-emerald-500 animate-pulse'
+                }`}
+              ></span>
+              <span>{activeStatusText}</span>
+            </div>
+          </div>
+        </div>
 
-          if (isUser) {
+        {/* CHAT MESSAGES SCROLL AREA */}
+        <div className="flex-1 overflow-y-auto px-4 sm:pl-2 sm:pr-6 py-5 sm:py-6 pb-36 sm:pb-6 space-y-5 min-w-0">
+          {messages.map((msg, index) => {
+            const isUser = msg.sender === 'user';
+
+            if (isUser) {
+              return (
+                <div
+                  key={msg.id}
+                  ref={index === messages.length - 1 ? latestMessageRef : undefined}
+                  className="flex flex-row items-start justify-end gap-3 sm:gap-4 w-full max-w-4xl mx-auto"
+                >
+                  <div className="flex flex-col items-end max-w-[85%] sm:max-w-[75%] min-w-0">
+                    <div className="p-4 rounded-2xl bg-blue-600 text-white rounded-tr-none border border-blue-500 shadow-2xs">
+                      {renderMessageContent(msg)}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 px-1 text-[11px] text-slate-500 dark:text-slate-400">
+                      <span>{msg.time}</span>
+                    </div>
+                  </div>
+
+                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-[10px] shrink-0 mt-0.5 border border-slate-300 dark:border-slate-600">
+                    {t(chatT.youLabel, language)}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={msg.id}
                 ref={index === messages.length - 1 ? latestMessageRef : undefined}
-                className="flex flex-row items-start justify-end gap-3 sm:gap-4 w-full max-w-4xl mx-auto"
+                className="flex flex-row items-start justify-start w-full max-w-4xl mx-auto"
               >
-                <div className="flex flex-col items-end max-w-[85%] sm:max-w-[75%] min-w-0">
-                  <div className="p-4 rounded-2xl bg-blue-600 text-white rounded-tr-none border border-blue-500 shadow-2xs">
+                {/* Message Bubble Column */}
+                <div className="flex-1 max-w-[92%] sm:max-w-[84%] flex flex-col items-start min-w-0">
+                  <div className="w-full p-4 sm:p-5 rounded-2xl rounded-tl-none bg-[#f0f4f9] dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 border border-slate-200/90 dark:border-slate-700 shadow-2xs">
                     {renderMessageContent(msg)}
                   </div>
-                  <div className="flex items-center gap-2 mt-1 px-1 text-[11px] text-slate-500 dark:text-slate-400">
+
+                  <div className="flex items-center gap-2 mt-1.5 px-1 text-[11px] text-slate-500 dark:text-slate-400">
                     <span>{msg.time}</span>
                   </div>
                 </div>
-
-                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-[10px] shrink-0 mt-0.5 border border-slate-300 dark:border-slate-600">
-                  {t(chatT.youLabel, language)}
-                </div>
               </div>
             );
-          }
+          })}
 
-          // Assistant / Bot message - strictly horizontal flex layout (side-by-side, top-aligned)
-          const activeStateForThisMsg = isLatestBotMessage ? (isLoading ? 'idle' : botState) : 'idle';
-          const statusText =
-            activeStateForThisMsg === 'thinking'
-              ? t(chatT.statusThinking, language)
-              : activeStateForThisMsg === 'answering'
-              ? t(chatT.statusAnswering, language)
-              : activeStateForThisMsg === 'pointing'
-              ? t(chatT.statusGuiding, language)
-              : t(chatT.statusGreeting, language);
-
-          return (
-            <div
-              key={msg.id}
-              ref={index === messages.length - 1 ? latestMessageRef : undefined}
-              className="flex flex-row items-start gap-4 sm:gap-5 w-full max-w-4xl mx-auto"
-            >
-              {/* Character Animation Wrapper (Fixed Size - Enlarged 150%, Left-aligned, Top-aligned) */}
-              <div className="flex-shrink-0 flex flex-col items-center w-28 sm:w-36">
-                <div className="w-[96px] h-[120px] sm:w-[120px] sm:h-[144px] flex items-center justify-center overflow-hidden">
-                  <AvatarAnimator
-                    botState={activeStateForThisMsg}
-                    className="w-full h-full"
-                    onAnimationComplete={() => {
-                      if (isLatestBotMessage) {
-                        setBotState('idle');
-                      }
-                    }}
-                  />
-                </div>
-                <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 shadow-2xs whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>{statusText}</span>
-                </div>
-              </div>
-
-              {/* Message Bubble Column */}
-              <div className="flex-1 max-w-[85%] sm:max-w-[80%] flex flex-col items-start min-w-0">
-                <div className="w-full p-4 sm:p-5 rounded-2xl bg-[#f0f4f9] dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 border border-slate-200/90 dark:border-slate-700 shadow-2xs">
-                  {renderMessageContent(msg)}
-                </div>
-
-                <div className="flex items-center gap-2 mt-1.5 px-1 text-[11px] text-slate-500 dark:text-slate-400">
-                  <span>{msg.time}</span>
+          {/* Loading Spinner Row */}
+          {isLoading && (
+            <div className="flex flex-row items-start justify-start w-full max-w-4xl mx-auto">
+              <div className="flex-1 max-w-[92%] sm:max-w-[84%] flex flex-col items-start min-w-0">
+                <div className="w-full p-4 sm:p-5 rounded-2xl rounded-tl-none bg-[#f0f4f9] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 shadow-2xs flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce"></span>
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.2s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]"></span>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    {t(chatT.consultingAi, language)}
+                  </span>
                 </div>
               </div>
             </div>
-          );
-        })}
+          )}
 
-        {/* Loading Spinner Row with Thinking Character (Enlarged 150%) */}
-        {isLoading && (
-          <div className="flex flex-row items-start gap-4 sm:gap-5 w-full max-w-4xl mx-auto">
-            <div className="flex-shrink-0 flex flex-col items-center w-28 sm:w-36">
-              <div className="w-[96px] h-[120px] sm:w-[120px] sm:h-[144px] flex items-center justify-center overflow-hidden">
-                <AvatarAnimator botState="thinking" className="w-full h-full" />
-              </div>
-              <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 text-[11px] font-medium text-amber-700 dark:text-amber-300 shadow-2xs whitespace-nowrap">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                <span>{t(chatT.statusThinking, language)}</span>
-              </div>
-            </div>
-
-            <div className="flex-1 max-w-[85%] sm:max-w-[80%] flex flex-col items-start min-w-0">
-              <div className="w-full p-4 sm:p-5 rounded-2xl bg-[#f0f4f9] dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 shadow-2xs flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce"></span>
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]"></span>
-                </div>
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  {t(chatT.consultingAi, language)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* CHAT INPUT AND ACTION CONTROLS AREA */}
